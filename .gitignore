@@ -1,23 +1,23 @@
-# Unity 生成的缓存目录
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-[Uu]ser[Ss]ettings/
-[Mm]emoryCaptures/
+# Unity
+**/Library/
+**/Temp/
+**/Obj/
+**/Build/
+**/Builds/
+**/Logs/
+**/UserSettings/
+**/MemoryCaptures/
+**/Crashes/
 
-# Visual Studio / Rider 配置文件
-.vs/
-.idea/
+# Visual Studio / Rider
+**/.vs/
+**/.idea/
 *.csproj
 *.sln
-*.suo
 *.user
 *.userprefs
-*.unityproj
 
 # 系统文件
 .DS_Store
 Thumbs.db
+desktop.ini
