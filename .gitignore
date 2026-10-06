@@ -21,3 +21,6 @@
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Office 打开文档时的锁文件
+~$*
