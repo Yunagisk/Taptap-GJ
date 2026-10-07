@@ -17,7 +17,7 @@ public class CombatantHpUI : MonoBehaviour
     {
         if(target != null)
         {
-            target.OnHpChanged += UpdateHPUI;
+            target.OnHpChanged += UpdateHPUI;//监听者知道战斗现在切换到了什么状态，然后根据这个状态做自己的事情
         }
     }
     private void Start()

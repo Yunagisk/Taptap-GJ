@@ -7,6 +7,8 @@ public enum BattleState
      None,
 
      PlayerTurn,
+     SelectingTarget,
+
      EnemyTurn,
 
      Victory,

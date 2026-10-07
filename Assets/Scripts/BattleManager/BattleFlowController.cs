@@ -7,7 +7,7 @@ using UnityEngine;
 public class BattleFlowController : MonoBehaviour {
     [Header("基础单位")]
     [SerializeField] private PlayerCombatant player;
-    [SerializeField] private EnemyCombatant enemy;
+    [SerializeField] private List<EnemyCombatant> enemies;
 
     [Header("战斗设置")]
     [SerializeField] private float enemyActionDelay = 1.0f;
@@ -19,6 +19,8 @@ public class BattleFlowController : MonoBehaviour {
 
     public event Action<BattleState> OnBattleStateChanged;
 
+    public event Action<bool> OnTargetSelectionChanged;
+
     public void Start()
     {
         StartBattle();
@@ -29,7 +31,10 @@ public class BattleFlowController : MonoBehaviour {
         Debug.Log("战斗开始");
 
         player.Initialize();
-        enemy.Initialize();
+        foreach(EnemyCombatant enemy in enemies)
+        {
+            enemy.Initialize();
+        }
 
         StartNewRound();
     }
@@ -48,7 +53,7 @@ public class BattleFlowController : MonoBehaviour {
     {
         currentState = newState;
 
-        OnBattleStateChanged?.Invoke(newState);
+        OnBattleStateChanged?.Invoke(newState);//如果有人订阅了 OnBattleStateChanged 这个事件，就把 newState 传给所有订阅者
     }
 
     private void StartPlayerTurn()
@@ -67,11 +72,39 @@ public class BattleFlowController : MonoBehaviour {
             return;
         }
 
-        Debug.Log("玩家攻击");
+        Debug.Log("请选择目标攻击");
 
-        enemy.TakeDamage(player.Attack);
+        SetState(BattleState.SelectingTarget);
 
-        if (enemy.IsDead)
+        OnTargetSelectionChanged?.Invoke(true);  //true 通知敌人现在可以被选择为攻击目标
+
+    }
+
+    public void AttackTarget(EnemyCombatant target)
+    {
+        if(currentState != BattleState.SelectingTarget)
+        {
+            return;
+        }
+        
+        if(target == null || target.IsDead)
+        {
+            return;
+        }
+
+        Debug.Log($"玩家选择目标{target.gameObject.name}");
+
+        OnTargetSelectionChanged?.Invoke(false);
+
+        //Debug.Log("执行攻击动画");
+
+        Debug.Log($"玩家攻击{target.gameObject.name}");
+
+
+        target.TakeDamage(player.Attack);
+
+
+        if (CheckAllEnemiesIsDead())
         {
             Victory();
             return;
@@ -79,35 +112,56 @@ public class BattleFlowController : MonoBehaviour {
 
         StartCoroutine(EnemyTurn());
     }
+
+    private bool CheckAllEnemiesIsDead()
+    {
+        foreach(EnemyCombatant enemy in enemies)
+        {
+            if(enemy!= null && !enemy.IsDead)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
     private IEnumerator EnemyTurn()
     {
         SetState(BattleState.EnemyTurn);
 
         Debug.Log("敌人回合");
 
-        yield return new WaitForSeconds(enemyActionDelay);
-
-        //等待执行动画
-
-        Debug.Log("敌人攻击");
-
-        player.TakeDamage(enemy.Attack);
-
-        if (player.IsDead)
+        foreach (EnemyCombatant enemy in enemies)
         {
-            Defeat();
-            yield break;
-        }
+            if (enemy == null && !enemy.IsDead)
+            {
+                continue;
+            }
+           
+            yield return new WaitForSeconds(enemyActionDelay);
 
+            Debug.Log($"{enemy.gameObject.name} 攻击玩家");
+
+            player.TakeDamage(enemy.Attack);
+
+            if (player.IsDead)
+            {
+                Defeat();
+                yield break;
+            }
+
+            
+        }
         StartNewRound();
     }
     private void Victory()
     {
+        OnTargetSelectionChanged?.Invoke(false);
         Debug.Log("战斗胜利");
         SetState(BattleState.Victory);
     }
     private void Defeat()
     {
+        OnTargetSelectionChanged?.Invoke(false);
         Debug.Log("战斗失败");
         SetState(BattleState.Defeat);
     }
