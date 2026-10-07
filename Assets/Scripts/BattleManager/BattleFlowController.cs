@@ -178,5 +178,26 @@ public class BattleFlowController : MonoBehaviour
         Debug.Log("战斗失败");
         SetState(BattleState.Defeat);
     }
+
+    public void PlayerDefend()
+    {
+        if(currentState != BattleState.PlayerTurn)
+        {
+            return;
+        }
+
+        Debug.Log("玩家选择防御");
+        currentAction = new DefendAction();
+
+        StartCoroutine(ExecutePlayerAction(player));
+    }
+
+    private IEnumerator ExecutePlayerAction(Combatant user)  //起到判定作用 是否需要选择目标
+    {
+        SetState(BattleState.ExecutingAction);
+        yield return currentAction.Execute(user, user);
+        currentAction = null;
+        yield return EnemyTurn();
+    }
 }
 

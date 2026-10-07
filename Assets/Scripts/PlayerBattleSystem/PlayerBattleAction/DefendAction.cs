@@ -7,6 +7,7 @@ public class DefendAction : IBattleAction
     public IEnumerator Execute(Combatant user, Combatant target)
     {
         user.StartDefense();
+
         yield break;
     }
 }

@@ -38,7 +38,7 @@ public class Combatant : MonoBehaviour
 
         currentHp -= finalDamage;
         currentHp = Math.Clamp(currentHp, 0, maxHp);
-        Debug.Log($"{gameObject.name}受到{damage}伤害,剩余HP:{currentHp}");
+        Debug.Log($"{gameObject.name}受到{finalDamage}伤害,剩余HP:{currentHp}");
 
         OnHpChanged?.Invoke(this);
 
