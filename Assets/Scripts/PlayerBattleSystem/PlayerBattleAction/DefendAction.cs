@@ -2,17 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DefendAction : MonoBehaviour
+public class DefendAction : IBattleAction
 {
-    // Start is called before the first frame update
-    void Start()
+    public IEnumerator Execute(Combatant user, Combatant target)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        user.StartDefense();
+        yield break;
     }
 }

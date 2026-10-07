@@ -4,5 +4,5 @@ using UnityEngine;
 
 public interface IBattleAction
 {
-    void Execute(Combatant user, Combatant target);
+    IEnumerator Execute(Combatant user, Combatant target);
 }

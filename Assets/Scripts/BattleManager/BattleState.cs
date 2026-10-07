@@ -4,13 +4,13 @@ using UnityEngine;
 
 public enum BattleState
 {
-     None,
+    None,
 
-     PlayerTurn,
-     SelectingTarget,
+    PlayerTurn,
+    SelectingTarget,
 
-     EnemyTurn,
+    EnemyTurn,
 
-     Victory,
-     Defeat
+    Victory,
+    Defeat
 }

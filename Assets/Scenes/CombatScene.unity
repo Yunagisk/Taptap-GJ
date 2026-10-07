@@ -848,7 +848,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 393340071}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1879433835}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &393340071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1984,6 +1996,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 100
   attack: 15
+  attackCount: 2
   priority: 10
 --- !u!70 &1104987347
 CapsuleCollider2D:
@@ -2893,6 +2906,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 50
   attack: 10
+  attackCount: 2
   priority: 5
 --- !u!50 &1752662799
 Rigidbody2D:
@@ -3269,6 +3283,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 50
   attack: 10
+  attackCount: 1
   priority: 10
 --- !u!50 &2022034368
 Rigidbody2D:

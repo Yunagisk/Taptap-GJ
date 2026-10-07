@@ -12,28 +12,28 @@ public class EnemyTargetSelector : MonoBehaviour
     [SerializeField] private GameObject targetIndicator;
 
     private bool isCanSelected = true;
-     
+
 
     private void OnEnable()
     {
-        if(battleFlow != null)
+        if (battleFlow != null)
         {
-            battleFlow.OnTargetSelectionChanged +=HandleTargetSelectionChanged;
+            battleFlow.OnTargetSelectionChanged += HandleTargetSelectionChanged;
         }
     }
 
     private void Start()
     {
-        if(targetIndicator!=null)
+        if (targetIndicator != null)
         {
             targetIndicator.SetActive(false);
         }
     }
     private void OnDisable()
     {
-        if(battleFlow != null)
+        if (battleFlow != null)
         {
-            battleFlow.OnTargetSelectionChanged -=HandleTargetSelectionChanged;
+            battleFlow.OnTargetSelectionChanged -= HandleTargetSelectionChanged;
         }
     }
 
@@ -49,7 +49,7 @@ public class EnemyTargetSelector : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (! isCanSelected)
+        if (!isCanSelected)
         {
             return;
         }
