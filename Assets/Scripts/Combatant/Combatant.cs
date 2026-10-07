@@ -8,12 +8,14 @@ public class Combatant : MonoBehaviour
     [Header("基础属性")]
     [SerializeField] protected int maxHp = 100;
     [SerializeField] protected int attack = 10;
+    [SerializeField] protected int priority = 10;
 
     protected int currentHp;
 
     public int MaxHP => maxHp;
     public int Attack => attack;
     public int CurrentHP => currentHp;
+    public int Priority => priority;
 
     public bool IsDead => currentHp <= 0;
 

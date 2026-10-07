@@ -1984,6 +1984,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 100
   attack: 15
+  priority: 10
 --- !u!70 &1104987347
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -2421,8 +2422,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -132.2, y: 0}
-  m_SizeDelta: {x: 100, y: 50}
+  m_AnchoredPosition: {x: -186.27885, y: 0}
+  m_SizeDelta: {x: 208.1578, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1649056454
 MonoBehaviour:
@@ -2555,8 +2556,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -132.2, y: 0}
-  m_SizeDelta: {x: 100, y: 50}
+  m_AnchoredPosition: {x: -165.9373, y: 0}
+  m_SizeDelta: {x: 167.4745, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1679138814
 MonoBehaviour:
@@ -2892,6 +2893,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 50
   attack: 10
+  priority: 5
 --- !u!50 &1752662799
 Rigidbody2D:
   serializedVersion: 4
@@ -3267,6 +3269,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHp: 50
   attack: 10
+  priority: 10
 --- !u!50 &2022034368
 Rigidbody2D:
   serializedVersion: 4

@@ -12,6 +12,10 @@ public class BattleFlowController : MonoBehaviour {
     [Header("战斗设置")]
     [SerializeField] private float enemyActionDelay = 1.0f;
 
+    private TurnManager turnManager;
+
+    private IBattleAction currentAction;
+
     private BattleState currentState;
     public BattleState CurrentState => currentState;
 
@@ -23,6 +27,7 @@ public class BattleFlowController : MonoBehaviour {
 
     public void Start()
     {
+        turnManager = new TurnManager();
         StartBattle();
     }
 
@@ -31,7 +36,9 @@ public class BattleFlowController : MonoBehaviour {
         Debug.Log("战斗开始");
 
         player.Initialize();
-        foreach(EnemyCombatant enemy in enemies)
+
+
+        foreach (EnemyCombatant enemy in enemies)
         {
             enemy.Initialize();
         }
@@ -74,6 +81,8 @@ public class BattleFlowController : MonoBehaviour {
 
         Debug.Log("请选择目标攻击");
 
+        currentAction = new AttackAction();
+
         SetState(BattleState.SelectingTarget);
 
         OnTargetSelectionChanged?.Invoke(true);  //true 通知敌人现在可以被选择为攻击目标
@@ -101,7 +110,8 @@ public class BattleFlowController : MonoBehaviour {
         Debug.Log($"玩家攻击{target.gameObject.name}");
 
 
-        target.TakeDamage(player.Attack);
+        currentAction.Execute(player, target);
+        currentAction = null;//清理当前行动状态
 
 
         if (CheckAllEnemiesIsDead())
@@ -130,7 +140,9 @@ public class BattleFlowController : MonoBehaviour {
 
         Debug.Log("敌人回合");
 
-        foreach (EnemyCombatant enemy in enemies)
+        List<EnemyCombatant> turnOrder = turnManager.GetEnemyTurnOrder(enemies);
+
+        foreach (EnemyCombatant enemy in turnOrder)
         {
             if (enemy == null && !enemy.IsDead)
             {
