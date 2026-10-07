@@ -1,20 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+[DefaultExecutionOrder(-1000)]
 public class GameRoot : MonoBehaviour
 {
     public static GameRoot I;
     public GameState state;
-    void Start()
+    public bool enterVillageOnLoad;
+    void Awake()
     {
         if (I != null) { Destroy(gameObject); return; }
         I = this;
         state = new GameState();
         DontDestroyOnLoad(gameObject);
     }
-    void Update()
+    void OnDestroy()
     {
-        Debug.Log($"游戏初始化成功！");
+        if (I == this) I = null;
     }
 }

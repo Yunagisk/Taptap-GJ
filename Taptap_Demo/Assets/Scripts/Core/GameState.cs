@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
-//ÎïÆ·¶¨Òå
+//ç‰©å“å®šä¹‰
 [Serializable]
 public class ItemStack
 {
@@ -16,48 +14,63 @@ public class ItemStack
     }
 }
 
-//Íæ¼Ò×´Ì¬
+//ç©å®¶çŠ¶æ€
 [Serializable]
 public class PlayerState
 {
     public int hp = 100;
     public int maxHp = 100;                  
-    public int resolve = 1;                  // ¾öĞÄ
-    public int maxResolve = 3;               // ¾öĞÄÉÏÏŞ
-    public int lanternCharges = 2;           // ÌáµÆ´ÎÊı
-    public int maxLanternCharges = 2;        // ÌáµÆÉÏÏŞ
-    public string currentWeaponId = "sword"; // µ±Ç°ÎäÆ÷ID
+    public int resolve = 1;                  // å†³å¿ƒ
+    public int maxResolve = 3;               // å†³å¿ƒä¸Šé™
+    public int lanternCharges = 2;           // æç¯æ¬¡æ•°
+    public int maxLanternCharges = 2;        // æç¯ä¸Šé™
+    public string currentWeaponId = "sword"; // å½“å‰æ­¦å™¨ID
 }
 
-//±³°ü×´Ì¬
+//èƒŒåŒ…çŠ¶æ€
 [Serializable]
 public class InventoryState
 {
-    //ÏûºÄÆ·
+    //æ¶ˆè€—å“
     public List<ItemStack> items = new List<ItemStack>();
-    //ÎäÆ÷
+    //æ­¦å™¨
     public List<string> weapons = new List<string>() { "sword", "axe", "hammer", "torch" };
 }
 
-//ÊÀ½ç×´Ì¬
+[Serializable]
+public class ShopState
+{
+    public List<string> availableWeaponIds = new List<string> { "sword", "axe", "hammer", "dual_swords" };
+}
+
+//ä¸–ç•ŒçŠ¶æ€
 [Serializable]
 public class WorldState
 {
-    public int time = 0;                    //ÊÀ½çÊ±¼ä
+    public int time = 0;                    //ä¸–ç•Œæ—¶é—´
     public int sin = 0;
-    public int stage = 1;//×ï¶ñÖµ
+    public int stage = 1;//ç½ªæ¶å€¼
 }
 
-//µØÍ¼×´Ì¬
+//åœ°å›¾çŠ¶æ€
 [Serializable]
 public class MapState
 {
-    public string currentNodeId = "village";                                // µ±Ç°½ÚµãID
-    public List<string> clearedNodes = new List<string>();                  // ÒÑÇåÀíµÄ½Úµã
-    public List<string> visitedNodes = new List<string>() { "village" };    // ÒÑ·ÃÎÊµÄ½Úµã
+    public string currentNodeId = "village";                                // å½“å‰èŠ‚ç‚¹ID
+    public List<string> clearedNodes = new List<string>();                  // å·²æ¸…ç†çš„èŠ‚ç‚¹
+    public List<string> visitedNodes = new List<string>() { "village" };    // å·²è®¿é—®çš„èŠ‚ç‚¹
+    public string templateId;
+    public int randomSeed;
+    public int sinRollCount;
+    public int requestSequence;
+    public string pendingNodeId;
+    public string pendingRequestId;
+    public List<string> revealedNodes = new List<string>();
+    public List<string> spawnedBossNodes = new List<string>();
+    public List<string> defeatedBossNodes = new List<string>();
 }
 
-//ÓÎÏ·×Ü×´Ì¬
+//æ¸¸æˆæ€»çŠ¶æ€
 [Serializable]
 public class GameState
 {
@@ -65,4 +78,5 @@ public class GameState
     public InventoryState inventory = new InventoryState();
     public WorldState world = new WorldState();
     public MapState map = new MapState();
+    public ShopState shop = new ShopState();
 }

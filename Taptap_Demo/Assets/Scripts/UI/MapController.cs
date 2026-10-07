@@ -45,15 +45,18 @@ public class MapController : MonoBehaviour
     }
 
     void Refresh()
+{
+    if (GameRoot.I == null || GameRoot.I.state == null) return;
+
+    int currentStage = GameRoot.I.state.world.stage;
+
+    txtStage.text = currentStage == 1 ? "当前阶段：初期"
+                   : currentStage == 2 ? "当前阶段：中期"
+                   : "当前阶段：后期";
+
+    foreach (var n in allNodes)
     {
-        if (GameRoot.I == null || GameRoot.I.state == null) return;
-        int currentStage = GameRoot.I.state.world.stage;
-        txtStage.text = currentStage == 1 ? "当前：初期"
-                       : currentStage == 2 ? "当前：中期"
-                       : "当前：后期";
-        foreach (var n in allNodes)
-        {
-            n.gameObject.SetActive(n.stage <= currentStage);
-        }
+        n.gameObject.SetActive(n.stage <= currentStage);
     }
+}
 }

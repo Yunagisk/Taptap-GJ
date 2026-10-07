@@ -666,8 +666,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 320.51324, y: -189.86728}
-  m_SizeDelta: {x: 2223.5615, y: 936.7363}
+  m_AnchoredPosition: {x: 274.79135, y: -189.86732}
+  m_SizeDelta: {x: 2132.1182, y: 1018.0198}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &330584726
 MonoBehaviour:
@@ -2254,6 +2254,15 @@ MonoBehaviour:
       clearedNodes: []
       visitedNodes:
       - village
+      templateId: 
+      randomSeed: 0
+      sinRollCount: 0
+      requestSequence: 0
+      pendingNodeId: 
+      pendingRequestId: 
+      revealedNodes: []
+      spawnedBossNodes: []
+      defeatedBossNodes: []
 --- !u!4 &1062352690
 Transform:
   m_ObjectHideFlags: 0
