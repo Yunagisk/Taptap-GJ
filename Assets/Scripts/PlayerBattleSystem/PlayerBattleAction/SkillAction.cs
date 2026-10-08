@@ -2,17 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SkillAction : MonoBehaviour
+public class SkillAction : IBattleAction
 {
-    // Start is called before the first frame update
-    void Start()
+    public IEnumerator Execute(Combatant user, Combatant target)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        PlayerCombatant player = user as PlayerCombatant;
+        SkillData skill = player.CurrentWeapon.Skill;
+        if (player.CurrentDetermination < skill.DeterminationCost)
+        {
+            Debug.Log("决心不足");
+            yield break;
+        }
+        player.SpendDetermination(skill.DeterminationCost);
     }
 }

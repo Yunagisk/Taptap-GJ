@@ -82,7 +82,7 @@ public class BattleFlowController : MonoBehaviour
 
         Debug.Log("请选择目标攻击");
 
-        currentAction = new AttackAction();
+        currentAction = new PlayerAttackAction();
 
         SetState(BattleState.SelectingTarget);
 
@@ -143,6 +143,9 @@ public class BattleFlowController : MonoBehaviour
 
         List<EnemyCombatant> turnOrder = turnManager.GetEnemyTurnOrder(enemies);
 
+
+        EnemyAttackAction enemyAttackAction = new EnemyAttackAction();
+
         foreach (EnemyCombatant enemy in turnOrder)
         {
             if (enemy == null || enemy.IsDead)
@@ -152,10 +155,11 @@ public class BattleFlowController : MonoBehaviour
 
             yield return new WaitForSeconds(enemyActionDelay);
 
+            EnemyAttackInfo attackInfo = enemy.GetAttackInfo();
+
             Debug.Log($"{enemy.gameObject.name} 攻击玩家");
 
-            IBattleAction enemyAction = enemy.GetBattleAction();//后面可以用来随机攻击行动
-            yield return enemyAction.Execute(enemy, player);
+            enemyAttackAction.Execute(enemy, player, attackInfo);
 
             if (player.IsDead)
             {

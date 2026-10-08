@@ -6,8 +6,10 @@ public class DefendAction : IBattleAction
 {
     public IEnumerator Execute(Combatant user, Combatant target)
     {
-        user.StartDefense();
-
+        PlayerCombatant player = user as PlayerCombatant;
+        player.StartDefense();
+        player.AddDetermination(1);
+       
         yield break;
     }
 }
