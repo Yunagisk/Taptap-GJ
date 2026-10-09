@@ -9,7 +9,9 @@ public class BattleActionUI : MonoBehaviour
     [SerializeField] private Button attackButton;
     [SerializeField] private Button defendButton;
     [SerializeField] private Button skillButton;
-    [SerializeField] private Button itemButton;
+    [SerializeField] private Button itemButton0;
+    [SerializeField] private Button itemButton1;
+    [SerializeField] private Button itemButton2;
 
     [Header("战斗流程")]
     [SerializeField] private BattleFlowController battleFlow;
@@ -43,6 +45,8 @@ public class BattleActionUI : MonoBehaviour
         attackButton.interactable = canUseAction;
         defendButton.interactable = canUseAction;
         skillButton.interactable = canUseAction;
-        itemButton.interactable = canUseAction;
+        itemButton0.interactable = canUseAction;
+        itemButton1.interactable = canUseAction;
+        itemButton2.interactable = canUseAction;
     }
 }

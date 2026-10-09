@@ -51,6 +51,7 @@ public class Combatant : MonoBehaviour
     protected virtual void Die()
     {
         Debug.Log($"{gameObject.name}死亡");
+        Destroy(gameObject);
         OnDied?.Invoke(this);
     }
 }

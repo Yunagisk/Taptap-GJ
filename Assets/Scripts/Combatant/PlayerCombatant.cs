@@ -20,7 +20,7 @@ public class PlayerCombatant : Combatant
 
     }
 
-    // ================= 武器系统 =================
+    // ================= 武器 =================
     [Header("当前武器")]
     [SerializeField] private WeaponData currentWeapon;
 
@@ -31,11 +31,19 @@ public class PlayerCombatant : Combatant
     public  DamageType CurrentDamageType => currentWeapon.DamageType;
 
     public event Action<WeaponData> OnWeaponChanged;
+
     public void EquipWeapon(WeaponData weapon)
     {
+        if(weapon == null)
+            return;
+
         if (weapon == currentWeapon)
             return;
+
         currentWeapon = weapon;
+
+        Debug.Log($"玩家装备武器：{currentWeapon.WeaponName}");
+
         OnWeaponChanged?.Invoke(currentWeapon);
     }
 
@@ -56,9 +64,6 @@ public class PlayerCombatant : Combatant
             return;
 
         IsDefending = true;
-
-        // 防御一次增加1点决心
-        AddDetermination(1);
 
         Debug.Log($"{gameObject.name}进入防御状态");
 

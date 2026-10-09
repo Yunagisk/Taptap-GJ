@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using TMPro;
 
 public class BattleFlowController : MonoBehaviour
 {
@@ -12,12 +13,16 @@ public class BattleFlowController : MonoBehaviour
 
     [Header("战斗设置")]
     [SerializeField] private float enemyActionDelay = 1.0f;
+    [SerializeField] private TMP_Text roundText;
+
+    
 
     private TurnManager turnManager;
 
     private IBattleAction currentAction;
 
     private BattleState currentState;
+
     public BattleState CurrentState => currentState;
 
     private int round = 0;
@@ -26,9 +31,13 @@ public class BattleFlowController : MonoBehaviour
 
     public event Action<bool> OnTargetSelectionChanged;
 
-    public void Start()
+    private void Awake()
     {
         turnManager = new TurnManager();
+    }
+
+    public void Start()
+    {
         StartBattle();
     }
 
@@ -50,6 +59,8 @@ public class BattleFlowController : MonoBehaviour
     private void StartNewRound()
     {
         round++;
+
+        roundText.text = $"回合：{round}";
 
         Debug.Log($"====第{round}轮战斗====");
 
