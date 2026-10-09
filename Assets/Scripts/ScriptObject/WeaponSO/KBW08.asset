@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: KBW08
   m_EditorClassIdentifier: 
   weaponName: "\u94FE\u9501"
-  attack: 0
-  attackCount: 0
+  attack: 5
+  attackCount: 2
   damageType: 0
   skill: {fileID: 0}
-  price: 0
+  price: 8

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: KBW06
   m_EditorClassIdentifier: 
   weaponName: "\u9570\u5200"
-  attack: 0
-  attackCount: 0
-  damageType: 0
+  attack: 6
+  attackCount: 2
+  damageType: 1
   skill: {fileID: 0}
-  price: 0
+  price: 8
