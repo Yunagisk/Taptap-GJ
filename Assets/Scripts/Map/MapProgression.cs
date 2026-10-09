@@ -23,6 +23,7 @@ public sealed class MapProgression
         if (string.IsNullOrEmpty(state.templateId)) Initialize(newGameSeed);
         else if (state.templateId != layout.id)
             throw new InvalidOperationException("Map state belongs to a different template.");
+        if (string.IsNullOrEmpty(State.checkpointNodeId)) State.checkpointNodeId = Layout.villageNodeId;
     }
 
     void Initialize(int seed)
@@ -32,6 +33,9 @@ public sealed class MapProgression
         State.sinRollCount = 0;
         State.requestSequence = 0;
         State.currentNodeId = Layout.villageNodeId;
+        State.checkpointNodeId = Layout.villageNodeId;
+        State.checkpointTime = 0;
+        State.revivedAtCheckpoint = false;
         State.pendingNodeId = null;
         State.pendingRequestId = null;
         State.visitedNodes.Clear();
@@ -73,8 +77,13 @@ public sealed class MapProgression
     public bool CanMove(string destinationId)
     {
         var current = GetNode(State.currentNodeId);
+        if (current != null && destinationId == current.id)
+            return string.IsNullOrEmpty(State.pendingRequestId) && State.revivedAtCheckpoint
+                && current.id == State.checkpointNodeId && current.kind == MapNodeKind.Battle
+                && !State.clearedNodes.Contains(current.id) && IsVisible(current.id);
         return current != null && string.IsNullOrEmpty(State.pendingRequestId)
-            && State.clearedNodes.Contains(current.id) && destinationId != current.id
+            && (State.clearedNodes.Contains(current.id) || State.revivedAtCheckpoint)
+            && destinationId != current.id
             && current.neighbors.Contains(destinationId) && IsVisible(destinationId);
     }
 
@@ -83,11 +92,17 @@ public sealed class MapProgression
         request = null;
         if (!CanMove(destinationId)) return false;
         LastSpawnedBossId = null;
+        bool retryCurrentBattle = destinationId == State.currentNodeId;
+        State.revivedAtCheckpoint = false;
         State.currentNodeId = destinationId;
         AddOnce(State.visitedNodes, destinationId);
-        World.time++;
-        // Every road in this prototype traverses the wilderness, including the road home.
-        AdvanceSin();
+        // Retrying at the checkpoint traverses no road.
+        if (!retryCurrentBattle)
+        {
+            World.time++;
+            // Every road in this prototype traverses the wilderness, including the road home.
+            AdvanceSin();
+        }
         if (!State.clearedNodes.Contains(destinationId))
         {
             State.requestSequence++;
@@ -95,6 +110,7 @@ public sealed class MapProgression
             State.pendingRequestId = State.randomSeed.ToString() + ":" + State.requestSequence + ":" + destinationId;
             request = GetPendingRequest();
         }
+        UpdateMorningCheckpoint();
         return true;
     }
 
@@ -125,6 +141,29 @@ public sealed class MapProgression
         State.pendingNodeId = null;
         State.pendingRequestId = null;
         RevealNeighbors(node.id);
+        UpdateMorningCheckpoint();
+        return true;
+    }
+
+    void UpdateMorningCheckpoint()
+    {
+        // Existing clock: morning, afternoon, night.
+        if (World.time % 3 != 0) return;
+        State.checkpointNodeId = State.currentNodeId;
+        State.checkpointTime = World.time;
+    }
+
+    public bool TryReviveAtCheckpoint(string requestId)
+    {
+        var pending = GetPendingRequest();
+        if (pending == null || pending.kind != MapNodeKind.Battle
+            || pending.requestId != requestId || GetNode(State.checkpointNodeId) == null)
+            return false;
+        State.pendingNodeId = null;
+        State.pendingRequestId = null;
+        State.currentNodeId = State.checkpointNodeId;
+        // A battle reached at dawn can be uncleared; permit leaving without clearing it.
+        State.revivedAtCheckpoint = true;
         return true;
     }
 

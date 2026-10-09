@@ -48,6 +48,7 @@ static class Program
     static void Main(string[] args)
     {
         if (args.Length > 0) layoutPath = Path.GetFullPath(args[0]);
+        CheckMorningRevival();
         var map = NewMap();
         foreach (string weapon in NewRunFactory.StartingWeapons)
         {
@@ -294,6 +295,82 @@ static class Program
         try { MapLayoutValidator.Validate(broken); } catch (InvalidOperationException) { rejected = true; }
         Check(rejected, "validator rejects shortcuts bypassing required fights");
         Console.WriteLine("PASS: " + checks + " checks; topology, reveal, transit, callbacks, sin spawning, restoration, complete three-boss flow.");
+    }
+
+    static void CheckMorningRevival()
+    {
+        var map = NewMap();
+        Check(map.State.checkpointNodeId == "village" && map.State.checkpointTime == 0,
+            "new run starts with village checkpoint");
+        var first = Move(map, "r1_a");
+        Check(map.State.checkpointNodeId == "village", "afternoon does not change checkpoint");
+        Complete(map, first.requestId);
+        Check(map.State.checkpointNodeId == "village", "night does not change checkpoint");
+        var dawn = Move(map, "r1_b");
+        Check(map.World.time == 3 && map.State.checkpointNodeId == "r1_b"
+            && map.State.checkpointTime == 3, "morning arrival records current unfinished battle");
+        int sin = map.World.sin, rolls = map.State.sinRollCount;
+        int cleared = map.State.clearedNodes.Count;
+        Check(!map.TryReviveAtCheckpoint(first.requestId)
+            && map.State.pendingRequestId == dawn.requestId, "stale revive cannot cancel another battle");
+        Check(map.TryReviveAtCheckpoint(dawn.requestId), "revive at unfinished morning checkpoint");
+        Check(map.State.currentNodeId == "r1_b" && map.GetPendingRequest() == null,
+            "revival restores checkpoint position and cancels pending battle");
+        Check(map.World.time == 3 && map.World.sin == sin && map.State.sinRollCount == rolls,
+            "revival does not advance time or sin");
+        Check(map.State.clearedNodes.Count == cleared && !map.State.clearedNodes.Contains("r1_b")
+            && !map.IsVisible("r1_c"), "revival does not clear battle or reveal its rewards");
+        Check(!map.TryReviveAtCheckpoint(dawn.requestId), "duplicate revival rejected");
+        var copied = JsonSerializer.Deserialize<MapState>(JsonSerializer.Serialize(map.State, Json), Json);
+        var world = JsonSerializer.Deserialize<WorldState>(JsonSerializer.Serialize(map.World, Json), Json);
+        var restored = new MapProgression(Layout(), copied, world, 999);
+        Check(restored.State.checkpointNodeId == "r1_b" && restored.State.checkpointTime == 3
+            && restored.CanMove("r1_a"), "checkpoint and ability to leave survive reconstruction");
+        Check(restored.CanMove("r1_b"), "revived unfinished current battle is clickable");
+        int retryTime = restored.World.time, retrySin = restored.World.sin;
+        int retryRolls = restored.State.sinRollCount;
+        Check(restored.TryMove("r1_b", out var directRetry) && directRetry != null
+            && directRetry.kind == MapNodeKind.Battle && directRetry.requestId != dawn.requestId,
+            "clicking current checkpoint creates a fresh battle request");
+        Check(restored.World.time == retryTime && restored.World.sin == retrySin
+            && restored.State.sinRollCount == retryRolls, "in-place retry charges no travel time or sin");
+        Check(!restored.CanMove("r1_b") && !restored.TryMove("r1_b", out _),
+            "pending retry blocks duplicate clicks");
+        Check(!restored.TryCompleteNode(dawn.requestId)
+            && !restored.TryReviveAtCheckpoint(dawn.requestId), "old battle callbacks cannot resolve direct retry");
+        Check(restored.TryReviveAtCheckpoint(directRetry.requestId) && restored.CanMove("r1_b"),
+            "dying during direct retry allows another direct retry");
+        Check(restored.TryMove("r1_b", out var winningRetry)
+            && restored.TryCompleteNode(winningRetry.requestId), "direct retry can complete normally");
+        Check(!restored.CanMove("r1_b") && restored.State.clearedNodes.Contains("r1_b")
+            && restored.World.time == retryTime + 1, "cleared current node cannot replay and victory costs one period");
+        Check(Move(map, "r1_a") == null && !map.State.revivedAtCheckpoint,
+            "player can leave unfinished checkpoint without replaying cleared neighbor");
+        var retry = Move(map, "r1_b");
+        Check(retry.requestId != dawn.requestId && !map.TryCompleteNode(dawn.requestId),
+            "retry creates fresh request and rejects old victory");
+        Check(map.TryReviveAtCheckpoint(retry.requestId) && map.State.currentNodeId == "r1_b",
+            "later death still uses latest dawn checkpoint");
+
+        var completion = NewMap();
+        Visit(completion, "r1_a");
+        Visit(completion, "r1_b");
+        Visit(completion, "r1_c");
+        Check(completion.World.time == 6 && completion.State.checkpointNodeId == "r1_c"
+            && completion.State.checkpointTime == 6, "completion entering morning updates checkpoint");
+        Move(completion, "r1_b");
+        Check(completion.State.checkpointNodeId == "r1_c", "daytime movement preserves checkpoint");
+
+        var initialDeath = NewMap();
+        var encounter = Move(initialDeath, "r1_a");
+        Check(initialDeath.TryReviveAtCheckpoint(encounter.requestId)
+            && initialDeath.State.currentNodeId == "village" && initialDeath.CanMove("r1_a"),
+            "death before second morning revives at village and permits retry");
+
+        var fresh = NewRunFactory.Create(Layout(), "axe", 54321);
+        Check(fresh.map.checkpointNodeId == "village" && fresh.map.checkpointTime == 0
+            && !fresh.map.revivedAtCheckpoint && fresh.player.hp == fresh.player.maxHp,
+            "restart creates full health and a fresh initial checkpoint");
     }
 
     static bool RoadIntersectsNode(MapNodeDefinition a, MapNodeDefinition b, MapNodeDefinition node)

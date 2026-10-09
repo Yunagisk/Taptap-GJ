@@ -66,9 +66,10 @@ public class WorldMapSceneView : MonoBehaviour
         bossCountText.text = "原罪 " + map.State.defeatedBossNodes.Count + " / 3";
         noticeText.text = controller.Notice;
         var request = map.GetPendingRequest();
-        displayedRequestId = request?.requestId;
-        nodePanel.SetActive(request != null);
-        if (request == null) return;
+        bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle;
+        displayedRequestId = showPlaceholder ? request.requestId : null;
+        nodePanel.SetActive(showPlaceholder);
+        if (!showPlaceholder) return;
         var definition = map.GetNode(request.nodeId);
         nodeTitle.text = definition.displayName;
         string[] kinds = { "村庄", "普通战", "问号事件", "火堆", "原罪首领" };

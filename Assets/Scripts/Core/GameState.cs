@@ -63,6 +63,9 @@ public class MapState
     public int randomSeed;
     public int sinRollCount;
     public int requestSequence;
+    public string checkpointNodeId;
+    public int checkpointTime;
+    public bool revivedAtCheckpoint;
     public string pendingNodeId;
     public string pendingRequestId;
     public List<string> revealedNodes = new List<string>();

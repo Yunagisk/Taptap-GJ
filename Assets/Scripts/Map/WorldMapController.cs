@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 [Serializable]
 public class MapNodeTransitionEvent : UnityEvent<MapNodeRequest> { }
@@ -8,7 +9,9 @@ public class MapNodeTransitionEvent : UnityEvent<MapNodeRequest> { }
 [DefaultExecutionOrder(-100)]
 public class WorldMapController : MonoBehaviour
 {
+    public const string BattleScene = "CombatScene";
     public WorldMapTemplate template;
+    bool isLoadingBattle;
     [Tooltip("Zero chooses a new seed when starting a new map.")]
     public int seed;
     [Header("External screen entry slots")]
@@ -37,9 +40,50 @@ public class WorldMapController : MonoBehaviour
         catch (Exception error) { Debug.LogException(error, this); enabled = false; }
     }
 
+    void Start()
+    {
+        var pending = Progression?.GetPendingRequest();
+        if (pending != null && pending.kind == MapNodeKind.Battle) EnterBattle(pending);
+    }
+
+    void EnterBattle(MapNodeRequest request)
+    {
+        if (isLoadingBattle) return;
+        if (!Application.CanStreamedLevelBeLoaded(BattleScene))
+        {
+            Debug.LogError("CombatScene is missing from Build Settings.", this);
+            return;
+        }
+        var root = GameRoot.I;
+        root.battleMapTemplate = template;
+        root.battleRequestId = request.requestId;
+        root.battleReturnScene = gameObject.scene.path;
+        try
+        {
+            isLoadingBattle = true;
+            SceneManager.LoadSceneAsync(BattleScene);
+        }
+        catch (Exception error)
+        {
+            isLoadingBattle = false;
+            Debug.LogException(error, this);
+        }
+    }
+
     public void MoveToNode(string nodeId)
     {
-        if (Progression == null || !Progression.TryMove(nodeId, out var request)) return;
+        if (isLoadingBattle || Progression == null) return;
+        var destination = Progression.GetNode(nodeId);
+        if (destination != null && destination.kind == MapNodeKind.Battle
+            && !Progression.State.clearedNodes.Contains(nodeId)
+            && !Application.CanStreamedLevelBeLoaded(BattleScene))
+        {
+            Notice = "战斗场景未加入构建列表";
+            Debug.LogError("CombatScene is missing from Build Settings.", this);
+            StateChanged?.Invoke();
+            return;
+        }
+        if (!Progression.TryMove(nodeId, out var request)) return;
         var node = Progression.GetNode(nodeId);
         Notice = node.displayName;
         if (Progression.LastSpawnedBossId != null)
@@ -53,7 +97,7 @@ public class WorldMapController : MonoBehaviour
         NodeEntered?.Invoke(request);
         switch (request.kind)
         {
-            case MapNodeKind.Battle: onBattleEntered.Invoke(request); break;
+            case MapNodeKind.Battle: onBattleEntered.Invoke(request); EnterBattle(request); break;
             case MapNodeKind.Event: onEventEntered.Invoke(request); break;
             case MapNodeKind.Camp: onCampEntered.Invoke(request); break;
             case MapNodeKind.Boss: onBossEntered.Invoke(request); break;
