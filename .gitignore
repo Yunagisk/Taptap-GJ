@@ -1,7 +1,7 @@
 # Unity
 **/Library/
 **/Temp/
-**/Obj/
+**/[Oo]bj/
 **/Build/
 **/Builds/
 **/Logs/
@@ -9,10 +9,16 @@
 **/MemoryCaptures/
 **/Crashes/
 
+# Compiled output and logs
+**/[Bb]in/
+*.log
+
 # Visual Studio / Rider
 **/.vs/
 **/.idea/
 *.csproj
+# This is a hand-written check project, not a generated Unity project.
+!/Tools/MapChecks/MapChecks.csproj
 *.sln
 *.user
 *.userprefs
