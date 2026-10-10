@@ -7,15 +7,12 @@ public struct PlayerAttackInfo
     public Combatant attacker;
     public Combatant target;
 
-    public int baseDamage;
+    public IReadOnlyList<DamageComponent> damageComponents; 
 
-    public DamageType damageType;
-
-    public PlayerAttackInfo(Combatant attacker, Combatant target, DamageType damageType,int baseDamage)
+    public PlayerAttackInfo(Combatant attacker, Combatant target, IReadOnlyList<DamageComponent> damageComponents)
     {
-        this.baseDamage = baseDamage;
-        this.damageType = damageType;
         this.attacker = attacker;
         this.target = target;
+        this.damageComponents = damageComponents;
     }
 }

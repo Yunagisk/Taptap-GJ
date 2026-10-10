@@ -4,17 +4,14 @@ using UnityEngine;
 
 public struct EnemyAttackInfo
 {
+    public Combatant attacker;
+    public Combatant target;
     public int damage;
-    public int attackCount;
-    public DamageType damageType;
 
-    public EnemyAttackInfo(
-        int damage,
-        int attackCount,
-        DamageType damageType )
-    {
+    public EnemyAttackInfo(  Combatant attacker,Combatant target,int damage)
+    {       
+        this.attacker = attacker;
+        this.target = target;
         this.damage = damage;
-        this.attackCount = attackCount;
-        this.damageType = damageType;
     }
 }

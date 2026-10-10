@@ -26,9 +26,12 @@ public class PlayerCombatant : Combatant
 
     public WeaponData CurrentWeapon => currentWeapon;
 
-    public int Attack => currentWeapon.Attack;
-    public int AttackCount => currentWeapon.AttackCount;
-    public  DamageType CurrentDamageType => currentWeapon.DamageType;
+    public int AttackCount =>  currentWeapon != null ? currentWeapon.AttackCount : 0;
+
+    public IReadOnlyList<DamageComponent> DamageComponents =>
+        currentWeapon != null
+            ? currentWeapon.DamageComponents
+            : System.Array.Empty<DamageComponent>();
 
     public event Action<WeaponData> OnWeaponChanged;
 

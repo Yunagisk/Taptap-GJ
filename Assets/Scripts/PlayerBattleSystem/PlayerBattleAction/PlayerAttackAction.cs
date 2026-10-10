@@ -13,30 +13,47 @@ public class PlayerAttackAction : IBattleAction
 
         WeaponData weapon = player.CurrentWeapon;
 
-        if (weapon == null || weapon.AttackCount <= 0)
+        var sourceComponents = weapon.DamageComponents;
+
+        if (sourceComponents == null || sourceComponents.Count == 0)
             yield break;
 
-        for (int i = 0; i < weapon.AttackCount; i++)
+        // 固定本次行动的攻击次数和伤害配置。
+        int attackCount = weapon.AttackCount;
+
+        DamageComponent[] components = new DamageComponent[sourceComponents.Count];
+
+        for (int i = 0; i < sourceComponents.Count; i++)
         {
-        
+            components[i] = sourceComponents[i];
+        }
+
+        for (int i = 0; i < attackCount; i++)
+        {
+            if (player == null || player.IsDead)
+                yield break;
+
+            if (target == null || target.IsDead)
+                break;
+
             PlayerAttackInfo info = new PlayerAttackInfo(
-              user,
-              target,
-              weapon.DamageType,
-              weapon.Attack
-            );
+                player,
+                target,
+                components);
 
             DamageSystem.DealDamage(info);
 
-            if (target.IsDead)
+            if (target == null || target.IsDead)
                 break;
-
-            Debug.Log($"{user.gameObject.name}攻击{target.gameObject.name}");
 
             yield return new WaitForSeconds(0.3f);
         }
 
-            player.AddDetermination(1);      
+        if (player != null && !player.IsDead)
+        {
+            player.AddDetermination(1);
+        }
     }
 
 }
+                                                

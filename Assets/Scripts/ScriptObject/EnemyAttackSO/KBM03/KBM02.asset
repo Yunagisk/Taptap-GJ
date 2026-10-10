@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9fd90a4e3a9e79c4c9c88e9ef76ae622, type: 3}
-  m_Name: EnemyAttackWay
+  m_Name: KBM02
   m_EditorClassIdentifier: 
-  attackName: 1
-  damage: 5
-  attackCount: 2
-  damageType: 0
+  attackName: 
+  damage: 0
+  attackCount: 1
+  hitInterval: 0.3

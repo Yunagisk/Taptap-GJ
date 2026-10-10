@@ -9,13 +9,13 @@ public class DamageResistance : MonoBehaviour
     [Serializable]
     public class  DamageRule
     {
-        public DamageType damageType;
+        public PlayerDamageType damageType;
         public DamageReaction damageReaction;
     }
     [Header("伤害类型抗性")]
     [SerializeField] private List<DamageRule> damageRules = new List<DamageRule>();
 
-    public DamageReaction GetDamageReaction(DamageType damageType)
+    public DamageReaction GetDamageReaction(PlayerDamageType damageType)
     {
         foreach (DamageRule rule in damageRules)
         {
@@ -27,7 +27,7 @@ public class DamageResistance : MonoBehaviour
         return DamageReaction.Normal; 
     }
 
-    public float GetDamageMultiplier(DamageType damageType)
+    public float GetDamageMultiplier(PlayerDamageType damageType)
     {
         DamageReaction reaction = GetDamageReaction(damageType);
         switch (reaction)

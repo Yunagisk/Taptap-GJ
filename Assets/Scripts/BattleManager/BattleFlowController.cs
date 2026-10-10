@@ -154,29 +154,43 @@ public class BattleFlowController : MonoBehaviour
 
         List<EnemyCombatant> turnOrder = turnManager.GetEnemyTurnOrder(enemies);
 
-
-        EnemyAttackAction enemyAttackAction = new EnemyAttackAction();
-
         foreach (EnemyCombatant enemy in turnOrder)
         {
-            if (enemy == null || enemy.IsDead)
-            {
-                continue;
-            }
-
-            yield return new WaitForSeconds(enemyActionDelay);
-
-            EnemyAttackInfo attackInfo = enemy.GetAttackInfo();
-
-            Debug.Log($"{enemy.gameObject.name} 攻击玩家");
-
-            enemyAttackAction.Execute(enemy, player, attackInfo);
-
-            if (player.IsDead)
+            if (player == null || player.IsDead)
             {
                 Defeat();
                 yield break;
             }
+
+            if (enemy == null || enemy.IsDead)
+                continue;
+
+            yield return new WaitForSeconds(enemyActionDelay);
+
+            // 等待期间单位状态可能发生变化，再检查一次。
+            if (player == null || player.IsDead)
+            {
+                Defeat();
+                yield break;
+            }
+
+            if (enemy == null || enemy.IsDead)
+                continue;
+
+            // 等待整个招式执行完毕，再轮到下一名敌人。
+            yield return enemy.TakeTurn(player);
+
+            if (player == null || player.IsDead)
+            {
+                Defeat();
+                yield break;
+            }
+        }
+
+        if (CheckAllEnemiesIsDead())
+        {
+            Victory();
+            yield break;
         }
         player.EndDefense();
         StartNewRound();

@@ -9,13 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec845a17881ffd844b3c2c047c74f946, type: 3}
-  m_Name: KBW01
+  m_Script: {fileID: 11500000, guid: 9fd90a4e3a9e79c4c9c88e9ef76ae622, type: 3}
+  m_Name: KBM01
   m_EditorClassIdentifier: 
-  weaponName: "\u5251"
-  damageComponents: []
+  attackName: "\u6495\u54AC"
+  damage: 6
   attackCount: 1
-  skill: {fileID: 0}
-  price: 4
-  attack: 12
-  damageType: 0
+  hitInterval: 0.3

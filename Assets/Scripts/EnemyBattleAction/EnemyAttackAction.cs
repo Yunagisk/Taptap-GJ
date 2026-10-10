@@ -4,32 +4,53 @@ using UnityEngine;
 
 public class EnemyAttackAction
 {
-    public void Execute(
-        EnemyCombatant enemy,
-        PlayerCombatant player,
-        EnemyAttackInfo enemyAttackInfo)
+    public IEnumerator Execute(EnemyCombatant enemy,PlayerCombatant player,EnemyAttackData attackData)
     {
-        if (enemy == null || player == null)
-            return;
+        if (enemy == null || player == null || attackData == null)
+            yield break;
 
         if (enemy.IsDead || player.IsDead)
-            return;
+            yield break;
 
-        for (int i = 0; i < enemyAttackInfo.attackCount; i++)
+        int attackCount = attackData.AttackCount;
+        float hitInterval = attackData.HitInterval;
+
+        Debug.Log($"{enemy.name} 使用 {attackData.AttackName}");
+
+        for (int i = 0; i < attackCount; i++)
         {
-            PlayerAttackInfo info = new PlayerAttackInfo(
-                enemy,
-                player,
-                enemyAttackInfo.damageType,
-                enemyAttackInfo.damage
-            );
+            // 协程等待期间，攻击者和目标可能已经死亡或销毁。
+            if (enemy == null || player == null)
+                yield break;
 
-            DamageSystem.DealDamage(info);
+            if (enemy.IsDead || player.IsDead)
+                yield break;
 
-            if (player.IsDead)
-                break;
+            EnemyAttackInfo info = attackData.CreateAttackInfo(enemy,player,i);
+
+            int actualDamage = DamageSystem.DealDamage(info);
+
+            // 当前只对仍然存活的双方执行命中后效果。
+            if (enemy == null || player == null)
+                yield break;
+
+            if (enemy.IsDead || player.IsDead)
+                yield break;
+
+            attackData.OnHit(enemy,player,i,actualDamage);  //目前 OnHit() 按每次命中触发。以后若某种效果需要“整次招式只触发一次”，应放在循环结束后的独立处理位置。
+
+            if (enemy == null || player == null)
+                yield break;
+
+            if (enemy.IsDead || player.IsDead)
+                yield break;
+
+            bool hasNextHit = i < attackCount - 1;
+
+            if (hasNextHit && hitInterval > 0f)
+            {
+                yield return new WaitForSeconds(hitInterval);
+            }
         }
-
-        // 后续在这里接入负面效果系统
     }
 }

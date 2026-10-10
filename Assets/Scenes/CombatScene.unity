@@ -3897,7 +3897,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 81.13635, y: -63.763977}
+  m_AnchoredPosition: {x: 81.13623, y: -63.763916}
   m_SizeDelta: {x: -1617.0295, y: -1021.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &878965127
@@ -5378,7 +5378,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 20.3, y: -13.200012}
+  m_AnchoredPosition: {x: 20.300049, y: -13.199951}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1219370402
@@ -7023,10 +7023,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e636f26f1d66244c80cec728813d3e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 40
-  priority: 5
+  maxHp: 32
+  priority: 6
   attackDatas:
-  - {fileID: 11400000, guid: b78ea9be2dc76b94999fb845be66f590, type: 2}
+  - {fileID: 11400000, guid: 179993b8a513c1b4c8deedf5b56b9981, type: 2}
+  - {fileID: 11400000, guid: da46475454ba2cf47885ff0157b4e90c, type: 2}
 --- !u!50 &1752662799
 Rigidbody2D:
   serializedVersion: 4
@@ -7197,6 +7198,12 @@ MonoBehaviour:
   damageRules:
   - damageType: 0
     damageReaction: 0
+  - damageType: 1
+    damageReaction: 1
+  - damageType: 2
+    damageReaction: 0
+  - damageType: 3
+    damageReaction: 1
 --- !u!1 &1757485975
 GameObject:
   m_ObjectHideFlags: 0
@@ -8073,9 +8080,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHp: 50
-  priority: 10
+  priority: 12
   attackDatas:
-  - {fileID: 11400000, guid: 0a105462e1e24b745957fef45d5351c4, type: 2}
+  - {fileID: 11400000, guid: af60a5f057d63a1489a07691f00c1c02, type: 2}
+  - {fileID: 11400000, guid: dbaf589872f89bb4fbb0c4a1a6cdcc58, type: 2}
+  - {fileID: 11400000, guid: f8c201ff3cd9e114ead34266ed72b034, type: 2}
 --- !u!50 &2022034368
 Rigidbody2D:
   serializedVersion: 4
@@ -8245,7 +8254,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damageRules:
   - damageType: 0
-    damageReaction: 2
+    damageReaction: 1
+  - damageType: 1
+    damageReaction: 0
+  - damageType: 2
+    damageReaction: 1
+  - damageType: 3
+    damageReaction: 0
 --- !u!1 &2055761416
 GameObject:
   m_ObjectHideFlags: 0
