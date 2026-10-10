@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CombatScene.unity
     guid: 63a83bfc8a6f4343ab7ac5113421627e
+  - enabled: 1
+    path: Assets/Scenes/Village.unity
+    guid: b4e8c21a6f0d4e79a1c35d87e2b90416
   m_configObjects: {}
