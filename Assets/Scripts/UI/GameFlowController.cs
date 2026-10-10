@@ -7,14 +7,14 @@ using UnityEngine.UI;
 public class GameFlowController : MonoBehaviour
 {
     public const string MenuScene = "MainMenu";
-    public const string MapScene = "SampleScene_MapWhitebox";
+    public const string MapScene = "MainMap";
+    public const string VillageScene = "Village";
     public bool isMainMenu;
     public Canvas canvas;
     public TMP_FontAsset font;
     public WorldMapTemplate template;
     public GameObject mainPage;
     public GameObject weaponPage;
-    public GameObject villagePage;
     public GameObject settingsOverlay;
     public GameObject pauseOverlay;
     public GameObject confirmOverlay;
@@ -26,7 +26,6 @@ public class GameFlowController : MonoBehaviour
     public TMP_Text selectedWeaponText;
     public TMP_Text errorText;
     public TMP_Text confirmationText;
-    public TMP_Text villageWeaponText;
     public Slider volumeSlider;
     public TMP_Text volumeText;
     public Toggle fullscreenToggle;
@@ -126,21 +125,29 @@ public class GameFlowController : MonoBehaviour
             var fresh = NewRunFactory.Create(template.Load(), SelectedWeapon, Guid.NewGuid().GetHashCode());
             if (!Application.CanStreamedLevelBeLoaded(MapScene))
                 throw new InvalidOperationException("The map scene is missing from Build Settings.");
+            if (!Application.CanStreamedLevelBeLoaded(VillageScene))
+                throw new InvalidOperationException("The village scene is missing from Build Settings.");
             var previous = GameRoot.I.state;
             bool previousEntry = GameRoot.I.enterVillageOnLoad;
+            var previousTemplate = GameRoot.I.villageMapTemplate;
+            string previousReturnScene = GameRoot.I.villageReturnScene;
             try
             {
                 GameRoot.I.state = fresh;
-                GameRoot.I.enterVillageOnLoad = true;
+                GameRoot.I.enterVillageOnLoad = false;
+                GameRoot.I.villageMapTemplate = template;
+                GameRoot.I.villageReturnScene = MapScene;
                 IsLoading = true;
                 startButton.interactable = false;
                 Set(loadingOverlay, true);
-                SceneManager.LoadSceneAsync(MapScene);
+                SceneManager.LoadSceneAsync(VillageScene);
             }
             catch
             {
                 GameRoot.I.state = previous;
                 GameRoot.I.enterVillageOnLoad = previousEntry;
+                GameRoot.I.villageMapTemplate = previousTemplate;
+                GameRoot.I.villageReturnScene = previousReturnScene;
                 throw;
             }
         }
@@ -163,14 +170,34 @@ public class GameFlowController : MonoBehaviour
 
     public void ShowVillage()
     {
-        Set(villagePage, true);
-        WorldMapVisible(false);
-        villageWeaponText.text = "当前武器：" + NewRunFactory.WeaponName(GameRoot.I.state.player.currentWeaponId);
+        if (IsLoading) return;
+        if (!Application.CanStreamedLevelBeLoaded(VillageScene))
+        {
+            Debug.LogError("The village scene is missing from Build Settings.", this);
+            return;
+        }
+        var root = GameRoot.I;
+        root.villageMapTemplate = template;
+        root.villageReturnScene = gameObject.scene.path;
+        root.enterVillageOnLoad = false;
+        try
+        {
+            IsLoading = true;
+            WorldMapVisible(false);
+            Set(loadingOverlay, true);
+            SceneManager.LoadSceneAsync(VillageScene);
+        }
+        catch (Exception error)
+        {
+            IsLoading = false;
+            Set(loadingOverlay, false);
+            WorldMapVisible(true);
+            Debug.LogException(error, this);
+        }
     }
 
     public void ShowMap()
     {
-        Set(villagePage, false);
         WorldMapVisible(true);
     }
 
@@ -247,6 +274,8 @@ public class GameFlowController : MonoBehaviour
         Set(loadingOverlay, true);
         GameRoot.I.state = new GameState();
         GameRoot.I.enterVillageOnLoad = false;
+        GameRoot.I.villageMapTemplate = null;
+        GameRoot.I.villageReturnScene = null;
         SceneManager.LoadSceneAsync(MenuScene);
     }
 

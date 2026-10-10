@@ -28,7 +28,7 @@ public class MapSceneNode : MonoBehaviour
         var node = map.GetNode(nodeId);
         bool current = map.State.currentNodeId == nodeId;
         bool cleared = map.State.clearedNodes.Contains(nodeId);
-        bool available = map.CanMove(nodeId);
+        bool available = map.CanMove(nodeId) || map.CanReenterVillage(nodeId);
         gameObject.SetActive(map.IsVisible(nodeId));
         button.interactable = available;
         button.image.color = cleared ? new Color32(199, 202, 196, 245) : new Color32(248, 248, 244, 250);

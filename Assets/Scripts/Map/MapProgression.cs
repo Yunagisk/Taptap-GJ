@@ -74,6 +74,15 @@ public sealed class MapProgression
             || (villageNeighbors.Contains(from) && villageNeighbors.Contains(to));
     }
 
+    // 原地重新打开村庄界面，不算走过一条道路。
+    public bool CanReenterVillage(string nodeId)
+    {
+        var node = GetNode(nodeId);
+        return node != null && node.kind == MapNodeKind.Village
+            && nodeId == Layout.villageNodeId && nodeId == State.currentNodeId
+            && string.IsNullOrEmpty(State.pendingRequestId) && IsVisible(nodeId);
+    }
+
     public bool CanMove(string destinationId)
     {
         var current = GetNode(State.currentNodeId);

@@ -79,7 +79,7 @@ public class MapWhiteboxView : MonoBehaviour
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         var scaler = canvasObject.GetComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1600, 1000);
+        scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.matchWidthOrHeight = 0.5f;
         if (EventSystem.current == null)
         {
@@ -175,7 +175,7 @@ public class MapWhiteboxView : MonoBehaviour
             button.gameObject.SetActive(map.IsVisible(node.id));
             bool current = map.State.currentNodeId == node.id;
             bool cleared = map.State.clearedNodes.Contains(node.id);
-            bool available = map.CanMove(node.id);
+            bool available = map.CanMove(node.id) || map.CanReenterVillage(node.id);
             button.interactable = available;
             button.image.color = cleared ? new Color32(218, 225, 220, 255) : Color.white;
             outlines[node.id].effectColor = current ? new Color32(202, 157, 39, 255)
@@ -214,7 +214,8 @@ public class MapWhiteboxView : MonoBehaviour
         var node = map.GetNode(selectedNodeId);
         if (node == null) return;
         bool pending = map.State.pendingNodeId == node.id && !string.IsNullOrEmpty(map.State.pendingRequestId);
-        string status = pending ? "处理中" : map.State.clearedNodes.Contains(node.id) ? "已完成"
+        string status = pending ? "处理中" : map.CanReenterVillage(node.id) ? "点击进入村庄 · 不耗时"
+            : map.State.clearedNodes.Contains(node.id) ? "已完成"
             : map.CanMove(node.id) ? "可前往 · 耗时 1" : "尚不可到达";
         string[] kinds = { "村庄", "普通战", "问号事件", "火堆", "原罪首领" };
         detail.text = node.displayName + "\n" + kinds[(int)node.kind] + "\n" + status

@@ -71,6 +71,7 @@ public class BattleResultUI : MonoBehaviour
         try
         {
             bool showVillage = false;
+            WorldMapTemplate villageTemplate = null;
             if (root != null && root.battleMapTemplate != null
                 && !string.IsNullOrEmpty(root.battleRequestId))
             {
@@ -81,6 +82,11 @@ public class BattleResultUI : MonoBehaviour
                 if (pending == null || pending.kind != MapNodeKind.Battle
                     || pending.requestId != root.battleRequestId)
                     throw new InvalidOperationException("The battle request no longer matches the map.");
+                showVillage = battleFlow.CurrentState == BattleState.Defeat
+                    && map.State.checkpointNodeId == layout.villageNodeId;
+                if (showVillage && !Application.CanStreamedLevelBeLoaded(GameFlowController.VillageScene))
+                    throw new InvalidOperationException("The village scene is missing from Build Settings.");
+                villageTemplate = root.battleMapTemplate;
                 if (battleFlow.CurrentState == BattleState.Victory)
                     map.TryCompleteNode(root.battleRequestId);
                 else
@@ -88,18 +94,22 @@ public class BattleResultUI : MonoBehaviour
                     if (!map.TryReviveAtCheckpoint(root.battleRequestId))
                         throw new InvalidOperationException("Cannot revive at the checkpoint.");
                     root.state.player.hp = root.state.player.maxHp;
-                    showVillage = map.State.currentNodeId == layout.villageNodeId;
                 }
             }
             returning = true;
             returnButton.interactable = restartButton.interactable = false;
-            SceneManager.LoadSceneAsync(scene);
+            if (root != null && showVillage)
+            {
+                root.villageMapTemplate = villageTemplate;
+                root.villageReturnScene = scene;
+            }
+            SceneManager.LoadSceneAsync(showVillage ? GameFlowController.VillageScene : scene);
             if (root != null)
             {
                 root.battleMapTemplate = null;
                 root.battleRequestId = null;
                 root.battleReturnScene = null;
-                root.enterVillageOnLoad = showVillage;
+                root.enterVillageOnLoad = false;
             }
         }
         catch (Exception error)
@@ -128,6 +138,8 @@ public class BattleResultUI : MonoBehaviour
             if (root == null) return;
             root.state = new GameState();
             root.enterVillageOnLoad = false;
+            root.villageMapTemplate = null;
+            root.villageReturnScene = null;
             root.battleMapTemplate = null;
             root.battleRequestId = null;
             root.battleReturnScene = null;

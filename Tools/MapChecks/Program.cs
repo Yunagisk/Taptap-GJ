@@ -49,6 +49,7 @@ static class Program
     {
         if (args.Length > 0) layoutPath = Path.GetFullPath(args[0]);
         CheckMorningRevival();
+        CheckVillageReentry();
         var map = NewMap();
         foreach (string weapon in NewRunFactory.StartingWeapons)
         {
@@ -295,6 +296,44 @@ static class Program
         try { MapLayoutValidator.Validate(broken); } catch (InvalidOperationException) { rejected = true; }
         Check(rejected, "validator rejects shortcuts bypassing required fights");
         Console.WriteLine("PASS: " + checks + " checks; topology, reveal, transit, callbacks, sin spawning, restoration, complete three-boss flow.");
+    }
+
+    static void CheckVillageReentry()
+    {
+        var map = NewMap();
+        string home = map.Layout.villageNodeId;
+        Check(map.CanReenterVillage(home), "current village can reopen after departure to map");
+        Check(!map.TryMove(home, out _), "reopening village is not a road traversal");
+        Check(!map.CanReenterVillage(null) && !map.CanReenterVillage("missing")
+            && !map.CanReenterVillage("r1_a"), "village reopening cannot bypass other node rules");
+        var battle = Move(map, "r1_a");
+        Check(!map.CanReenterVillage(home), "unfinished battle cannot reopen village remotely");
+        Complete(map, battle.requestId);
+        Check(!map.CanReenterVillage(home) && !map.CanReenterVillage("r1_a")
+            && !map.CanMove("r1_a"), "cleared current battle stays non-repeatable");
+        Move(map, home);
+        Check(map.World.time == 3 && map.State.checkpointNodeId == home,
+            "road home still advances time and records dawn checkpoint");
+        string savedState = JsonSerializer.Serialize(map.State, Json);
+        string savedWorld = JsonSerializer.Serialize(map.World, Json);
+        for (int i = 0; i < 3; i++)
+        {
+            map = new MapProgression(Layout(), map.State, map.World, 999);
+            Check(map.CanReenterVillage(home)
+                && JsonSerializer.Serialize(map.State, Json) == savedState
+                && JsonSerializer.Serialize(map.World, Json) == savedWorld,
+                "repeated scene reconstruction preserves state and village availability");
+        }
+        map.State.pendingRequestId = "pending";
+        Check(!map.CanReenterVillage(home), "pending encounter prevents reopening village");
+        map.State.pendingRequestId = null;
+        var next = Move(map, "r1_a");
+        Check(next == null && map.World.time == 4, "normal travel still works after village reopening");
+
+        var revived = NewMap();
+        var encounter = Move(revived, "r1_a");
+        Check(revived.TryReviveAtCheckpoint(encounter.requestId) && revived.CanReenterVillage(home),
+            "village checkpoint revival permits reopening village");
     }
 
     static void CheckMorningRevival()

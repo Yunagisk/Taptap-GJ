@@ -13,6 +13,7 @@ using Object = UnityEngine.Object;
 public static class GameFlowSceneBuilder
 {
     public const string MenuPath = "Assets/Scenes/MainMenu.unity";
+    public const string VillagePath = "Assets/Scenes/Village.unity";
     static readonly Color Ink = new Color32(38, 42, 48, 255);
     static readonly Color Red = new Color32(151, 51, 64, 255);
     static readonly Color Paper = new Color32(248, 249, 251, 255);
@@ -32,9 +33,11 @@ public static class GameFlowSceneBuilder
         EditorSceneManager.OpenScene(MapSceneBuilder.ScenePath);
         AddMapFlow();
         EditorSceneManager.SaveScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
-        var previous = EditorBuildSettings.scenes.Where(scene => scene.path != MenuPath && scene.path != MapSceneBuilder.ScenePath);
+        var previous = EditorBuildSettings.scenes.Where(scene => scene.path != MenuPath
+            && scene.path != VillagePath && scene.path != MapSceneBuilder.ScenePath);
         EditorBuildSettings.scenes = new[] {
             new EditorBuildSettingsScene(MenuPath, true),
+            new EditorBuildSettingsScene(VillagePath, true),
             new EditorBuildSettingsScene(MapSceneBuilder.ScenePath, true)
         }.Concat(previous).ToArray();
         AssetDatabase.SaveAssets();
@@ -130,26 +133,10 @@ public static class GameFlowSceneBuilder
         flow.worldMapGroup = controller.GetComponent<CanvasGroup>();
         flow.playerPanel = view.canvas.GetComponentInChildren<MapPlayerPanelView>(true);
         flow.playerPanel.manageEscape = false;
-        var village = Rect("VillageScreen", root);
-        Stretch(village);
-        flow.villagePage = village.gameObject;
-        Background(village);
-        var band = Image("VillageBand", village, new Color32(25, 29, 36, 235));
-        band.rectTransform.anchorMin = Vector2.zero;
-        band.rectTransform.anchorMax = new Vector2(0.44f, 1);
-        band.rectTransform.offsetMin = band.rectTransform.offsetMax = Vector2.zero;
-        var content = Rect("VillageContent", village);
-        Box(content, new Vector2(0, 0.5f), new Vector2(125, 0), new Vector2(620, 680), new Vector2(0, 0.5f));
-        Label("VillageTitle", content, "村庄", new Vector2(0, 0), new Vector2(600, 100), 56, Color.white);
-        flow.villageWeaponText = Label("VillageWeapon", content, "当前武器：剑", new Vector2(18, -140), new Vector2(550, 48), 24, new Color32(209, 214, 224, 255));
-        MenuButton("Btn_Depart", content, "出发", -260, flow.ShowMap);
-        MenuButton("Btn_VillageInventory", content, "背包", -360, flow.OpenInventory);
-        MenuButton("Btn_VillageReturnTitle", content, "返回主菜单", -460, flow.AskReturnToTitle);
         var menu = Button("Btn_GameMenu", root, "菜单", Vector2.zero, new Vector2(100, 48), flow.OpenPause);
         Box((RectTransform)menu.transform, Vector2.one, new Vector2(-32, -30), new Vector2(100, 48), Vector2.one);
-        SharedOverlays(flow, root, new[] { content });
+        SharedOverlays(flow, root, new RectTransform[0]);
         UnityEventTools.AddPersistentListener(controller.onVillageEntered, flow.ShowVillage);
-        flow.villagePage.SetActive(false);
         EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
     }
 
@@ -248,9 +235,6 @@ public static class GameFlowSceneBuilder
         background.raycastTarget = true;
         background.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprite/UI/Map.png");
         Stretch(background.rectTransform);
-        var fitter = background.gameObject.AddComponent<AspectRatioFitter>();
-        fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
-        fitter.aspectRatio = 1672f / 941f;
     }
 
     static Button MenuButton(string name, Transform parent, string value, float y, UnityAction action)

@@ -1,10 +1,21 @@
 ﻿using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System;
 
 public class VillageScreen : MonoBehaviour
 {
+    [Header("Shared run and status")]
+    public WorldMapTemplate template;
+    public TMP_FontAsset font;
+    public TMP_Text hpText;
+    public TMP_Text lanternText;
+    public TMP_Text sinText;
+    public TMP_Text timeText;
+    public TMP_Text weaponText;
+
     public GameObject panelRoot;
     public GameObject panelInn;
     public GameObject panelShop;
@@ -24,11 +35,56 @@ public class VillageScreen : MonoBehaviour
     public TMP_Text toast;
 
     GameObject[] _panels;
+    TMP_FontAsset runtimeFont;
+    public bool IsLoading { get; private set; }
 
     void Awake()
     {
+        if (GameRoot.I == null) new GameObject("GameRoot").AddComponent<GameRoot>();
+        var root = GameRoot.I;
+        if (root.villageMapTemplate != null) template = root.villageMapTemplate;
+        root.villageMapTemplate = template;
+        root.enterVillageOnLoad = false;
+        if (string.IsNullOrEmpty(root.villageReturnScene))
+            root.villageReturnScene = GameFlowController.MapScene;
+        try
+        {
+            if (template == null) throw new InvalidOperationException("Assign a WorldMapTemplate to VillageScreen.");
+            // Reuse the existing run. Opening the village never starts a new map.
+            new MapProgression(template.Load(), root.state.map, root.state.world,
+                string.IsNullOrEmpty(root.state.map.templateId) ? Guid.NewGuid().GetHashCode() : root.state.map.randomSeed);
+        }
+        catch (Exception error) { Debug.LogException(error, this); }
+        if (font != null && font.sourceFontFile != null)
+        {
+            runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
+            var canvas = hpText != null ? hpText.GetComponentInParent<Canvas>()
+                : GetComponentInChildren<Canvas>(true);
+            if (canvas != null)
+                foreach (var text in canvas.GetComponentsInChildren<TMP_Text>(true)) text.font = runtimeFont;
+        }
         _panels = new[] { panelInn, panelShop, panelBag, panelEvent };
         ClosePanels();
+        RefreshStatus();
+    }
+
+    public void RefreshStatus()
+    {
+        if (GameRoot.I == null) return;
+        var state = GameRoot.I.state;
+        if (hpText != null) hpText.text = "生命 " + state.player.hp + "/" + state.player.maxHp;
+        if (lanternText != null) lanternText.text = "提灯 " + state.player.lanternCharges + "/" + state.player.maxLanternCharges;
+        if (sinText != null) sinText.text = "罪恶 " + state.world.sin;
+        string[] periods = { "早晨", "下午", "夜间" };
+        if (timeText != null) timeText.text = "第 " + (state.world.time / 3 + 1) + " 天 " + periods[state.world.time % 3];
+        if (weaponText != null) weaponText.text = "当前武器：" + NewRunFactory.WeaponName(state.player.currentWeaponId);
+    }
+
+    void Update()
+    {
+        if (IsLoading || !Input.GetKeyDown(KeyCode.Escape)) return;
+        if (panelConflict != null && panelConflict.activeSelf) CloseConflict();
+        else if (panelRoot != null && panelRoot.activeSelf) ClosePanels();
     }
 
     public void OpenInn()
@@ -114,7 +170,28 @@ public class VillageScreen : MonoBehaviour
 
     public void LeaveToMap()
     {
-        Say("已请求返回世界地图。单独场景不加载主地图，资源不变。");
+        if (IsLoading) return;
+        var root = GameRoot.I;
+        string scene = root != null && !string.IsNullOrEmpty(root.villageReturnScene)
+            ? root.villageReturnScene : GameFlowController.MapScene;
+        if (!Application.CanStreamedLevelBeLoaded(scene))
+        {
+            Say("世界地图场景未加入构建列表。");
+            return;
+        }
+        try
+        {
+            IsLoading = true;
+            if (root != null) root.enterVillageOnLoad = false;
+            Say("正在进入世界地图……");
+            SceneManager.LoadSceneAsync(scene);
+        }
+        catch (Exception error)
+        {
+            IsLoading = false;
+            Say("进入地图失败，请重试。");
+            Debug.LogException(error, this);
+        }
     }
 
     void Show(GameObject panel, GameObject focus)
@@ -156,5 +233,14 @@ public class VillageScreen : MonoBehaviour
         if (target == null || EventSystem.current == null)
             return;
         EventSystem.current.SetSelectedGameObject(target);
+    }
+
+    void OnDestroy()
+    {
+        if (runtimeFont == null) return;
+        foreach (var texture in runtimeFont.atlasTextures)
+            if (texture != null) Destroy(texture);
+        Destroy(runtimeFont.material);
+        Destroy(runtimeFont);
     }
 }

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public static class MapSceneBuilder
 {
-    public const string ScenePath = "Assets/Scenes/SampleScene_MapWhitebox.unity";
+    public const string ScenePath = "Assets/Scenes/MainMap.unity";
     public const string NodePrefabPath = "Assets/Prefabs/Map/WorldMapNode.prefab";
 
     [MenuItem("Tools/Map Whitebox/Create From Original Scene")]
@@ -57,7 +57,7 @@ public static class MapSceneBuilder
         var baseImage = Image("MapSurface", worldPanel, new Color32(237, 239, 235, 255));
         Stretch(baseImage.rectTransform);
         baseImage.transform.SetAsFirstSibling();
-        Center(background.rectTransform, Vector2.zero, new Vector2(1920, 1080));
+        Stretch(background.rectTransform);
         background.preserveAspect = false;
         background.raycastTarget = false;
         background.enabled = showOriginalBackground;

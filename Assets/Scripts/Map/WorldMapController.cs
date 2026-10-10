@@ -74,6 +74,14 @@ public class WorldMapController : MonoBehaviour
     {
         if (isLoadingBattle || Progression == null) return;
         var destination = Progression.GetNode(nodeId);
+        if (destination != null && destination.kind == MapNodeKind.Village
+            && !Application.CanStreamedLevelBeLoaded(GameFlowController.VillageScene))
+        {
+            Notice = "村庄场景未加入构建列表";
+            Debug.LogError("Village is missing from Build Settings.", this);
+            StateChanged?.Invoke();
+            return;
+        }
         if (destination != null && destination.kind == MapNodeKind.Battle
             && !Progression.State.clearedNodes.Contains(nodeId)
             && !Application.CanStreamedLevelBeLoaded(BattleScene))
@@ -81,6 +89,13 @@ public class WorldMapController : MonoBehaviour
             Notice = "战斗场景未加入构建列表";
             Debug.LogError("CombatScene is missing from Build Settings.", this);
             StateChanged?.Invoke();
+            return;
+        }
+        if (Progression.CanReenterVillage(nodeId))
+        {
+            Notice = destination.displayName;
+            StateChanged?.Invoke();
+            onVillageEntered.Invoke();
             return;
         }
         if (!Progression.TryMove(nodeId, out var request)) return;
