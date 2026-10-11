@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: KBW01
   m_EditorClassIdentifier: 
   weaponName: "\u5251"
+  weaponId: sword
   damageComponents:
   - damageType: 0
     damage: 10

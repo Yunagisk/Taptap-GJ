@@ -8,6 +8,9 @@ public class WeaponData : ScriptableObject
     [Header("武器名称")]
     [SerializeField]private string weaponName;
 
+    [Header("武器ID")]
+    [SerializeField] private string weaponId;
+
     [Header("每次命中的伤害")]
     [Tooltip("每项独立计算抗性，然后合并为一次伤害。列表为空时使用旧配置。")]
     [SerializeField]
@@ -28,7 +31,8 @@ public class WeaponData : ScriptableObject
     [SerializeField, HideInInspector] private int attack;
     [SerializeField, HideInInspector] private PlayerDamageType damageType;
 
-    public string WeaponName => weaponName;  
+    public string WeaponName => weaponName;
+    public string WeaponId => weaponId;  
     public int AttackCount => attackCount;
     public SkillData Skill => skill;
     public int Price => price;

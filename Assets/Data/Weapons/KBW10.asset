@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: KBW10
   m_EditorClassIdentifier: 
   weaponName: "\u65A7\u67AA"
+  weaponId: poleaxe
   attack: 0
   attackCount: 1
   damageType: 0
   skill: {fileID: 0}
-  price: 0
+  price: 12

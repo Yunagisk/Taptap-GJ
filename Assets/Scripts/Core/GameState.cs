@@ -34,13 +34,14 @@ public class InventoryState
     //消耗品
     public List<ItemStack> items = new List<ItemStack>();
     //武器
-    public List<string> weapons = new List<string>() { "sword", "axe", "hammer", "torch" };
+    public List<string> weapons = new List<string>() { "sword" };
 }
 
 [Serializable]
 public class ShopState
 {
-    public List<string> availableWeaponIds = new List<string> { "sword", "axe", "hammer", "dual_swords" };
+    public bool stocked;
+    public List<string> availableWeaponIds = new List<string>();
 }
 
 //世界状态
@@ -48,8 +49,9 @@ public class ShopState
 public class WorldState
 {
     public int time = 0;                    //世界时间
-    public int sin = 0;
-    public int stage = 1;//罪恶值
+    public int sin = 0;          // 罪恶。花钱不降这个值。
+    public int sinRemnant = WeaponTable.StartingRemnant; // 罪骸。全局货币。
+    public int stage = 1;
 }
 
 //地图状态

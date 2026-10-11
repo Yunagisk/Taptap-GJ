@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
@@ -50,13 +51,17 @@ static class Program
         if (args.Length > 0) layoutPath = Path.GetFullPath(args[0]);
         CheckMorningRevival();
         CheckVillageReentry();
+        CheckShop();
+        CheckWeaponPrices();
         var map = NewMap();
         foreach (string weapon in NewRunFactory.StartingWeapons)
         {
             var fresh = NewRunFactory.Create(Layout(), weapon, 67890);
             Check(fresh.player.currentWeaponId == weapon && fresh.inventory.weapons.Count == 1 && fresh.inventory.weapons[0] == weapon,
                 "new game owns only its chosen weapon");
-            Check(fresh.shop.availableWeaponIds.Count == 3 && !fresh.shop.availableWeaponIds.Contains(weapon), "chosen weapon removed from new shop stock");
+            Check(fresh.shop.stocked && fresh.shop.availableWeaponIds.Count == WeaponTable.All.Length - 1
+                && !fresh.shop.availableWeaponIds.Contains(weapon), "chosen weapon removed from new shop stock");
+            Check(fresh.world.sinRemnant == WeaponTable.StartingRemnant, "new game prepays four sin remnants");
             Check(fresh.player.hp == 100 && fresh.player.resolve == 1 && fresh.player.lanternCharges == 2, "new game initializes player resources");
             Check(fresh.world.time == 0 && fresh.world.sin == 40 && fresh.map.currentNodeId == "village", "new game starts at village at time zero");
             Check(fresh.map.revealedNodes.Count == 5 && fresh.map.clearedNodes.Count == 1 && fresh.map.spawnedBossNodes.Count == 1
@@ -65,8 +70,9 @@ static class Program
             fresh.inventory.items.Add(new ItemStack("old-run-item", 5));
             fresh.shop.availableWeaponIds.Clear();
             var next = NewRunFactory.Create(Layout(), weapon, 67891);
-            Check(next.player.hp == 100 && next.inventory.items.Count == 0 && next.shop.availableWeaponIds.Count == 3
-                && next.map.randomSeed == 67891, "successive new game does not inherit previous state");
+            Check(next.player.hp == 100 && next.inventory.items.Count == 0 && next.shop.availableWeaponIds.Count == WeaponTable.All.Length - 1
+                && next.world.sinRemnant == WeaponTable.StartingRemnant && next.map.randomSeed == 67891,
+                "successive new game does not inherit previous state");
         }
         bool invalidWeaponRejected = false;
         try { NewRunFactory.Create(Layout(), "invalid", 1); }
@@ -410,6 +416,73 @@ static class Program
         Check(fresh.map.checkpointNodeId == "village" && fresh.map.checkpointTime == 0
             && !fresh.map.revivedAtCheckpoint && fresh.player.hp == fresh.player.maxHp,
             "restart creates full health and a fresh initial checkpoint");
+    }
+
+    static void CheckShop()
+    {
+        var state = NewRunFactory.Create(Layout(), "sword", 99);
+        int sin = state.world.sin;
+        Check(state.world.sinRemnant == 4 && !state.shop.availableWeaponIds.Contains("sword")
+            && state.shop.availableWeaponIds.Contains("axe") && state.shop.availableWeaponIds.Contains("heaven_fire"),
+            "shop stocks every weapon except the starting sword");
+        var poor = ShopRules.TryBuy(state, "greatsword", WeaponTable.PriceOf("greatsword"));
+        Check(!poor.ok && state.world.sinRemnant == 4 && !state.inventory.weapons.Contains("greatsword"),
+            "cannot buy an 8-cost weapon with 4 remnants");
+        var owned = ShopRules.TryBuy(state, "sword", 4);
+        Check(!owned.ok && state.inventory.weapons.Count == 1, "starting weapon stays unlocked and is not sold again");
+        var bought = ShopRules.TryBuy(state, "axe", WeaponTable.PriceOf("axe"));
+        Check(bought.ok && state.world.sinRemnant == 0 && state.inventory.weapons.Contains("axe")
+            && !state.shop.availableWeaponIds.Contains("axe") && state.world.sin == sin,
+            "buying spends remnants, unlocks the weapon, and does not lower sin");
+        int remnant = state.world.sinRemnant;
+        int ownedCount = state.inventory.weapons.Count;
+        var again = ShopRules.TryBuy(state, "axe", 4);
+        Check(!again.ok && state.world.sinRemnant == remnant && state.inventory.weapons.Count == ownedCount
+            && !state.shop.availableWeaponIds.Contains("axe"), "sold weapon is not restocked");
+        ShopRules.EnsureStock(state);
+        Check(!state.shop.availableWeaponIds.Contains("axe"), "reopening the shop does not restock");
+        ShopRules.GrantRemnant(state.world, WeaponTable.BossRemnant);
+        var expensive = ShopRules.TryBuy(state, "heaven_fire", 12);
+        Check(!expensive.ok && state.world.sinRemnant == 10, "12-cost weapon stays locked without enough remnants");
+        ShopRules.GrantRemnant(state.world, WeaponTable.SmallMonsterRemnant * 2);
+        var unlocked = ShopRules.TryBuy(state, "heaven_fire", 12);
+        Check(unlocked.ok && state.world.sinRemnant == 0 && state.inventory.weapons.Contains("heaven_fire")
+            && state.world.sin == sin, "boss plus two small monsters pays for a 12-cost weapon");
+    }
+
+    static void CheckWeaponPrices()
+    {
+        var expected = new Dictionary<string, int>
+        {
+            { "KBW01", 4 }, { "KBW05", 4 }, { "KBW07", 4 }, { "KBW09", 4 },
+            { "KBW02", 8 }, { "KBW03", 8 }, { "KBW04", 8 }, { "KBW06", 8 }, { "KBW08", 8 },
+            { "KBW10", 12 }, { "KBW11", 12 }, { "KBW12", 12 },
+        };
+        var ids = new Dictionary<string, string>
+        {
+            { "KBW01", "sword" }, { "KBW02", "greatsword" }, { "KBW03", "spear" }, { "KBW04", "dual_swords" },
+            { "KBW05", "axe" }, { "KBW06", "sickle" }, { "KBW07", "hammer" }, { "KBW08", "flail" },
+            { "KBW09", "torch" }, { "KBW10", "poleaxe" }, { "KBW11", "flame_tongue" }, { "KBW12", "heaven_fire" },
+        };
+        foreach (var pair in expected)
+        {
+            string path = FindRepoFile(Path.Combine("Assets", "Data", "Weapons", pair.Key + ".asset"));
+            string text = File.ReadAllText(path);
+            Check(text.Contains("price: " + pair.Value), pair.Key + " price is " + pair.Value);
+            Check(text.Contains("weaponId: " + ids[pair.Key]), pair.Key + " id is " + ids[pair.Key]);
+        }
+    }
+
+    static string FindRepoFile(string relative)
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null)
+        {
+            string candidate = Path.Combine(dir.FullName, relative);
+            if (File.Exists(candidate)) return candidate;
+            dir = dir.Parent;
+        }
+        throw new Exception("missing " + relative);
     }
 
     static bool RoadIntersectsNode(MapNodeDefinition a, MapNodeDefinition b, MapNodeDefinition node)
