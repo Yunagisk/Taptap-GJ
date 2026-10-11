@@ -199,13 +199,36 @@ public class BattleFlowController : MonoBehaviour
     }
     private void Victory()
     {
+        if (currentState == BattleState.Victory || currentState == BattleState.Defeat)
+        {
+            return;
+        }
         OnTargetSelectionChanged?.Invoke(false);
+        currentAction = null;
+
         Debug.Log("战斗胜利");
         SetState(BattleState.Victory);
+
+        BattleResultUI resultUI = GetComponent<BattleResultUI>();
+
+        if (resultUI == null)
+        {
+            Debug.LogError("请在 BattleFlowController 所在物体上添加 BattleResultUI。",this);
+            return;
+        }
+
+        // 完成地图节点、解锁相邻路线，并切换回地图。
+        resultUI.ReturnToWorldMap();
     }
     private void Defeat()
     {
+        if (currentState == BattleState.Victory || currentState == BattleState.Defeat)
+        {
+            return;
+        }
         OnTargetSelectionChanged?.Invoke(false);
+        currentAction = null;
+
         Debug.Log("战斗失败");
         SetState(BattleState.Defeat);
     }

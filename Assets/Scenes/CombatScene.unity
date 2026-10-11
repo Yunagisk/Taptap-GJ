@@ -7001,7 +7001,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e636f26f1d66244c80cec728813d3e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 32
+  maxHp: 1
   priority: 6
   attackDatas:
   - {fileID: 11400000, guid: 179993b8a513c1b4c8deedf5b56b9981, type: 2}
@@ -7631,6 +7631,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1879433837}
   - component: {fileID: 1879433836}
+  - component: {fileID: 1879433838}
   m_Layer: 0
   m_Name: BattleManager
   m_TagString: Untagged
@@ -7671,6 +7672,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1879433838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1879433835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5afeab0fee9435493f9a2bca19e9b52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  font: {fileID: 11400000, guid: a473706d66b325b4ebe64f5afc020c5a, type: 2}
 --- !u!1 &1911542419
 GameObject:
   m_ObjectHideFlags: 0
@@ -7978,7 +7992,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e636f26f1d66244c80cec728813d3e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 50
+  maxHp: 1
   priority: 12
   attackDatas:
   - {fileID: 11400000, guid: af60a5f057d63a1489a07691f00c1c02, type: 2}
