@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: KBW04
   m_EditorClassIdentifier: 
   weaponName: "\u53CC\u5251"
-  attack: 5
+  damageComponents:
+  - damageType: 0
+    damage: 0
   attackCount: 2
-  damageType: 0
   skill: {fileID: 0}
   price: 8
+  attack: 5
+  damageType: 0

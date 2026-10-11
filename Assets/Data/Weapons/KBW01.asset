@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: KBW01
   m_EditorClassIdentifier: 
   weaponName: "\u5251"
-  damageComponents: []
+  damageComponents:
+  - damageType: 0
+    damage: 10
   attackCount: 1
   skill: {fileID: 0}
   price: 4
