@@ -20,10 +20,7 @@ public class DialogueUI : MonoBehaviour, IPointerClickHandler
     }
     private void Start()
     {
-        continueButton.onClick.AddListener(() =>
-        {
-            DialogueManager.Instance.Next();
-        });
+        continueButton.onClick.AddListener(() =>{DialogueManager.Instance.Next();});
     }
     public void ShowDialogue(DialogueNode node)
     {
@@ -86,6 +83,5 @@ public class DialogueUI : MonoBehaviour, IPointerClickHandler
         DialogueManager.Instance.Next();
 
     }
-
 
 }

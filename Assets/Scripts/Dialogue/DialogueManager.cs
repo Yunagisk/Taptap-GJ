@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class DialogueManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(currentNode.nextNodeID))
         {
+
             EndDialogue();
             return;
         }
@@ -65,7 +67,7 @@ public class DialogueManager : MonoBehaviour
     {
         Debug.Log("剧情结束");
         //进入游戏
-        //GameManager.Instance.StartGame();
+        SceneManager.LoadScene("Village");
     }
     public bool HasChoice()
     {
