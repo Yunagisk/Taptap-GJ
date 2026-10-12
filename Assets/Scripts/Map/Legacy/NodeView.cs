@@ -2,15 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;    
+using UnityEngine.UI;        
 
 public class NodeView : MonoBehaviour
 {
-    public string nodeId;        // �ڵ�ID���ֶ���
-    public string type;          // �ڵ����ͣ���ׯ/ս��/�¼�/���/Boss/��ͨ
-    public int stage = 1;        // ������һ��
-    public bool cleared = false; // �Ƿ�������������Զ���
+    public string nodeId;       
+    public string type;          
+    public int stage = 1;        
+    public bool cleared = false; 
 
     public Button button;
     public TMP_Text label;
