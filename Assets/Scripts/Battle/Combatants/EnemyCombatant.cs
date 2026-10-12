@@ -17,7 +17,12 @@ public class EnemyCombatant : Combatant
     private readonly EnemyAttackAction attackAction = new EnemyAttackAction();//负责执行选中的招式
 
     private bool isActing;  //敌人是否正在行动中，避免重复调用。
+    private bool remnantPaid;
     public int Priority => priority;
+
+    [Header("罪骸")]
+    [SerializeField] private bool isBoss;
+    public int SinRemnantReward => isBoss ? WeaponTable.BossRemnant : WeaponTable.SmallMonsterRemnant;
 
     // 未来可以在这里增加眩晕等状态检查。
     public virtual bool CanAct => !IsDead; //跳过行动不推进循环
@@ -37,6 +42,16 @@ public class EnemyCombatant : Combatant
     protected virtual IEnemyActionSelector CreateActionSelector()
     {
         return new CycleActionSelector(attackDatas);
+    }
+
+    protected override void Die()
+    {
+        if (!remnantPaid)
+        {
+            remnantPaid = true;
+            if (GameRoot.I != null) ShopRules.GrantRemnant(GameRoot.I.state.world, SinRemnantReward);
+        }
+        base.Die();
     }
 
     public IEnumerator TakeTurn(PlayerCombatant player)

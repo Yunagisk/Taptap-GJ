@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: KBW06
   m_EditorClassIdentifier: 
   weaponName: "\u9570\u5200"
+  weaponId: sickle
   attack: 6
   attackCount: 2
   damageType: 1

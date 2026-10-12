@@ -82,7 +82,8 @@ public class MapPlayerPanelView : MonoBehaviour
         SetFill(hudHealthFill, ratio);
         SetFill(inventoryHealthFill, ratio);
         resourcesText.text = "决心  " + player.resolve + " / " + player.maxResolve
-            + "\n提灯  " + player.lanternCharges + " / " + player.maxLanternCharges;
+            + "\n提灯  " + player.lanternCharges + " / " + player.maxLanternCharges
+            + "\n罪骸  " + state.world.sinRemnant;
         int threshold = 100;
         if (mapController != null && mapController.Progression != null) threshold = mapController.Progression.Layout.sinThreshold;
         sinValueText.text = "罪恶值  " + state.world.sin + " / " + threshold;

@@ -72,7 +72,7 @@ public static class MapSceneBuilder
         var view = worldPanel.gameObject.AddComponent<WorldMapSceneView>();
         view.canvas = canvas;
         view.mapContent = mapRoot;
-        view.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Fonts/SiYuanHeiTi-Regular/SourceHanSansSC-Regular-2 SDF.asset");
+        view.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Fonts/Huiwen.asset");
         view.originalBackground = background;
         view.showOriginalBackground = showOriginalBackground;
 

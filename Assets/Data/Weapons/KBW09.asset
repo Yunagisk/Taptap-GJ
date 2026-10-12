@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: KBW09
   m_EditorClassIdentifier: 
   weaponName: "\u706B\u628A"
+  weaponId: torch
   attack: 0
   attackCount: 1
   damageType: 0
   skill: {fileID: 0}
-  price: 0
+  price: 4

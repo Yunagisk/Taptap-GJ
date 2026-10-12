@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: KBW11
   m_EditorClassIdentifier: 
   weaponName: "\u7130\u820C"
+  weaponId: flame_tongue
   damageComponents: []
   attackCount: 1
   skill: {fileID: 0}
-  price: 0
+  price: 12
   attack: 0
   damageType: 0

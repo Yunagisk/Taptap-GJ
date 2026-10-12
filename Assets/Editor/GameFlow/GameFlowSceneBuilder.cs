@@ -17,7 +17,7 @@ public static class GameFlowSceneBuilder
     static readonly Color Ink = new Color32(38, 42, 48, 255);
     static readonly Color Red = new Color32(151, 51, 64, 255);
     static readonly Color Paper = new Color32(248, 249, 251, 255);
-    static TMP_FontAsset Font => AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Fonts/SiYuanHeiTi-Regular/SourceHanSansSC-Regular-2 SDF.asset");
+    static TMP_FontAsset Font => AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Fonts/Huiwen.asset");
 
     [MenuItem("Tools/Game Flow/Open Main Menu")]
     public static void OpenMenu()

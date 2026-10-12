@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: KBW02
   m_EditorClassIdentifier: 
   weaponName: "\u5927\u5251"
+  weaponId: greatsword
   damageComponents:
   - damageType: 1
     damage: 10
