@@ -51,6 +51,8 @@ static class Program
         if (args.Length > 0) layoutPath = Path.GetFullPath(args[0]);
         CheckMorningRevival();
         CheckVillageReentry();
+        CheckMainStory();
+        CheckEquipment();
         CheckShop();
         CheckWeaponPrices();
         var map = NewMap();
@@ -59,6 +61,13 @@ static class Program
             var fresh = NewRunFactory.Create(Layout(), weapon, 67890);
             Check(fresh.player.currentWeaponId == weapon && fresh.inventory.weapons.Count == 1 && fresh.inventory.weapons[0] == weapon,
                 "new game owns only its chosen weapon");
+            Check(fresh.inventory.equippedWeaponIds.Count == EquipmentRules.SlotCount
+                && fresh.inventory.equippedWeaponIds[0] == weapon
+                && fresh.inventory.equippedWeaponIds.FindAll(id => !string.IsNullOrEmpty(id)).Count == 1,
+                "new game equips only its chosen weapon in four slots");
+            Check(fresh.story.stage == MainStoryStage.ArrivedVillage
+                && !string.IsNullOrEmpty(fresh.story.tutorialNodeId)
+                && fresh.story.completedDialogueIds.Count == 0, "new game initializes a fresh main story");
             Check(fresh.shop.stocked && fresh.shop.availableWeaponIds.Count == WeaponTable.All.Length - 1
                 && !fresh.shop.availableWeaponIds.Contains(weapon), "chosen weapon removed from new shop stock");
             Check(fresh.world.sinRemnant == WeaponTable.StartingRemnant, "new game prepays four sin remnants");
@@ -418,6 +427,248 @@ static class Program
             "restart creates full health and a fresh initial checkpoint");
     }
 
+    static void CheckMainStory()
+    {
+        var layout = Layout();
+        var village = layout.nodes.Find(node => node.id == layout.villageNodeId);
+        string tutorialId = null;
+        foreach (string id in village.neighbors)
+            if (layout.nodes.Find(node => node.id == id).kind == MapNodeKind.Battle)
+            {
+                tutorialId = id;
+                break;
+            }
+        var state = NewRunFactory.Create(layout, "sword", 66);
+        Check(state.story.tutorialNodeId == tutorialId, "story picks the first village-adjacent battle");
+        var tutorial = new MapNodeRequest { nodeId = tutorialId, kind = MapNodeKind.Battle };
+        var slothRegion = layout.regions.Find(region => region.bossKey == "sloth");
+        var sloth = new MapNodeRequest { nodeId = slothRegion.bossNodeId, kind = MapNodeKind.Boss, bossKey = "sloth" };
+        string initialGoal = MainStoryRules.GoalText(state);
+        Check(!string.IsNullOrEmpty(initialGoal) && !string.IsNullOrEmpty(MainStoryRules.GoalText(null)),
+            "story always offers a current goal");
+        MainStoryRules.OnNodeCompleted(state, tutorial);
+        MainStoryRules.OnNodeCompleted(state, sloth);
+        Check(state.story.stage == MainStoryStage.ArrivedVillage, "battle callbacks cannot bypass village introduction");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "accept", StoryDialogueEffect.AcceptCommission)
+            && !state.story.completedDialogueIds.Contains("accept"), "commission cannot precede introduction or consume its dialogue");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "turn-in", StoryDialogueEffect.TurnInCommission)
+            && !state.story.completedDialogueIds.Contains("turn-in"), "early turn-in is rejected and may be retried later");
+        Check(!MainStoryRules.TryCompleteDialogue(state, " ", StoryDialogueEffect.None)
+            && !MainStoryRules.TryCompleteDialogue(state, "invalid-effect", (StoryDialogueEffect)99),
+            "blank dialogue and unknown effects are rejected");
+        Check(MainStoryRules.TryCompleteDialogue(state, "chat", StoryDialogueEffect.None)
+            && state.story.stage == MainStoryStage.ArrivedVillage, "ordinary completed dialogue does not progress story");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "chat", StoryDialogueEffect.None)
+            && state.story.completedDialogueIds.Count == 1, "ordinary dialogue completion is idempotent");
+        Check(MainStoryRules.TryCompleteDialogue(state, "introduction", StoryDialogueEffect.VillageIntroduction)
+            && state.story.stage == MainStoryStage.VillageIntroductionComplete
+            && MainStoryRules.GoalText(state) != initialGoal, "completed introduction changes stage and objective");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "introduction", StoryDialogueEffect.VillageIntroduction)
+            && !MainStoryRules.TryCompleteDialogue(state, "another-introduction", StoryDialogueEffect.VillageIntroduction)
+            && !state.story.completedDialogueIds.Contains("another-introduction"), "duplicate introduction cannot consume another dialogue");
+        Check(MainStoryRules.TryCompleteDialogue(state, "accept", StoryDialogueEffect.AcceptCommission)
+            && state.story.stage == MainStoryStage.CommissionAccepted, "commission becomes available after introduction");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "accept", StoryDialogueEffect.AcceptCommission),
+            "commission acceptance cannot repeat");
+        MainStoryRules.OnNodeCompleted(state, sloth);
+        MainStoryRules.OnNodeCompleted(state, new MapNodeRequest { nodeId = "another-battle", kind = MapNodeKind.Battle });
+        MainStoryRules.OnNodeCompleted(state, new MapNodeRequest { nodeId = tutorialId, kind = MapNodeKind.Event });
+        MainStoryRules.OnNodeCompleted(state, null);
+        Check(state.story.stage == MainStoryStage.CommissionAccepted, "only the selected tutorial battle can finish the tutorial");
+        int remnant = state.world.sinRemnant, owned = state.inventory.weapons.Count;
+        MainStoryRules.OnNodeCompleted(state, tutorial);
+        Check(state.story.stage == MainStoryStage.TutorialCompleted, "tutorial completion advances an accepted commission");
+        MainStoryRules.OnNodeCompleted(state, tutorial);
+        MainStoryRules.OnNodeCompleted(state, new MapNodeRequest { nodeId = sloth.nodeId, kind = MapNodeKind.Battle, bossKey = "sloth" });
+        MainStoryRules.OnNodeCompleted(state, new MapNodeRequest { nodeId = "another-boss", kind = MapNodeKind.Boss, bossKey = "placeholder_2" });
+        Check(state.story.stage == MainStoryStage.TutorialCompleted, "repeated tutorial and unrelated bosses do not advance the story");
+        MainStoryRules.OnNodeCompleted(state, sloth);
+        Check(state.story.stage == MainStoryStage.SlothDefeated && state.world.sinRemnant == remnant
+            && state.inventory.weapons.Count == owned, "sloth completion records the milestone without granting rewards");
+        MainStoryRules.OnNodeCompleted(state, sloth);
+        Check(state.story.stage == MainStoryStage.SlothDefeated, "repeated sloth callback does not skip the return-to-village step");
+        Check(MainStoryRules.TryCompleteDialogue(state, "turn-in", StoryDialogueEffect.TurnInCommission)
+            && state.story.stage == MainStoryStage.CommissionTurnedIn && state.world.sinRemnant == remnant,
+            "completed turn-in advances story without inventing reward values");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "turn-in", StoryDialogueEffect.TurnInCommission)
+            && !MainStoryRules.TryCompleteDialogue(state, "another-turn-in", StoryDialogueEffect.TurnInCommission),
+            "completed commission cannot be turned in twice");
+        var restored = JsonSerializer.Deserialize<GameState>(JsonSerializer.Serialize(state, Json), Json);
+        MainStoryRules.EnsureInitialized(restored, layout);
+        MainStoryRules.OnNodeCompleted(restored, tutorial);
+        Check(restored.story.stage == MainStoryStage.CommissionTurnedIn
+            && restored.story.tutorialNodeId == tutorialId
+            && restored.story.completedDialogueIds.Count == state.story.completedDialogueIds.Count
+            && !MainStoryRules.TryCompleteDialogue(restored, "turn-in", StoryDialogueEffect.TurnInCommission),
+            "story and dialogue idempotency survive state reconstruction");
+        var legacy = new GameState { story = null };
+        legacy.map.clearedNodes.Add(tutorialId);
+        legacy.map.defeatedBossNodes.Add(sloth.nodeId);
+        MainStoryRules.EnsureInitialized(legacy, layout);
+        Check(legacy.story.stage == MainStoryStage.ArrivedVillage && legacy.story.tutorialNodeId == tutorialId,
+            "legacy map records do not silently skip main story stages");
+        legacy.story.completedDialogueIds = null;
+        legacy.story.tutorialNodeId = "stale-node";
+        MainStoryRules.EnsureInitialized(legacy, layout);
+        Check(legacy.story.completedDialogueIds != null && legacy.story.tutorialNodeId == tutorialId,
+            "story initialization repairs missing dialogue history and stale tutorial ids");
+        var reordered = Layout();
+        reordered.nodes.Find(node => node.id == reordered.villageNodeId).neighbors.Reverse();
+        MainStoryRules.EnsureInitialized(legacy, reordered);
+        Check(legacy.story.tutorialNodeId == tutorialId, "initialized story keeps a valid tutorial when neighbor order changes");
+        var noTutorial = new MapLayout { nodes = new List<MapNodeDefinition>
+            { new MapNodeDefinition { id = "village", kind = MapNodeKind.Village } } };
+        var missing = new GameState();
+        MainStoryRules.EnsureInitialized(missing, noTutorial);
+        Check(string.IsNullOrEmpty(missing.story.tutorialNodeId), "a map without an adjacent battle does not invent a tutorial node");
+        var exploredFirst = NewRunFactory.Create(layout, "sword", 68);
+        exploredFirst.map.clearedNodes.Add(tutorialId);
+        exploredFirst.map.defeatedBossNodes.Add(sloth.nodeId);
+        int initialRemnant = exploredFirst.world.sinRemnant;
+        MainStoryRules.EnsureInitialized(exploredFirst, layout);
+        Check(exploredFirst.story.slothNodeId == sloth.nodeId
+            && exploredFirst.story.stage == MainStoryStage.ArrivedVillage,
+            "pre-commission exploration identifies sloth but cannot bypass introduction or acceptance");
+        Check(MainStoryRules.TryCompleteDialogue(exploredFirst, "intro-late", StoryDialogueEffect.VillageIntroduction)
+            && exploredFirst.story.stage == MainStoryStage.VillageIntroductionComplete,
+            "completed map nodes do not skip commission acceptance after a late introduction");
+        Check(MainStoryRules.TryCompleteDialogue(exploredFirst, "accept-late", StoryDialogueEffect.AcceptCommission)
+            && exploredFirst.story.stage == MainStoryStage.SlothDefeated
+            && exploredFirst.world.sinRemnant == initialRemnant
+            && exploredFirst.inventory.weapons.Count == 1,
+            "accepting after prior tutorial and sloth victories reconciles milestones without rewards");
+        MainStoryRules.ReconcileCompletedNodes(exploredFirst);
+        Check(exploredFirst.story.stage == MainStoryStage.SlothDefeated
+            && !exploredFirst.story.completedDialogueIds.Contains("late-turn-in"),
+            "reconciliation never turns in a commission or fabricates dialogue completion");
+        Check(MainStoryRules.TryCompleteDialogue(exploredFirst, "late-turn-in", StoryDialogueEffect.TurnInCommission)
+            && exploredFirst.story.stage == MainStoryStage.CommissionTurnedIn,
+            "a late accepted commission remains explicitly available for turn-in");
+        var exploredTutorial = NewRunFactory.Create(layout, "axe", 69);
+        exploredTutorial.map.clearedNodes.Add(tutorialId);
+        exploredTutorial.map.defeatedBossNodes.Add("unrelated-boss");
+        MainStoryRules.TryCompleteDialogue(exploredTutorial, "intro", StoryDialogueEffect.VillageIntroduction);
+        Check(MainStoryRules.TryCompleteDialogue(exploredTutorial, "accept", StoryDialogueEffect.AcceptCommission)
+            && exploredTutorial.story.stage == MainStoryStage.TutorialCompleted,
+            "only a previously cleared tutorial is reconciled when another boss was defeated");
+        exploredTutorial.map.defeatedBossNodes.Add(sloth.nodeId);
+        MainStoryRules.EnsureInitialized(exploredTutorial, layout);
+        Check(exploredTutorial.story.stage == MainStoryStage.SlothDefeated,
+            "initializing an accepted run reconciles a subsequently recorded sloth victory");
+        var oldAccepted = new GameState { story = new MainStoryState { stage = MainStoryStage.CommissionAccepted } };
+        oldAccepted.map.clearedNodes.Add(tutorialId);
+        oldAccepted.map.defeatedBossNodes.Add(sloth.nodeId);
+        var oldRestored = JsonSerializer.Deserialize<GameState>(JsonSerializer.Serialize(oldAccepted, Json), Json);
+        MainStoryRules.EnsureInitialized(oldRestored, layout);
+        Check(oldRestored.story.stage == MainStoryStage.SlothDefeated
+            && oldRestored.story.tutorialNodeId == tutorialId && oldRestored.story.slothNodeId == sloth.nodeId
+            && oldRestored.story.completedDialogueIds.Count == 0,
+            "restoring an accepted legacy run maps completed facts without creating dialogues or auto-turn-in");
+        var bossBeforeTutorial = NewRunFactory.Create(layout, "sword", 70);
+        bossBeforeTutorial.story.stage = MainStoryStage.CommissionAccepted;
+        bossBeforeTutorial.map.defeatedBossNodes.Add(sloth.nodeId);
+        MainStoryRules.ReconcileCompletedNodes(bossBeforeTutorial);
+        Check(bossBeforeTutorial.story.stage == MainStoryStage.CommissionAccepted,
+            "prior boss completion alone cannot skip an unfinished tutorial");
+        bossBeforeTutorial.map.clearedNodes.Add(tutorialId);
+        MainStoryRules.ReconcileCompletedNodes(bossBeforeTutorial);
+        Check(bossBeforeTutorial.story.stage == MainStoryStage.SlothDefeated,
+            "reconciliation progresses through a newly recorded tutorial and prior boss completion");
+        var next = NewRunFactory.Create(layout, "axe", 67);
+        Check(next.story.stage == MainStoryStage.ArrivedVillage && next.story.completedDialogueIds.Count == 0,
+            "restarting does not inherit completed story stages or dialogues");
+    }
+
+    static void CheckEquipment()
+    {
+        var state = NewRunFactory.Create(Layout(), "sword", 77);
+        Check(ShopRules.TryBuy(state, "axe", WeaponTable.PriceOf("axe")).ok, "equipment fixture buys and owns an axe");
+        EquipmentRules.EnsureInitialized(state);
+        Check(!state.inventory.equippedWeaponIds.Contains("axe")
+            && !EquipmentRules.TrySelectWeapon(state, "axe"), "buying a weapon does not equip it or allow battle selection");
+        Check(EquipmentRules.TryEquip(state, 2, "axe") && state.inventory.equippedWeaponIds[2] == "axe"
+            && state.player.currentWeaponId == "sword", "equipping an additional weapon preserves the current equipped weapon");
+        Check(EquipmentRules.TrySelectWeapon(state, "axe") && state.player.currentWeaponId == "axe",
+            "battle may select an owned weapon from an equipped slot");
+        string slotsBefore = JsonSerializer.Serialize(state.inventory.equippedWeaponIds, Json);
+        Check(!EquipmentRules.TryEquip(state, -1, "sword") && !EquipmentRules.TryEquip(state, 4, "sword")
+            && !EquipmentRules.TryEquip(state, 1, "hammer")
+            && JsonSerializer.Serialize(state.inventory.equippedWeaponIds, Json) == slotsBefore,
+            "invalid slots and unowned weapons cannot change the loadout");
+        state.inventory.weapons.Add("not-a-weapon");
+        Check(!EquipmentRules.TryEquip(state, 1, "not-a-weapon") && !EquipmentRules.TrySelectWeapon(state, "not-a-weapon"),
+            "inventory entries without a valid weapon id cannot be equipped or selected");
+        Check(EquipmentRules.TryEquip(state, 1, "axe") && state.inventory.equippedWeaponIds[1] == "axe"
+            && string.IsNullOrEmpty(state.inventory.equippedWeaponIds[2])
+            && state.player.currentWeaponId == "axe", "equipping an existing weapon moves it and retains the selected weapon");
+        Check(state.inventory.equippedWeaponIds.FindAll(id => id == "axe").Count == 1,
+            "moving a weapon never duplicates it across slots");
+        Check(EquipmentRules.TryEquip(state, 1, null) && state.player.currentWeaponId == "sword",
+            "removing the current weapon selects another equipped weapon");
+        Check(EquipmentRules.TryEquip(state, 0, string.Empty) && string.IsNullOrEmpty(state.player.currentWeaponId),
+            "removing the last weapon clears current weapon selection");
+        EquipmentRules.EnsureInitialized(state);
+        Check(state.inventory.equippedWeaponIds.Count == 4
+            && state.inventory.equippedWeaponIds.TrueForAll(string.IsNullOrEmpty),
+            "explicitly empty four-slot loadout is not repopulated by initialization");
+        Check(!EquipmentRules.TrySelectWeapon(state, "sword") && !EquipmentRules.TrySelectWeapon(state, null),
+            "owned but unequipped weapons and empty selection are rejected");
+        var emptyRestored = JsonSerializer.Deserialize<GameState>(JsonSerializer.Serialize(state, Json), Json);
+        EquipmentRules.EnsureInitialized(emptyRestored);
+        Check(emptyRestored.inventory.equippedWeaponIds.TrueForAll(string.IsNullOrEmpty)
+            && string.IsNullOrEmpty(emptyRestored.player.currentWeaponId), "explicit unequip survives serialization and reconstruction");
+        Check(EquipmentRules.TryEquip(state, 3, "axe") && state.player.currentWeaponId == "axe",
+            "equipping into an empty loadout establishes a valid current weapon");
+        var restored = JsonSerializer.Deserialize<GameState>(JsonSerializer.Serialize(state, Json), Json);
+        EquipmentRules.EnsureInitialized(restored);
+        Check(restored.inventory.equippedWeaponIds[3] == "axe" && restored.player.currentWeaponId == "axe"
+            && string.IsNullOrEmpty(restored.inventory.equippedWeaponIds[0]),
+            "chosen slot and empty slots survive state reconstruction");
+        state.inventory.weapons.Remove("axe");
+        EquipmentRules.EnsureInitialized(state);
+        Check(state.inventory.equippedWeaponIds.TrueForAll(string.IsNullOrEmpty)
+            && string.IsNullOrEmpty(state.player.currentWeaponId), "removing ownership also removes the equipped weapon and current selection");
+        var legacy = new GameState();
+        legacy.inventory.weapons = new List<string> { "sword", "axe", "hammer" };
+        legacy.inventory.equippedWeaponIds = null;
+        legacy.player.currentWeaponId = "axe";
+        EquipmentRules.EnsureInitialized(legacy);
+        Check(legacy.inventory.equippedWeaponIds[0] == "axe"
+            && legacy.inventory.equippedWeaponIds.FindAll(id => !string.IsNullOrEmpty(id)).Count == 1,
+            "legacy null equipment equips only the currently owned selected weapon");
+        legacy.inventory.equippedWeaponIds.Clear();
+        legacy.inventory.weapons = new List<string> { "not-a-weapon", "hammer", "sword" };
+        legacy.player.currentWeaponId = "axe";
+        EquipmentRules.EnsureInitialized(legacy);
+        Check(legacy.inventory.equippedWeaponIds[0] == "hammer" && legacy.player.currentWeaponId == "hammer",
+            "legacy empty equipment falls back to the first valid owned weapon");
+        legacy.inventory.weapons = new List<string> { "sword", "hammer" };
+        legacy.inventory.equippedWeaponIds = new List<string> { "sword", "sword", "not-a-weapon", "axe", "hammer" };
+        legacy.player.currentWeaponId = "axe";
+        EquipmentRules.EnsureInitialized(legacy);
+        Check(legacy.inventory.equippedWeaponIds.Count == 4 && legacy.inventory.equippedWeaponIds[0] == "sword"
+            && string.IsNullOrEmpty(legacy.inventory.equippedWeaponIds[1])
+            && string.IsNullOrEmpty(legacy.inventory.equippedWeaponIds[2])
+            && string.IsNullOrEmpty(legacy.inventory.equippedWeaponIds[3]) && legacy.player.currentWeaponId == "sword",
+            "legacy malformed loadout is limited to four slots and removes duplicates, unknown and unowned ids");
+        legacy.inventory.equippedWeaponIds = new List<string> { null, "hammer" };
+        legacy.player.currentWeaponId = "sword";
+        EquipmentRules.EnsureInitialized(legacy);
+        Check(legacy.inventory.equippedWeaponIds.Count == 4 && legacy.inventory.equippedWeaponIds[0] == null
+            && legacy.inventory.equippedWeaponIds[1] == "hammer" && legacy.player.currentWeaponId == "hammer",
+            "partial legacy slots retain explicit emptiness and select an actually equipped weapon");
+        legacy.inventory.weapons.Clear();
+        legacy.inventory.equippedWeaponIds.Clear();
+        EquipmentRules.EnsureInitialized(legacy);
+        Check(legacy.inventory.equippedWeaponIds.TrueForAll(string.IsNullOrEmpty)
+            && string.IsNullOrEmpty(legacy.player.currentWeaponId), "empty ownership does not manufacture equipment");
+        var missing = new GameState { player = null, inventory = null };
+        EquipmentRules.EnsureInitialized(missing);
+        Check(missing.player != null && missing.inventory != null && missing.inventory.equippedWeaponIds.Count == 4,
+            "equipment can initialize a legacy state with missing player and inventory");
+        Check(!EquipmentRules.TryEquip(null, 0, "sword") && !EquipmentRules.TrySelectWeapon(null, "sword"),
+            "equipment requests without a run are rejected");
+    }
     static void CheckShop()
     {
         var state = NewRunFactory.Create(Layout(), "sword", 99);

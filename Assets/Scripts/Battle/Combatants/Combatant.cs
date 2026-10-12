@@ -23,6 +23,14 @@ public class Combatant : MonoBehaviour
 
         OnHpChanged?.Invoke(this);  //如果有人订阅 HP 改变事件，就通知他们，并把当前角色传过去。
     }
+    // 恢复本局生命，并通过现有事件刷新血条。
+    protected void RestoreHealth(int savedHp, int savedMaxHp)
+    {
+        maxHp = Mathf.Max(1, savedMaxHp);
+        currentHp = Mathf.Clamp(savedHp, 0, maxHp);
+        OnHpChanged?.Invoke(this);
+    }
+
     public virtual int TakeDamage(int damage)
     {
         if (IsDead)

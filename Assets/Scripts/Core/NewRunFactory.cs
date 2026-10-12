@@ -16,6 +16,8 @@ public static class NewRunFactory
         ShopRules.StockNewRun(state.shop, weaponId);
         // Build and validate a fresh map before the caller replaces the current run.
         new MapProgression(layout, state.map, state.world, seed);
+        EquipmentRules.EnsureInitialized(state);
+        MainStoryRules.EnsureInitialized(state, layout);
         return state;
     }
 

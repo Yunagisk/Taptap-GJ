@@ -88,7 +88,11 @@ public class BattleResultUI : MonoBehaviour
                     throw new InvalidOperationException("The village scene is missing from Build Settings.");
                 villageTemplate = root.battleMapTemplate;
                 if (battleFlow.CurrentState == BattleState.Victory)
-                    map.TryCompleteNode(root.battleRequestId);
+                {
+                    if (!map.TryCompleteNode(root.battleRequestId))
+                        throw new InvalidOperationException("Cannot complete the battle request.");
+                    MainStoryRules.OnNodeCompleted(root.state, pending);
+                }
                 else
                 {
                     if (!map.TryReviveAtCheckpoint(root.battleRequestId))

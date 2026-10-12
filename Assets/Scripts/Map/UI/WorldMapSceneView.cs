@@ -37,6 +37,7 @@ public class WorldMapSceneView : MonoBehaviour
         if (font != null && font.sourceFontFile != null)
         {
             runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
+            runtimeFont.isMultiAtlasTexturesEnabled = true;
             foreach (var text in canvas.GetComponentsInChildren<TMP_Text>(true)) text.font = runtimeFont;
         }
         if (originalBackground != null) originalBackground.enabled = showOriginalBackground;

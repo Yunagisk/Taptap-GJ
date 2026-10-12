@@ -1,4 +1,4 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -55,13 +55,16 @@ public class VillageScreen : MonoBehaviour
         {
             if (template == null) throw new InvalidOperationException("Assign a WorldMapTemplate to VillageScreen.");
             // Reuse the existing run. Opening the village never starts a new map.
-            new MapProgression(template.Load(), root.state.map, root.state.world,
+            var progression = new MapProgression(template.Load(), root.state.map, root.state.world,
                 string.IsNullOrEmpty(root.state.map.templateId) ? Guid.NewGuid().GetHashCode() : root.state.map.randomSeed);
+            MainStoryRules.EnsureInitialized(root.state, progression.Layout);
+            EquipmentRules.EnsureInitialized(root.state);
         }
         catch (Exception error) { Debug.LogException(error, this); }
         if (font != null && font.sourceFontFile != null)
         {
             runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
+            runtimeFont.isMultiAtlasTexturesEnabled = true;
             var canvas = hpText != null ? hpText.GetComponentInParent<Canvas>()
                 : GetComponentInChildren<Canvas>(true);
             if (canvas != null)
@@ -87,6 +90,7 @@ public class VillageScreen : MonoBehaviour
 
     void Update()
     {
+        RefreshStatus();
         if (IsLoading || !Input.GetKeyDown(KeyCode.Escape)) return;
         if (panelConflict != null && panelConflict.activeSelf) CloseConflict();
         else if (panelRoot != null && panelRoot.activeSelf) ClosePanels();
@@ -106,6 +110,8 @@ public class VillageScreen : MonoBehaviour
     public void OpenBag()
     {
         Show(panelBag, focusSlot);
+        var equipment = panelBag != null ? panelBag.GetComponent<EquipmentPanelView>() : null;
+        if (equipment != null) equipment.Open();
     }
 
     public void OpenEvent()
@@ -214,7 +220,10 @@ public class VillageScreen : MonoBehaviour
             panelConflict.SetActive(false);
         SetBagButtons(true);
         if (panelRoot != null)
+        {
             panelRoot.SetActive(true);
+            panelRoot.transform.SetAsLastSibling();
+        }
         Select(focus);
     }
 

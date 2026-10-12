@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageTurnIn
+  m_EditorClassIdentifier:
+  dialogueId: village_turn_in
+  completionEffect: 3
+  startNode:
+    id: node0
+    speaker: "\u6751\u957f"
+    content: "\u4f60\u5df2\u7ecf\u51fb\u8d25\u61d2\u60f0\uff0c\u6211\u4ee3\u8868\u6751\u6c11\u611f\u8c22\u4f60\u3002\u8fd9\u4efd\u59d4\u6258\u7684\u6210\u679c\u5df2\u786e\u8ba4\u3002"
+    avatar: {fileID: 0}
+    choices: []
+    nextNodeID: 
+  nodes: []
