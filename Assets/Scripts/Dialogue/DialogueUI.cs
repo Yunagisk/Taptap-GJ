@@ -8,6 +8,7 @@ public class DialogueUI : MonoBehaviour, IPointerClickHandler
 {
     public TMP_Text speakerText;
     public TMP_Text contentText;
+    public Image avatarImage;
     public Transform choiceParent;
     public Button choicePrefab;
 
@@ -28,6 +29,7 @@ public class DialogueUI : MonoBehaviour, IPointerClickHandler
     {
         speakerText.text =node.speaker;
         contentText.text =node.content;
+        avatarImage.sprite = node.avatar;
 
 
         ClearChoice();
