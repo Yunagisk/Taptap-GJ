@@ -25,6 +25,7 @@ public class PlayerState
     public int lanternCharges = 2;           // 提灯次数
     public int maxLanternCharges = 2;        // 提灯上限
     public string currentWeaponId = "sword"; // 当前武器ID
+    public List<string> equippedWeaponIds = new List<string>() { "", "", "", "" };
 }
 
 //背包状态

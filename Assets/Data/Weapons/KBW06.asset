@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec845a17881ffd844b3c2c047c74f946, type: 3}
   m_Name: KBW06
   m_EditorClassIdentifier: 
-  weaponName: "\u9570\u5200"
+  weaponName: "镰刀"
   weaponId: sickle
-  attack: 6
+  damageComponents:
+  - damageType: 1
+    damage: 6
   attackCount: 2
-  damageType: 1
   skill: {fileID: 0}
   price: 8
+  attack: 6
+  damageType: 1

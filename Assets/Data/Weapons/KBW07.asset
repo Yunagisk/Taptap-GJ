@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec845a17881ffd844b3c2c047c74f946, type: 3}
   m_Name: KBW07
   m_EditorClassIdentifier: 
-  weaponName: "\u9524"
+  weaponName: "锤"
   weaponId: hammer
-  attack: 14
+  damageComponents:
+  - damageType: 2
+    damage: 14
   attackCount: 1
-  damageType: 2
   skill: {fileID: 0}
   price: 4
+  attack: 14
+  damageType: 2

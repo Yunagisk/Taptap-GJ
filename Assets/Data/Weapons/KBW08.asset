@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec845a17881ffd844b3c2c047c74f946, type: 3}
   m_Name: KBW08
   m_EditorClassIdentifier: 
-  weaponName: "\u94FE\u67B7"
+  weaponName: "链枷"
   weaponId: flail
-  attack: 5
+  damageComponents:
+  - damageType: 2
+    damage: 5
   attackCount: 2
-  damageType: 0
   skill: {fileID: 0}
   price: 8
+  attack: 5
+  damageType: 2

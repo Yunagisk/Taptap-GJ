@@ -9,6 +9,8 @@
     <Compile Include="../../Assets/Scripts/Core/NewRunFactory.cs" Link="NewRunFactory.cs" />
     <Compile Include="../../Assets/Scripts/Inventory/Weapons/WeaponTable.cs" Link="WeaponTable.cs" />
     <Compile Include="../../Assets/Scripts/Inventory/Weapons/ShopRules.cs" Link="ShopRules.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Weapons/EquipRules.cs" Link="EquipRules.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Weapons/WeaponStatTable.cs" Link="WeaponStatTable.cs" />
     <Compile Include="../../Assets/Scripts/Map/Data/MapLayout.cs" Link="MapLayout.cs" />
     <Compile Include="../../Assets/Scripts/Map/Logic/MapLayoutValidator.cs" Link="MapLayoutValidator.cs" />
     <Compile Include="../../Assets/Scripts/Map/Logic/MapProgression.cs" Link="MapProgression.cs" />

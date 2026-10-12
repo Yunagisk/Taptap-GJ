@@ -12,21 +12,9 @@ public class PlayerAttackAction : IBattleAction
             yield break;
 
         WeaponData weapon = player.CurrentWeapon;
-
-        var sourceComponents = weapon.DamageComponents;
-
-        if (sourceComponents == null || sourceComponents.Count == 0)
+        if (weapon == null) yield break;
+        if (!WeaponAttacks.TryBuild(weapon, out DamageComponent[] components, out int attackCount))
             yield break;
-
-        // 固定本次行动的攻击次数和伤害配置。
-        int attackCount = weapon.AttackCount;
-
-        DamageComponent[] components = new DamageComponent[sourceComponents.Count];
-
-        for (int i = 0; i < sourceComponents.Count; i++)
-        {
-            components[i] = sourceComponents[i];
-        }
 
         for (int i = 0; i < attackCount; i++)
         {

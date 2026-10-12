@@ -52,6 +52,7 @@ static class Program
         CheckMorningRevival();
         CheckVillageReentry();
         CheckShop();
+        CheckEquip();
         CheckWeaponPrices();
         var map = NewMap();
         foreach (string weapon in NewRunFactory.StartingWeapons)
@@ -59,6 +60,9 @@ static class Program
             var fresh = NewRunFactory.Create(Layout(), weapon, 67890);
             Check(fresh.player.currentWeaponId == weapon && fresh.inventory.weapons.Count == 1 && fresh.inventory.weapons[0] == weapon,
                 "new game owns only its chosen weapon");
+            Check(fresh.player.equippedWeaponIds[0] == weapon && fresh.player.equippedWeaponIds[1] == ""
+                && fresh.player.equippedWeaponIds[2] == "" && fresh.player.equippedWeaponIds[3] == "",
+                "new game equips only the chosen weapon in slot 1");
             Check(fresh.shop.stocked && fresh.shop.availableWeaponIds.Count == WeaponTable.All.Length - 1
                 && !fresh.shop.availableWeaponIds.Contains(weapon), "chosen weapon removed from new shop stock");
             Check(fresh.world.sinRemnant == WeaponTable.StartingRemnant, "new game prepays four sin remnants");
@@ -450,6 +454,45 @@ static class Program
             && state.world.sin == sin, "boss plus two small monsters pays for a 12-cost weapon");
     }
 
+    static void CheckEquip()
+    {
+        var state = NewRunFactory.Create(Layout(), "sword", 7);
+        var missing = EquipRules.TryEquip(state, "axe", 1, false);
+        Check(!missing.ok && !missing.needConfirm && state.player.equippedWeaponIds[1] == "",
+            "cannot equip a weapon that is not in the bag");
+        ShopRules.GrantRemnant(state.world, 4);
+        Check(ShopRules.TryBuy(state, "axe", 4).ok && state.inventory.weapons.Contains("axe"), "buy axe into the bag");
+        var equipped = EquipRules.TryEquip(state, "axe", 1, false);
+        Check(equipped.ok && state.player.equippedWeaponIds[0] == "sword" && state.player.equippedWeaponIds[1] == "axe"
+            && state.player.currentWeaponId == "axe" && state.inventory.weapons.Contains("sword")
+            && state.inventory.weapons.Contains("axe"),
+            "dragging into an empty slot equips and keeps the weapon in the bag");
+        var conflict = EquipRules.TryEquip(state, "axe", 0, false);
+        Check(!conflict.ok && conflict.needConfirm && state.player.equippedWeaponIds[0] == "sword"
+            && state.player.equippedWeaponIds[1] == "axe",
+            "replacing an occupied slot waits for confirm");
+        var replaced = EquipRules.TryEquip(state, "axe", 0, true);
+        Check(replaced.ok && state.player.equippedWeaponIds[0] == "axe" && state.player.equippedWeaponIds[1] == ""
+            && state.inventory.weapons.Contains("sword"),
+            "confirmed replace moves the weapon and leaves the old one in the bag");
+        var removed = EquipRules.TryUnequip(state, 0);
+        Check(removed.ok && state.player.equippedWeaponIds[0] == "" && state.inventory.weapons.Contains("axe"),
+            "dropping a slot back into the bag unequips without deleting the weapon");
+
+        var sword = WeaponStatTable.Find("sword");
+        var pole = WeaponStatTable.Find("poleaxe");
+        var heaven = WeaponStatTable.Find("heaven_fire");
+        Check(sword.pierce == 12 && sword.slash == 0 && sword.hits == 1, "sword basic attack is 12 pierce for one hit");
+        Check(WeaponStatTable.Find("dual_swords").pierce == 5 && WeaponStatTable.Find("dual_swords").hits == 2,
+            "dual swords hit twice for 5 pierce");
+        Check(WeaponStatTable.Find("axe").slash == 14 && WeaponStatTable.Find("hammer").blunt == 14
+            && WeaponStatTable.Find("torch").fire == 10 && WeaponStatTable.Find("flail").blunt == 5
+            && WeaponStatTable.Find("flail").hits == 2, "slash blunt and fire basics match the sheet");
+        Check(pole.pierce == 7 && pole.slash == 6 && pole.hits == 1, "poleaxe is one mixed pierce and slash hit");
+        Check(heaven.blunt == 7 && heaven.fire == 5 && heaven.hits == 1, "heaven fire is one mixed blunt and fire hit");
+        Check(WeaponStatTable.All.Length == WeaponTable.All.Length, "every shop weapon has a basic attack profile");
+    }
+
     static void CheckWeaponPrices()
     {
         var expected = new Dictionary<string, int>
@@ -471,6 +514,12 @@ static class Program
             Check(text.Contains("price: " + pair.Value), pair.Key + " price is " + pair.Value);
             Check(text.Contains("weaponId: " + ids[pair.Key]), pair.Key + " id is " + ids[pair.Key]);
         }
+        Check(File.ReadAllText(FindRepoFile(Path.Combine("Assets", "Data", "Weapons", "KBW01.asset"))).Contains("damage: 12"),
+            "sword asset deals 12 pierce");
+        string poleaxe = File.ReadAllText(FindRepoFile(Path.Combine("Assets", "Data", "Weapons", "KBW10.asset")));
+        Check(poleaxe.Contains("damage: 7") && poleaxe.Contains("damage: 6"), "poleaxe asset is mixed pierce and slash");
+        string torch = File.ReadAllText(FindRepoFile(Path.Combine("Assets", "Data", "Weapons", "KBW09.asset")));
+        Check(torch.Contains("damageType: 3") && torch.Contains("damage: 10"), "torch asset deals 10 fire");
     }
 
     static string FindRepoFile(string relative)

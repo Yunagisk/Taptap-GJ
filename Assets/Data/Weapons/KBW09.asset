@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec845a17881ffd844b3c2c047c74f946, type: 3}
   m_Name: KBW09
   m_EditorClassIdentifier: 
-  weaponName: "\u706B\u628A"
+  weaponName: "火把"
   weaponId: torch
-  attack: 0
+  damageComponents:
+  - damageType: 3
+    damage: 10
   attackCount: 1
-  damageType: 0
   skill: {fileID: 0}
   price: 4
+  attack: 10
+  damageType: 3

@@ -12,10 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec845a17881ffd844b3c2c047c74f946, type: 3}
   m_Name: KBW10
   m_EditorClassIdentifier: 
-  weaponName: "\u65A7\u67AA"
+  weaponName: "斧枪"
   weaponId: poleaxe
-  attack: 0
+  damageComponents:
+  - damageType: 0
+    damage: 7
+  - damageType: 1
+    damage: 6
   attackCount: 1
-  damageType: 0
   skill: {fileID: 0}
   price: 12
+  attack: 7
+  damageType: 0

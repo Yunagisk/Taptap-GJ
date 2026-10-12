@@ -55,7 +55,7 @@ public static class ShopRules
         state.world.sinRemnant -= price;
         state.shop.availableWeaponIds.Remove(weaponId);
         state.inventory.weapons.Add(weaponId);
-        return new PurchaseResult(true, "买下" + offer.displayName + "，已解锁。花费 " + price + " 罪骸。");
+        return new PurchaseResult(true, "买下" + offer.displayName + "，已放入背包。花费 " + price + " 罪骸。");
     }
 
     public static void GrantRemnant(WorldState world, int amount)

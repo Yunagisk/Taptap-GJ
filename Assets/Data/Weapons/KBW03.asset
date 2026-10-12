@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec845a17881ffd844b3c2c047c74f946, type: 3}
   m_Name: KBW03
   m_EditorClassIdentifier: 
-  weaponName: "\u957F\u77DB"
+  weaponName: "长矛"
   weaponId: spear
   damageComponents:
   - damageType: 0
-    damage: 0
+    damage: 13
   attackCount: 1
   skill: {fileID: 0}
   price: 8

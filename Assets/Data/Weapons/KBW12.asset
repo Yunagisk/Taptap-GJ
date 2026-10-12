@@ -12,10 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec845a17881ffd844b3c2c047c74f946, type: 3}
   m_Name: KBW12
   m_EditorClassIdentifier: 
-  weaponName: "\u5929\u706B"
+  weaponName: "天火"
   weaponId: heaven_fire
-  attack: 0
+  damageComponents:
+  - damageType: 2
+    damage: 7
+  - damageType: 3
+    damage: 5
   attackCount: 1
-  damageType: 0
   skill: {fileID: 0}
   price: 12
+  attack: 7
+  damageType: 2

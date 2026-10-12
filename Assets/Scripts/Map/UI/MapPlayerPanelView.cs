@@ -87,22 +87,34 @@ public class MapPlayerPanelView : MonoBehaviour
         int threshold = 100;
         if (mapController != null && mapController.Progression != null) threshold = mapController.Progression.Layout.sinThreshold;
         sinValueText.text = "罪恶值  " + state.world.sin + " / " + threshold;
+        EquipRules.Ensure(player);
         for (int i = 0; i < weaponNames.Length; i++)
         {
-            string id = i < state.inventory.weapons.Count ? state.inventory.weapons[i] : null;
-            bool equipped = !string.IsNullOrEmpty(id) && id == player.currentWeaponId;
+            string id = EquipRules.Slot(player, i);
+            bool current = !string.IsNullOrEmpty(id) && id == player.currentWeaponId;
             weaponNames[i].text = string.IsNullOrEmpty(id) ? "空槽" : NewRunFactory.WeaponName(id);
-            weaponStatuses[i].text = equipped ? "当前武器" : "";
-            weaponSlots[i].color = equipped ? new Color32(220, 235, 225, 255) : new Color32(232, 234, 239, 255);
+            weaponStatuses[i].text = current ? "当前武器" : "";
+            weaponSlots[i].color = current ? new Color32(220, 235, 225, 255) : new Color32(232, 234, 239, 255);
         }
         var items = new StringBuilder();
+        items.Append("武器背包");
+        if (state.inventory.weapons.Count == 0) items.Append("\n空");
+        for (int i = 0; i < state.inventory.weapons.Count; i++)
+        {
+            string id = state.inventory.weapons[i];
+            items.Append('\n').Append(NewRunFactory.WeaponName(id));
+            if (EquipRules.IndexOf(player, id) >= 0) items.Append("  已装配");
+        }
+        items.Append("\n\n道具");
+        bool anyItem = false;
         foreach (var item in state.inventory.items)
         {
             if (item == null || item.count <= 0 || string.IsNullOrEmpty(item.itemId)) continue;
-            if (items.Length > 0) items.Append('\n');
-            items.Append(item.itemId).Append("  × ").Append(item.count);
+            anyItem = true;
+            items.Append('\n').Append(item.itemId).Append("  × ").Append(item.count);
         }
-        string itemValue = items.Length == 0 ? "暂无道具" : items.ToString();
+        if (!anyItem) items.Append("\n暂无道具");
+        string itemValue = items.ToString();
         if (itemsText.text != itemValue)
         {
             itemsText.text = itemValue;

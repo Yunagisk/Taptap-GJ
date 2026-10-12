@@ -12,6 +12,7 @@ public static class NewRunFactory
         state.player.currentWeaponId = weaponId;
         state.inventory.weapons.Clear();
         state.inventory.weapons.Add(weaponId);
+        EquipRules.SetStarting(state.player, weaponId);
         state.world.sinRemnant = WeaponTable.StartingRemnant;
         ShopRules.StockNewRun(state.shop, weaponId);
         // Build and validate a fresh map before the caller replaces the current run.
