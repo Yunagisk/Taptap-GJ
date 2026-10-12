@@ -1,7 +1,4 @@
-using System.Reflection;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class BattleWeaponController : MonoBehaviour
 {
@@ -35,7 +32,6 @@ public class BattleWeaponController : MonoBehaviour
             }
         }
         if (start >= 0 && weapons[start] != null) SwitchWeapon(start);
-        else RefreshCombatLabels(null);
     }
 
     void ApplyRunLoadout()
@@ -86,58 +82,5 @@ public class BattleWeaponController : MonoBehaviour
         player.EquipWeapon(weapons[index]);
         if (GameRoot.I != null && GameRoot.I.state != null)
             GameRoot.I.state.player.currentWeaponId = weapons[index].WeaponId;
-        RefreshCombatLabels(weapons[index]);
-    }
-
-    void RefreshCombatLabels(WeaponData current)
-    {
-        var panel = GameObject.Find("WeaponsPanel");
-        if (panel != null)
-        {
-            var buttons = panel.GetComponentsInChildren<Button>(true);
-            for (int i = 0; i < buttons.Length; i++)
-            {
-                int slot = PersistentSlot(buttons[i]);
-                if (slot < 0) continue;
-                var label = buttons[i].GetComponentInChildren<TMP_Text>(true);
-                if (label == null) continue;
-                WeaponData data = weapons != null && slot < weapons.Length ? weapons[slot] : null;
-                label.fontSize = 16;
-                label.text = data == null ? "空" : data.WeaponName + "\n" + WeaponStatTable.AttackBrief(data.WeaponId);
-                buttons[i].interactable = data != null;
-            }
-        }
-
-        var attack = GameObject.Find("AttackButton");
-        if (attack == null) return;
-        var attackLabel = attack.GetComponentInChildren<TMP_Text>(true);
-        if (attackLabel == null || current == null) return;
-        attackLabel.text = "攻击\n" + WeaponStatTable.AttackBrief(current.WeaponId);
-    }
-
-    static int PersistentSlot(Button button)
-    {
-        if (button == null) return -1;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var callsField = typeof(UnityEngine.Events.UnityEventBase).GetField("m_PersistentCalls", flags);
-        if (callsField == null) return -1;
-        object group = callsField.GetValue(button.onClick);
-        if (group == null) return -1;
-        var listField = group.GetType().GetField("m_Calls", flags);
-        var list = listField != null ? listField.GetValue(group) as System.Collections.IList : null;
-        if (list == null) return -1;
-        for (int i = 0; i < list.Count; i++)
-        {
-            object call = list[i];
-            var method = call.GetType().GetField("m_MethodName", flags);
-            if (method == null || (string)method.GetValue(call) != "SwitchWeapon") continue;
-            var argsField = call.GetType().GetField("m_Arguments", flags);
-            if (argsField == null) continue;
-            object args = argsField.GetValue(call);
-            var intArg = args.GetType().GetField("m_IntArgument", flags);
-            if (intArg == null) continue;
-            return (int)intArg.GetValue(args);
-        }
-        return -1;
     }
 }

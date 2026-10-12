@@ -2,11 +2,13 @@ public readonly struct PurchaseResult
 {
     public readonly bool ok;
     public readonly string message;
+    public readonly bool shortRemnant;
 
-    public PurchaseResult(bool ok, string message)
+    public PurchaseResult(bool ok, string message, bool shortRemnant = false)
     {
         this.ok = ok;
         this.message = message;
+        this.shortRemnant = shortRemnant;
     }
 }
 
@@ -50,7 +52,7 @@ public static class ShopRules
         if (state.inventory.weapons.Count >= WeaponTable.Capacity)
             return new PurchaseResult(false, "武器背包已满。");
         if (state.world.sinRemnant < price)
-            return new PurchaseResult(false, "罪骸不足。需要 " + price + "，当前 " + state.world.sinRemnant + "。");
+            return new PurchaseResult(false, "罪骸不足。需要 " + price + "，当前 " + state.world.sinRemnant + "。", true);
 
         state.world.sinRemnant -= price;
         state.shop.availableWeaponIds.Remove(weaponId);

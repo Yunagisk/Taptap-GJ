@@ -50,6 +50,8 @@ public class VillageScreen : MonoBehaviour
     GameObject dragGhost;
     string pendingEquipId;
     int pendingEquipSlot = -1;
+    GameObject remnantNotice;
+    Button remnantConfirm;
     public bool IsLoading { get; private set; }
 
     void Awake()
@@ -101,7 +103,8 @@ public class VillageScreen : MonoBehaviour
     void Update()
     {
         if (IsLoading || !Input.GetKeyDown(KeyCode.Escape)) return;
-        if (panelConflict != null && panelConflict.activeSelf) CloseConflict();
+        if (remnantNotice != null && remnantNotice.activeSelf) CloseRemnantNotice();
+        else if (panelConflict != null && panelConflict.activeSelf) CloseConflict();
         else if (panelRoot != null && panelRoot.activeSelf) ClosePanels();
     }
 
@@ -130,6 +133,7 @@ public class VillageScreen : MonoBehaviour
     public void ClosePanels()
     {
         HideWeaponDetail(shownWeaponId);
+        HideRemnantNotice();
         SetBagButtons(true);
         if (panelConflict != null)
             panelConflict.SetActive(false);
@@ -244,6 +248,7 @@ public class VillageScreen : MonoBehaviour
 
         if (panelConflict != null)
             panelConflict.SetActive(false);
+        HideRemnantNotice();
         SetBagButtons(true);
         if (panelRoot != null)
             panelRoot.SetActive(true);
@@ -378,12 +383,139 @@ public class VillageScreen : MonoBehaviour
     void BuyWeapon(string id, int price)
     {
         if (GameRoot.I == null) return;
+        if (remnantNotice != null && remnantNotice.activeSelf) return;
         var result = ShopRules.TryBuy(GameRoot.I.state, id, price);
-        Say(result.message);
         RefreshStatus();
+        if (result.shortRemnant)
+        {
+            ShowRemnantNotice(result.message);
+            return;
+        }
+        Say(result.message);
         if (!result.ok) return;
         RebuildShop();
         RebuildBag();
+    }
+
+    void ShowRemnantNotice(string message)
+    {
+        HideWeaponDetail(shownWeaponId);
+        EnsureRemnantNotice();
+        if (remnantNotice == null)
+        {
+            Say(message);
+            return;
+        }
+        var body = remnantNotice.transform.Find("Panel/Body");
+        var bodyText = body != null ? body.GetComponent<TMP_Text>() : null;
+        if (bodyText != null) bodyText.text = message;
+        remnantNotice.SetActive(true);
+        remnantNotice.transform.SetAsLastSibling();
+        if (remnantConfirm != null) Select(remnantConfirm.gameObject);
+    }
+
+    void CloseRemnantNotice()
+    {
+        HideRemnantNotice();
+        if (shopContent == null) return;
+        for (int i = 0; i < shopContent.childCount; i++)
+        {
+            var child = shopContent.GetChild(i).gameObject;
+            if (!child.activeInHierarchy) continue;
+            Select(child);
+            return;
+        }
+    }
+
+    void HideRemnantNotice()
+    {
+        if (remnantNotice != null) remnantNotice.SetActive(false);
+    }
+
+    void EnsureRemnantNotice()
+    {
+        if (remnantNotice != null) return;
+        Canvas canvas = hpText != null ? hpText.canvas : null;
+        if (canvas == null) canvas = FindObjectOfType<Canvas>();
+        if (canvas == null) return;
+
+        remnantNotice = new GameObject("RemnantNotice", typeof(RectTransform), typeof(Image));
+        remnantNotice.transform.SetParent(canvas.transform, false);
+        Stretch(remnantNotice.GetComponent<RectTransform>());
+        var dim = remnantNotice.GetComponent<Image>();
+        dim.color = new Color(0f, 0f, 0f, 0.55f);
+        dim.raycastTarget = true;
+
+        var panel = new GameObject("Panel", typeof(RectTransform), typeof(Image), typeof(VerticalLayoutGroup));
+        panel.transform.SetParent(remnantNotice.transform, false);
+        var panelRect = panel.GetComponent<RectTransform>();
+        panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+        panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.pivot = new Vector2(0.5f, 0.5f);
+        panelRect.sizeDelta = new Vector2(520f, 280f);
+        panel.GetComponent<Image>().color = new Color(0.22f, 0.18f, 0.15f, 0.96f);
+        var layout = panel.GetComponent<VerticalLayoutGroup>();
+        layout.padding = new RectOffset(28, 28, 24, 24);
+        layout.spacing = 16;
+        layout.childAlignment = TextAnchor.UpperCenter;
+        layout.childControlWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandWidth = true;
+        layout.childForceExpandHeight = false;
+
+        var title = MakeNoticeText(panel.transform, "Title", "罪骸不足", 32, TextAlignmentOptions.Center);
+        var titleElement = title.gameObject.AddComponent<LayoutElement>();
+        titleElement.minHeight = 44;
+        titleElement.preferredHeight = 44;
+
+        var bodyText = MakeNoticeText(panel.transform, "Body", "", 24, TextAlignmentOptions.TopLeft);
+        var bodyElement = bodyText.gameObject.AddComponent<LayoutElement>();
+        bodyElement.minHeight = 96;
+        bodyElement.preferredHeight = 96;
+        bodyElement.flexibleHeight = 1;
+
+        Sprite buttonSprite = null;
+        var buttonType = Image.Type.Simple;
+        var buttonColor = new Color(0.45f, 0.32f, 0.22f, 1f);
+        var source = focusConflict != null ? focusConflict.GetComponent<Image>() : null;
+        if (source != null)
+        {
+            buttonSprite = source.sprite;
+            buttonType = source.type;
+            buttonColor = source.color;
+        }
+        var buttonGo = new GameObject("Confirm", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+        buttonGo.transform.SetParent(panel.transform, false);
+        var buttonImage = buttonGo.GetComponent<Image>();
+        buttonImage.sprite = buttonSprite;
+        buttonImage.type = buttonType;
+        buttonImage.color = buttonColor;
+        var buttonElement = buttonGo.GetComponent<LayoutElement>();
+        buttonElement.minHeight = 56;
+        buttonElement.preferredHeight = 56;
+        remnantConfirm = buttonGo.GetComponent<Button>();
+        remnantConfirm.targetGraphic = buttonImage;
+        remnantConfirm.navigation = new Navigation { mode = Navigation.Mode.None };
+        remnantConfirm.onClick.AddListener(CloseRemnantNotice);
+        var confirmLabel = MakeNoticeText(buttonGo.transform, "Label", "确定", 26, TextAlignmentOptions.Center);
+        Stretch(confirmLabel.rectTransform);
+        remnantNotice.SetActive(false);
+    }
+
+    TextMeshProUGUI MakeNoticeText(Transform parent, string name, string caption, float size, TextAlignmentOptions alignment)
+    {
+        var textGo = new GameObject(name, typeof(RectTransform));
+        textGo.transform.SetParent(parent, false);
+        var text = textGo.AddComponent<TextMeshProUGUI>();
+        if (runtimeFont != null) text.font = runtimeFont;
+        else if (toast != null) text.font = toast.font;
+        text.text = caption;
+        text.fontSize = size;
+        text.alignment = alignment;
+        text.color = new Color(0.96f, 0.93f, 0.88f, 1f);
+        text.enableWordWrapping = true;
+        text.raycastTarget = false;
+        return text;
     }
 
     void PrepareBag()
@@ -609,6 +741,7 @@ public class VillageScreen : MonoBehaviour
 
     public void ShowWeaponDetail(string weaponId, Vector2 screenPosition)
     {
+        if (remnantNotice != null && remnantNotice.activeSelf) return;
         if (detailRoot == null || string.IsNullOrEmpty(weaponId)) return;
         shownWeaponId = weaponId;
         detailText.text = WeaponStatTable.Detail(weaponId);

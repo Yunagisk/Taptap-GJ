@@ -430,10 +430,10 @@ static class Program
             && state.shop.availableWeaponIds.Contains("axe") && state.shop.availableWeaponIds.Contains("heaven_fire"),
             "shop stocks every weapon except the starting sword");
         var poor = ShopRules.TryBuy(state, "greatsword", WeaponTable.PriceOf("greatsword"));
-        Check(!poor.ok && state.world.sinRemnant == 4 && !state.inventory.weapons.Contains("greatsword"),
+        Check(!poor.ok && poor.shortRemnant && state.world.sinRemnant == 4 && !state.inventory.weapons.Contains("greatsword"),
             "cannot buy an 8-cost weapon with 4 remnants");
         var owned = ShopRules.TryBuy(state, "sword", 4);
-        Check(!owned.ok && state.inventory.weapons.Count == 1, "starting weapon stays unlocked and is not sold again");
+        Check(!owned.ok && !owned.shortRemnant && state.inventory.weapons.Count == 1, "starting weapon stays unlocked and is not sold again");
         var bought = ShopRules.TryBuy(state, "axe", WeaponTable.PriceOf("axe"));
         Check(bought.ok && state.world.sinRemnant == 0 && state.inventory.weapons.Contains("axe")
             && !state.shop.availableWeaponIds.Contains("axe") && state.world.sin == sin,
@@ -441,13 +441,13 @@ static class Program
         int remnant = state.world.sinRemnant;
         int ownedCount = state.inventory.weapons.Count;
         var again = ShopRules.TryBuy(state, "axe", 4);
-        Check(!again.ok && state.world.sinRemnant == remnant && state.inventory.weapons.Count == ownedCount
+        Check(!again.ok && !again.shortRemnant && state.world.sinRemnant == remnant && state.inventory.weapons.Count == ownedCount
             && !state.shop.availableWeaponIds.Contains("axe"), "sold weapon is not restocked");
         ShopRules.EnsureStock(state);
         Check(!state.shop.availableWeaponIds.Contains("axe"), "reopening the shop does not restock");
         ShopRules.GrantRemnant(state.world, WeaponTable.BossRemnant);
         var expensive = ShopRules.TryBuy(state, "heaven_fire", 12);
-        Check(!expensive.ok && state.world.sinRemnant == 10, "12-cost weapon stays locked without enough remnants");
+        Check(!expensive.ok && expensive.shortRemnant && state.world.sinRemnant == 10, "12-cost weapon stays locked without enough remnants");
         ShopRules.GrantRemnant(state.world, WeaponTable.SmallMonsterRemnant * 2);
         var unlocked = ShopRules.TryBuy(state, "heaven_fire", 12);
         Check(unlocked.ok && state.world.sinRemnant == 0 && state.inventory.weapons.Contains("heaven_fire")
