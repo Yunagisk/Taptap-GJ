@@ -147,7 +147,22 @@ public class VillageScreen : MonoBehaviour
 
     public void ConfirmInn()
     {
-        Say("旅馆已提交一次。关闭后再开不会重复结算。未写存档。");
+        // Ignore callbacks after closing the inn or while changing scenes.
+        if (IsLoading || panelRoot == null || !panelRoot.activeInHierarchy
+            || panelInn == null || !panelInn.activeInHierarchy) return;
+        var player = GameRoot.I != null && GameRoot.I.state != null ? GameRoot.I.state.player : null;
+        if (player == null) return;
+        if (player.hp >= player.maxHp)
+        {
+            Say("生命已满，无需休息。");
+            ClosePanels();
+            return;
+        }
+
+        int recovered = player.maxHp - player.hp;
+        player.hp = player.maxHp;
+        RefreshStatus();
+        Say("休息完成，恢复 " + recovered + " 点生命。");
         ClosePanels();
     }
 
