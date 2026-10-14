@@ -39,7 +39,7 @@ public class PlayerCombatant : Combatant
             base.Initialize();
 
         Statuses.ClearOrdinary();
-        OnMarksChanged?.Invoke(this);
+        NotifyMarks();
         OnDeterminationChanged?.Invoke(currentDetermination);
         OnDefenseChanged?.Invoke(this, IsDefending);
     }

@@ -41,7 +41,7 @@ public class EnemyCombatant : Combatant
         ResetBreak(breakThreshold);
         actionSelector = CreateActionSelector();
         actionSelector?.Reset();    //“如果 actionSelector 不为空，就调用 Reset()
-        OnMarksChanged?.Invoke(this);
+        NotifyMarks();
     }
 
     void ResetBreak(int threshold)
@@ -54,7 +54,7 @@ public class EnemyCombatant : Combatant
 
     void HandleBreakChanged()
     {
-        OnMarksChanged?.Invoke(this);
+        NotifyMarks();
     }
 
     // Boss 以后可以继承 EnemyCombatant，

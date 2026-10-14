@@ -45,6 +45,11 @@ public class Combatant : MonoBehaviour
         Statuses.ClearOrdinary();
 
         OnHpChanged?.Invoke(this);  //如果有人订阅 HP 改变事件，就通知他们，并把当前角色传过去。
+        NotifyMarks();
+    }
+
+    protected void NotifyMarks()
+    {
         OnMarksChanged?.Invoke(this);
     }
 
@@ -92,7 +97,7 @@ public class Combatant : MonoBehaviour
 
     void HandleStatusChanged()
     {
-        OnMarksChanged?.Invoke(this);
+        NotifyMarks();
     }
     // 恢复本局生命，并通过现有事件刷新血条。
     protected void RestoreHealth(int savedHp, int savedMaxHp)
