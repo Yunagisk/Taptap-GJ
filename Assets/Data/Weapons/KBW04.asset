@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: KBW04
   m_EditorClassIdentifier: 
   weaponName: "\u53CC\u5251"
+  weaponId: dual_swords
   damageComponents:
   - damageType: 0
     damage: 0

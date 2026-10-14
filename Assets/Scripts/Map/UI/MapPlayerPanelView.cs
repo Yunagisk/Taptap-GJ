@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class MapPlayerPanelView : MonoBehaviour
 {
+    public EquipmentPanelView equipmentPanel;
     public Canvas canvas;
     public WorldMapController mapController;
     public RectTransform hudRoot;
@@ -30,8 +31,13 @@ public class MapPlayerPanelView : MonoBehaviour
 
     float nextRefresh;
 
-    public bool IsInventoryOpen => inventoryPanel != null && inventoryPanel.target != null
-        && inventoryPanel.target.alpha > 0;
+    public bool IsInventoryOpen => equipmentPanel != null ? equipmentPanel.IsOpen
+        : inventoryPanel != null && inventoryPanel.target != null && inventoryPanel.target.alpha > 0;
+
+    public void SetEquipmentPanel(EquipmentPanelView panel)
+    {
+        equipmentPanel = panel;
+    }
 
     void Start()
     {
@@ -61,13 +67,16 @@ public class MapPlayerPanelView : MonoBehaviour
     public void OpenInventory()
     {
         Refresh();
+        if (equipmentPanel != null) { equipmentPanel.Open(); return; }
+        if (inventoryPanel == null) return;
         inventoryPanel.Show();
         inventoryPanel.transform.SetAsLastSibling();
     }
 
     public void CloseInventory()
     {
-        if (inventoryPanel != null) inventoryPanel.Hide();
+        if (equipmentPanel != null) equipmentPanel.Close();
+        else if (inventoryPanel != null) inventoryPanel.Hide();
     }
 
     public void Refresh()
@@ -76,13 +85,21 @@ public class MapPlayerPanelView : MonoBehaviour
         var state = GameRoot.I.state;
         var player = state.player;
         string health = player.hp + " / " + player.maxHp;
-        hudHealthText.text = "HP " + health;
+        if (hudHealthText != null) hudHealthText.text = "HP " + health;
+        float healthRatio = player.maxHp > 0 ? Mathf.Clamp01((float)player.hp / player.maxHp) : 0;
+        SetFill(hudHealthFill, healthRatio);
+        if (equipmentPanel != null)
+        {
+            equipmentPanel.Refresh();
+            return;
+        }
         inventoryHealthText.text = "生命值  " + health;
         float ratio = player.maxHp > 0 ? Mathf.Clamp01((float)player.hp / player.maxHp) : 0;
         SetFill(hudHealthFill, ratio);
         SetFill(inventoryHealthFill, ratio);
         resourcesText.text = "决心  " + player.resolve + " / " + player.maxResolve
-            + "\n提灯  " + player.lanternCharges + " / " + player.maxLanternCharges;
+            + "\n提灯  " + player.lanternCharges + " / " + player.maxLanternCharges
+            + "\n罪骸  " + state.world.sinRemnant;
         int threshold = 100;
         if (mapController != null && mapController.Progression != null) threshold = mapController.Progression.Layout.sinThreshold;
         sinValueText.text = "罪恶值  " + state.world.sin + " / " + threshold;

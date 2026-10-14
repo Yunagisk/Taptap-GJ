@@ -34,13 +34,16 @@ public class InventoryState
     //消耗品
     public List<ItemStack> items = new List<ItemStack>();
     //武器
-    public List<string> weapons = new List<string>() { "sword", "axe", "hammer", "torch" };
+    public List<string> weapons = new List<string>() { "sword" };
+    // 四个装备槽。空列表用于迁移旧局；四个空槽表示主动卸下。
+    public List<string> equippedWeaponIds = new List<string>();
 }
 
 [Serializable]
 public class ShopState
 {
-    public List<string> availableWeaponIds = new List<string> { "sword", "axe", "hammer", "dual_swords" };
+    public bool stocked;
+    public List<string> availableWeaponIds = new List<string>();
 }
 
 //世界状态
@@ -48,8 +51,9 @@ public class ShopState
 public class WorldState
 {
     public int time = 0;                    //世界时间
-    public int sin = 0;
-    public int stage = 1;//罪恶值
+    public int sin = 0;          // 罪恶。花钱不降这个值。
+    public int sinRemnant = WeaponTable.StartingRemnant; // 罪骸。全局货币。
+    public int stage = 1;
 }
 
 //地图状态
@@ -73,6 +77,27 @@ public class MapState
     public List<string> defeatedBossNodes = new List<string>();
 }
 
+public enum MainStoryStage
+{
+    ArrivedVillage,
+    VillageIntroductionComplete,
+    CommissionAccepted,
+    TutorialCompleted,
+    SlothDefeated,
+    CommissionTurnedIn
+}
+
+public enum StoryDialogueEffect { None, VillageIntroduction, AcceptCommission, TurnInCommission }
+
+[Serializable]
+public class MainStoryState
+{
+    public MainStoryStage stage = MainStoryStage.ArrivedVillage;
+    public string tutorialNodeId;
+    public string slothNodeId;
+    public List<string> completedDialogueIds = new List<string>();
+}
+
 //游戏总状态
 [Serializable]
 public class GameState
@@ -82,4 +107,5 @@ public class GameState
     public WorldState world = new WorldState();
     public MapState map = new MapState();
     public ShopState shop = new ShopState();
+    public MainStoryState story = new MainStoryState();
 }

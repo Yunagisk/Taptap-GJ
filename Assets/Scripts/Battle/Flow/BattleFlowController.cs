@@ -88,7 +88,8 @@ public class BattleFlowController : MonoBehaviour
     }
     public void PlayerAttack()
     {
-        if (currentState != BattleState.PlayerTurn)
+        if (currentState != BattleState.PlayerTurn || player == null
+            || player.IsDead || player.CurrentWeapon == null)
         {
             return;
         }
@@ -208,17 +209,6 @@ public class BattleFlowController : MonoBehaviour
 
         Debug.Log("战斗胜利");
         SetState(BattleState.Victory);
-
-        BattleResultUI resultUI = GetComponent<BattleResultUI>();
-
-        if (resultUI == null)
-        {
-            Debug.LogError("请在 BattleFlowController 所在物体上添加 BattleResultUI。",this);
-            return;
-        }
-
-        // 完成地图节点、解锁相邻路线，并切换回地图。
-        resultUI.ReturnToWorldMap();
     }
     private void Defeat()
     {

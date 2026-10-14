@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageAfterTutorial
+  m_EditorClassIdentifier:
+  dialogueId: village_after_tutorial
+  completionEffect: 0
+  startNode:
+    id: node0
+    speaker: "\u6751\u957f"
+    content: "\u4f60\u5df2\u7ecf\u5b8c\u6210\u7b2c\u4e00\u6b21\u6e05\u527f\u3002\u6751\u5e84\u9644\u8fd1\u66f4\u5927\u7684\u5a01\u80c1\u662f\u61d2\u60f0\uff1b\u51fb\u8d25\u5b83\u540e\uff0c\u56de\u6765\u5411\u6211\u4ea4\u4ed8\u59d4\u6258\u3002"
+    avatar: {fileID: 0}
+    choices: []
+    nextNodeID: 
+  nodes: []

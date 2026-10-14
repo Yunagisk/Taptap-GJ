@@ -35,6 +35,8 @@ public class WorldMapController : MonoBehaviour
         {
             int mapSeed = seed == 0 ? Guid.NewGuid().GetHashCode() : seed;
             Progression = new MapProgression(template.Load(), GameRoot.I.state.map, GameRoot.I.state.world, mapSeed);
+            MainStoryRules.EnsureInitialized(GameRoot.I.state, Progression.Layout);
+            EquipmentRules.EnsureInitialized(GameRoot.I.state);
             Notice = "懒惰已出现";
         }
         catch (Exception error) { Debug.LogException(error, this); enabled = false; }
@@ -91,6 +93,17 @@ public class WorldMapController : MonoBehaviour
             StateChanged?.Invoke();
             return;
         }
+        if (destination != null && destination.kind == MapNodeKind.Battle
+            && !Progression.State.clearedNodes.Contains(nodeId))
+        {
+            EquipmentRules.EnsureInitialized(GameRoot.I.state);
+            if (GameRoot.I.state.inventory.equippedWeaponIds.TrueForAll(string.IsNullOrEmpty))
+            {
+                Notice = "\u8bf7\u5148\u5728\u80cc\u5305\u4e2d\u88c5\u5907\u81f3\u5c11\u4e00\u628a\u6b66\u5668";
+                StateChanged?.Invoke();
+                return;
+            }
+        }
         if (Progression.CanReenterVillage(nodeId))
         {
             Notice = destination.displayName;
@@ -122,7 +135,10 @@ public class WorldMapController : MonoBehaviour
     // External battle/event screens return the requestId they received on entry.
     public void CompleteNode(string requestId)
     {
-        if (Progression == null || !Progression.TryCompleteNode(requestId)) return;
+        if (Progression == null) return;
+        var completed = Progression.GetPendingRequest();
+        if (!Progression.TryCompleteNode(requestId)) return;
+        MainStoryRules.OnNodeCompleted(GameRoot.I.state, completed);
         Notice = Progression.IsComplete ? "三个原罪区域已完成" : "节点已完成";
         StateChanged?.Invoke();
         if (Progression.IsComplete) onMapCompleted.Invoke();

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: KBW03
   m_EditorClassIdentifier: 
   weaponName: "\u957F\u77DB"
+  weaponId: spear
   damageComponents:
   - damageType: 0
     damage: 0

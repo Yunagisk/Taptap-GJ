@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-
 public class DialogueUI : MonoBehaviour, IPointerClickHandler
 {
     public TMP_Text speakerText;
@@ -11,77 +10,69 @@ public class DialogueUI : MonoBehaviour, IPointerClickHandler
     public Image avatarImage;
     public Transform choiceParent;
     public Button choicePrefab;
-
     public Button continueButton;
+    public DialogueManager manager;
+    public GameObject visibleRoot;
 
-    private void Awake()
-    {
+    private DialogueManager Owner => manager != null ? manager : DialogueManager.Instance;
 
-    }
-    private void Start()
+    private void OnEnable()
     {
-        continueButton.onClick.AddListener(() =>{DialogueManager.Instance.Next();});
+        if (continueButton != null) continueButton.onClick.AddListener(Continue);
     }
+
+    private void OnDisable()
+    {
+        if (continueButton != null) continueButton.onClick.RemoveListener(Continue);
+    }
+
+    private void Continue()
+    {
+        if (Owner != null) Owner.Next();
+    }
+
     public void ShowDialogue(DialogueNode node)
     {
-        speakerText.text =node.speaker;
-        contentText.text =node.content;
-        avatarImage.sprite = node.avatar;
-
-
+        if (node == null) return;
+        if (visibleRoot != null) visibleRoot.SetActive(true);
+        if (speakerText != null) speakerText.text = node.speaker;
+        if (contentText != null) contentText.text = node.content;
+        if (avatarImage != null)
+        {
+            avatarImage.sprite = node.avatar;
+            avatarImage.enabled = node.avatar != null;
+        }
         ClearChoice();
-
-        //判断是否需要继续提示
-        if (node.choices.Count == 0)
+        bool hasChoices = node.choices != null && node.choices.Count > 0;
+        if (continueButton != null) continueButton.gameObject.SetActive(!hasChoices);
+        if (!hasChoices || choiceParent == null || choicePrefab == null) return;
+        for (int i = 0; i < node.choices.Count; i++)
         {
-            continueButton.gameObject.SetActive(true);
+            var choice = node.choices[i];
+            if (choice == null) continue;
+            var button = Instantiate(choicePrefab, choiceParent);
+            button.gameObject.SetActive(true);
+            var text = button.GetComponentInChildren<TMP_Text>(true);
+            if (text != null) text.text = choice.choiceText;
+            int index = i;
+            button.onClick.AddListener(() => { if (Owner != null) Owner.Choose(index); });
         }
-        else
-        {
-           continueButton.gameObject.SetActive(false);
-        }
+    }
 
-        if (node.choices.Count > 0)
-        {
-            CreateChoices(node);
-        }
-
+    public void Hide()
+    {
+        ClearChoice();
+        if (visibleRoot != null) visibleRoot.SetActive(false);
     }
 
     private void ClearChoice()
     {
-        foreach (Transform child in choiceParent)
-        {
-            Destroy(child.gameObject);
-        }
-
+        if (choiceParent == null) return;
+        foreach (Transform child in choiceParent) Destroy(child.gameObject);
     }
 
-    private void CreateChoices(DialogueNode node)
-    {
-
-        foreach (var choice in node.choices)
-        {
-            Button btn = Instantiate(choicePrefab, choiceParent);
-
-            btn.GetComponentInChildren<TMP_Text>().text = choice.choiceText;
-
-            int index = node.choices.IndexOf(choice);
-
-            btn.onClick.AddListener(() => { DialogueManager.Instance.Choose(index); });
-
-        }
-
-    }
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (DialogueManager.Instance.HasChoice())
-        {
-            return;
-        }
-
-        DialogueManager.Instance.Next();
-
+        if (Owner != null && Owner.IsPlaying && !Owner.HasChoice()) Owner.Next();
     }
-
 }
