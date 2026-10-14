@@ -24,17 +24,37 @@ public class EnemyCombatant : Combatant
     [SerializeField] private bool isBoss;
     public int SinRemnantReward => isBoss ? WeaponTable.BossRemnant : WeaponTable.SmallMonsterRemnant;
 
-    // 未来可以在这里增加眩晕等状态检查。
-    public virtual bool CanAct => !IsDead; //跳过行动不推进循环
+    [Header("破防阈值")]
+    [SerializeField] private int breakThreshold = 2;
+
+    BreakGauge breakGauge;
+    public BreakGauge Break => breakGauge;
+
+    // 死亡才不能行动。破防跳过仍要推进招式循环。
+    public virtual bool CanAct => !IsDead;
 
     public override void Initialize()
     {
         base.Initialize();
 
         isActing = false;
-
+        ResetBreak(breakThreshold);
         actionSelector = CreateActionSelector();
         actionSelector?.Reset();    //“如果 actionSelector 不为空，就调用 Reset()
+        OnMarksChanged?.Invoke(this);
+    }
+
+    void ResetBreak(int threshold)
+    {
+        if (breakGauge != null)
+            breakGauge.Changed -= HandleBreakChanged;
+        breakGauge = new BreakGauge(threshold);
+        breakGauge.Changed += HandleBreakChanged;
+    }
+
+    void HandleBreakChanged()
+    {
+        OnMarksChanged?.Invoke(this);
     }
 
     // Boss 以后可以继承 EnemyCombatant，
@@ -68,12 +88,23 @@ public class EnemyCombatant : Combatant
             yield break;
         }
 
+        if (Break != null && Break.ConsumeSkip())
+        {
+            EnemyAttackData skipped = actionSelector.SelectAction();
+            string skippedName = skipped != null ? skipped.AttackName : "行动";
+            Debug.Log($"{name} 破防，跳过 {skippedName}");
+            actionSelector.OnActionCompleted();
+            SettleOwnTurn(player);
+            yield break;
+        }
+
         //第二步，选招并锁定行动状态：
         EnemyAttackData selectedAction =actionSelector.SelectAction();
 
         if (selectedAction == null)
         {
             Debug.LogWarning($"{name} 没有可用招式，跳过本次行动");
+            SettleOwnTurn(player);
             yield break;
         }
 
@@ -97,6 +128,18 @@ public class EnemyCombatant : Combatant
         {
             isActing = false;
         }
+
+        SettleOwnTurn(player);
+    }
+
+    void SettleOwnTurn(PlayerCombatant player)
+    {
+        if (this == null || IsDead || player == null || player.IsDead)
+            return;
+
+        TurnEndResult end = StatusSettlement.SettleOwnTurn(new CombatantStatusHost(this), BattleRound);
+        if (end.IgniteBroke)
+            Debug.Log($"{name} 点燃造成破防，下一次行动跳过");
     }
 
 }

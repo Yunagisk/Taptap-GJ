@@ -38,6 +38,8 @@ public class PlayerCombatant : Combatant
         else
             base.Initialize();
 
+        Statuses.ClearOrdinary();
+        OnMarksChanged?.Invoke(this);
         OnDeterminationChanged?.Invoke(currentDetermination);
         OnDefenseChanged?.Invoke(this, IsDefending);
     }
@@ -75,7 +77,16 @@ public class PlayerCombatant : Combatant
 
     public WeaponData CurrentWeapon => currentWeapon;
 
-    public int AttackCount =>  currentWeapon != null ? currentWeapon.AttackCount : 0;
+    public int AttackCount
+    {
+        get
+        {
+            int count = currentWeapon != null ? currentWeapon.AttackCount : 0;
+            if (count <= 0)
+                return 0;
+            return count + StatusRules.ExtraBasicSegments(Statuses);
+        }
+    }
 
     public IReadOnlyList<DamageComponent> DamageComponents =>
         currentWeapon != null
@@ -144,24 +155,29 @@ public class PlayerCombatant : Combatant
 
     public event Action<int> OnDeterminationChanged;
 
-    //增加决心
-    public void AddDetermination(int amount = 1)
+    // 疲惫把本次收益变成 0。坚定只在额外 1 点真的进池后减层。
+    public int AddDetermination(int amount = 1)
     {
-        if (amount <= 0)
-            return;
+        bool exhausted = Statuses.Has(StatusId.Exhaust);
+        ResolveGrant grant = StatusRules.GrantResolve(
+            currentDetermination,
+            maxDetermination,
+            amount,
+            exhausted,
+            Statuses.Stacks(StatusId.Steadfast));
 
-        int newValue = Mathf.Clamp(
-            currentDetermination + amount,
-            0,
-            maxDetermination
-        );
+        if (exhausted && amount > 0)
+            Debug.Log($"{name} 疲惫，决心不增加");
 
-        if (newValue == currentDetermination)
-            return;
+        if (grant.ConsumeSteadfast)
+            Statuses.Reduce(StatusId.Steadfast, 1);
 
-        currentDetermination = newValue;
+        if (grant.Granted <= 0)
+            return 0;
 
+        currentDetermination += grant.Granted;
         OnDeterminationChanged?.Invoke(currentDetermination);
+        return grant.Granted;
     }
 
     //消耗决心

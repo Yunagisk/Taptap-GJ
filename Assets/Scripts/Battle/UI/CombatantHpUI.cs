@@ -18,6 +18,7 @@ public class CombatantHpUI : MonoBehaviour
         if(target != null)
         {
             target.OnHpChanged += UpdateHPUI;//监听者知道战斗现在切换到了什么状态，然后根据这个状态做自己的事情
+            target.OnMarksChanged += UpdateHPUI;
         }
     }
     private void Start()
@@ -33,6 +34,7 @@ public class CombatantHpUI : MonoBehaviour
         if(target != null)
         {
             target.OnHpChanged -= UpdateHPUI;
+            target.OnMarksChanged -= UpdateHPUI;
         }
     }
 
@@ -41,7 +43,25 @@ public class CombatantHpUI : MonoBehaviour
         hpSlider.maxValue=combatant.MaxHP;
         hpSlider.value=combatant.CurrentHP;
 
-        hpText.text =
-           $"{combatant.CurrentHP} / {combatant.MaxHP}";
+        string line = $"{combatant.CurrentHP} / {combatant.MaxHP}";
+        string marks = MarksOf(combatant);
+        if (!string.IsNullOrEmpty(marks))
+            line += "\n" + marks;
+        hpText.text = line;
+    }
+
+    static string MarksOf(Combatant combatant)
+    {
+        string marks = combatant.Statuses.Format();
+        EnemyCombatant enemy = combatant as EnemyCombatant;
+        if (enemy == null || enemy.Break == null)
+            return marks;
+
+        string breakText = enemy.Break.Format(combatant.BattleRound);
+        if (string.IsNullOrEmpty(breakText))
+            return marks;
+        if (string.IsNullOrEmpty(marks))
+            return breakText;
+        return marks + " " + breakText;
     }
 }

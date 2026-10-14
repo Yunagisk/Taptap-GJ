@@ -18,8 +18,8 @@ public class PlayerAttackAction : IBattleAction
         if (sourceComponents == null || sourceComponents.Count == 0)
             yield break;
 
-        // 固定本次行动的攻击次数和伤害配置。
-        int attackCount = weapon.AttackCount;
+        // 固定本次行动的攻击次数和伤害配置。加速只给普攻多 1 段。
+        int attackCount = player.AttackCount;
 
         DamageComponent[] components = new DamageComponent[sourceComponents.Count];
 

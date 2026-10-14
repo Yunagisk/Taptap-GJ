@@ -21,6 +21,12 @@ public class EnemyAttackData : ScriptableObject
     [Min(0f)]
     [SerializeField] private float hitInterval = 0.3f;
 
+    [Header("整次招式结束后施加一次。不勾选则不施加")]
+    [SerializeField] private bool applyStatus;
+    [SerializeField] private StatusId statusOnHit = StatusId.Poison;
+    [Min(0)]
+    [SerializeField] private int statusStacks;
+
     public string AttackName =>string.IsNullOrWhiteSpace(attackName) ? name : attackName;
     public int Damage => Mathf.Max(0, damage);
     public int AttackCount => Mathf.Max(1, attackCount);
@@ -44,9 +50,17 @@ public class EnemyAttackData : ScriptableObject
     }
 
     // 每次命中完成后调用，包括实际伤害为 0 的情况。
-    // 未来在这里向目标的状态组件施加效果。
+    // 状态不要写在这里。整次招式结束时走 ApplyRider，只施加一次。
     public virtual void OnHit(Combatant attacker,Combatant target,int hitIndex,int actualDamage)
     {
 
+    }
+
+    // 状态按整次招式施加一次，不按段叠加。
+    public void ApplyRider(Combatant target)
+    {
+        if (!applyStatus || statusStacks <= 0 || target == null || target.IsDead)
+            return;
+        target.ApplyStatus(statusOnHit, statusStacks);
     }
 }

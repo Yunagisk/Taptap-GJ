@@ -53,8 +53,18 @@ public static class DamageSystem
         }
 
         // 防御由 PlayerCombatant.TakeDamage 统一处理。
-        // 全部分量伤害为 0 时，不触发扣血。
-        int actualDamage = totalTypeDamage > 0 ? info.target.TakeDamage(totalTypeDamage): 0;
+        // 衰弱和破甲在防御之前乘上。全部分量伤害为 0 时，不触发扣血。
+        int modifiedDamage = ScaleDirect(info.attacker, info.target, totalTypeDamage);
+        int actualDamage = modifiedDamage > 0 ? info.target.TakeDamage(modifiedDamage): 0;
+
+        if (info.target is EnemyCombatant enemy && enemy.Break != null && !info.target.IsDead)
+        {
+            int gain = StatusRules.BreakFromSegment(PartsFrom(results));
+            if (gain > 0 && enemy.Break.TryAdd(gain, enemy.BattleRound))
+            {
+                Debug.Log($"{enemy.name} 破防。保护到第{enemy.Break.ProtectedThroughRound}轮，下一次行动跳过。");
+            }
+        }
 
         string attackerName = info.attacker != null? info.attacker.name: "未知攻击者";
 
@@ -62,9 +72,29 @@ public static class DamageSystem
          $"{attackerName} -> {info.target.name}，" +
          $"基础总伤害：{totalBaseDamage}，" +
          $"抗性修正后：{totalTypeDamage}，" +
+         $"状态修正后：{modifiedDamage}，" +
          $"实际扣血：{actualDamage}");
 
         return new AllDamageResult(results,totalBaseDamage,totalTypeDamage,actualDamage);
+    }
+
+    static int ScaleDirect(Combatant attacker, Combatant target, int amount)
+    {
+        bool weak = attacker != null && attacker.Statuses.Has(StatusId.Weak);
+        bool sunder = target != null && target.Statuses.Has(StatusId.Sunder);
+        return StatusRules.ScaleDirectDamage(amount, weak, sunder);
+    }
+
+    static SegmentPart[] PartsFrom(SingleDamageResult[] results)
+    {
+        SegmentPart[] parts = new SegmentPart[results.Length];
+        for (int i = 0; i < results.Length; i++)
+        {
+            parts[i] = new SegmentPart(
+                CombatantStatusHost.Map(results[i].damageReaction),
+                results[i].baseDamage);
+        }
+        return parts;
     }
 
     private static AllDamageResult EmptyResult()
@@ -90,12 +120,13 @@ public static class DamageSystem
         string attackerName = info.attacker.name;
         string targetName = info.target.name;
 
-        // 玩家防御仍由 PlayerCombatant.TakeDamage 处理。
-        int actualDamage = info.target.TakeDamage(damage);
+        // 玩家防御仍由 PlayerCombatant.TakeDamage 处理。破甲和衰弱先乘。
+        int modifiedDamage = ScaleDirect(info.attacker, info.target, damage);
+        int actualDamage = info.target.TakeDamage(modifiedDamage);
 
         Debug.Log(
             $"{attackerName} -> {targetName}，" +
-            $"基础伤害：{damage}，实际扣血：{actualDamage}");
+            $"基础伤害：{damage}，状态修正后：{modifiedDamage}，实际扣血：{actualDamage}");
 
         return actualDamage;
     }

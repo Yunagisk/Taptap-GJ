@@ -52,5 +52,8 @@ public class EnemyAttackAction
                 yield return new WaitForSeconds(hitInterval);
             }
         }
+
+        if (enemy != null && player != null && !player.IsDead)
+            attackData.ApplyRider(player);
     }
 }
