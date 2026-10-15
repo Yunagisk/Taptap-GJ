@@ -243,7 +243,7 @@ public static class GameFlowSceneBuilder
         button.GetComponent<Image>().color = new Color(1, 1, 1, 0.07f);
         var label = button.GetComponentInChildren<TMP_Text>();
         label.color = Color.white;
-        label.fontSize = 30;
+        label.fontSize = 39;
         label.alignment = TextAlignmentOptions.MidlineLeft;
         label.margin = new Vector4(18, 0, 0, 0);
         var colors = button.colors;
@@ -280,7 +280,7 @@ public static class GameFlowSceneBuilder
         var text = Rect(name, parent).gameObject.AddComponent<TextMeshProUGUI>();
         text.font = Font;
         text.text = value;
-        text.fontSize = fontSize;
+        text.fontSize = Mathf.Round(fontSize * 1.3f);
         text.color = color;
         text.richText = false;
         text.raycastTarget = false;

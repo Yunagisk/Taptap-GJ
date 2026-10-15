@@ -212,7 +212,7 @@ public class BattleResultUI : MonoBehaviour
         var label = obj.GetComponent<TextMeshProUGUI>();
         label.font = runtimeFont != null ? runtimeFont : font;
         label.text = text;
-        label.fontSize = size;
+        label.fontSize = Mathf.Round(size * 1.3f);
         label.color = Color.white;
         label.alignment = TextAlignmentOptions.Center;
         label.raycastTarget = false;

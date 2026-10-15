@@ -402,8 +402,8 @@ public static class P0ScenePrefabBuilder
             var label = existing.slotLabels[i];
             label.font = font;
             label.enableAutoSizing = true;
-            label.fontSizeMax = Mathf.Clamp(label.fontSize, 14, 32);
-            label.fontSizeMin = 14;
+            label.fontSizeMax = Mathf.Clamp(label.fontSize, 18, 84);
+            label.fontSizeMin = 18;
             var weapons = loadout.EquippedWeapons;
             var weapon = weapons != null && i < weapons.Length ? weapons[i] : null;
             label.text = weapon != null ? weapon.WeaponName : "空槽";
@@ -705,7 +705,7 @@ public static class P0ScenePrefabBuilder
     {
         var label = Rect(name, parent).gameObject.AddComponent<TextMeshProUGUI>();
         label.font = font;
-        label.fontSize = fontSize;
+        label.fontSize = Mathf.Round(fontSize * 1.3f);
         label.color = Ink;
         label.text = text;
         label.richText = false;

@@ -138,7 +138,7 @@ public static class MapSceneBuilder
         outline.effectDistance = new Vector2(2, -2);
         view.nodePanel = panel.gameObject;
         view.nodeTitle = Text("NodeTitle", panel.transform, view.font, "节点", new Vector2(0, 90), new Vector2(300, 45));
-        view.nodeTitle.fontSize = 24;
+        view.nodeTitle.fontSize = 31;
         view.nodeDescription = Text("NodeDescription", panel.transform, view.font, "处理中", new Vector2(0, 20), new Vector2(300, 85));
         var action = Image("CompleteNode", panel.transform, new Color32(54, 86, 66, 255));
         Center(action.rectTransform, new Vector2(0, -90), new Vector2(290, 55));
@@ -173,7 +173,7 @@ public static class MapSceneBuilder
         node.outline = obj.AddComponent<Outline>();
         node.outline.effectDistance = new Vector2(2, -2);
         node.label.font = font;
-        node.label.fontSize = 20;
+        node.label.fontSize = 26;
         node.label.enableAutoSizing = false;
         node.label.alignment = TextAlignmentOptions.Center;
         node.label.margin = new Vector4(5, 3, 5, 3);
@@ -190,7 +190,7 @@ public static class MapSceneBuilder
     static TMP_Text Configure(TMP_Text text, Vector2 position, Vector2 size)
     {
         Center(text.rectTransform, position, size);
-        text.fontSize = 22;
+        text.fontSize = 29;
         text.color = new Color32(30, 33, 29, 255);
         text.alignment = TextAlignmentOptions.MidlineLeft;
         text.enableAutoSizing = false;

@@ -210,7 +210,7 @@ public static class MapPlayerPanelBuilder
     static void Style(TMP_Text text, TMP_FontAsset font, float size, Color color)
     {
         text.font = font;
-        text.fontSize = size;
+        text.fontSize = Mathf.Round(size * 1.3f);
         text.color = color;
         text.alignment = TextAlignmentOptions.MidlineLeft;
         text.enableAutoSizing = false;
