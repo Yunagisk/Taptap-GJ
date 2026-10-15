@@ -18,6 +18,7 @@ public static class NewRunFactory
         new MapProgression(layout, state.map, state.world, seed);
         EquipmentRules.EnsureInitialized(state);
         MainStoryRules.EnsureInitialized(state, layout);
+        VillageEventRules.InitializeForRun(state, layout);
         return state;
     }
 

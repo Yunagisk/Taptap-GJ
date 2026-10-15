@@ -25,6 +25,9 @@ public class PlayerState
     public int lanternCharges = 2;           // 提灯次数
     public int maxLanternCharges = 2;        // 提灯上限
     public string currentWeaponId = "sword"; // 当前武器ID
+    public int nextDirectHitReductionPercent;
+    public int nextAttackBonusPercent;
+    public int nextCampRecoveryBonusPercent;
 }
 
 //背包状态
@@ -51,9 +54,10 @@ public class ShopState
 public class WorldState
 {
     public int time = 0;                    //世界时间
-    public int sin = 0;          // 罪恶。花钱不降这个值。
+    public int sin = 40;         // 罪恶，范围 0~100；与罪骸货币独立。
     public int sinRemnant = WeaponTable.StartingRemnant; // 罪骸。全局货币。
     public int stage = 1;
+    public VillageEventState villageEvents = new VillageEventState();
 }
 
 //地图状态
@@ -75,6 +79,7 @@ public class MapState
     public List<string> revealedNodes = new List<string>();
     public List<string> spawnedBossNodes = new List<string>();
     public List<string> defeatedBossNodes = new List<string>();
+    public WildernessLevelState wildernessEvents;
 }
 
 public enum MainStoryStage

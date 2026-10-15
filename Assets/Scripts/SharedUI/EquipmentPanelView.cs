@@ -146,7 +146,7 @@ public class EquipmentPanelView : MonoBehaviour
         if (statusText != null) statusText.text = "决心  " + player.resolve + " / " + player.maxResolve
             + "    提灯  " + player.lanternCharges + " / " + player.maxLanternCharges
             + "\n罪骸  " + state.world.sinRemnant;
-        if (sinText != null) sinText.text = "罪恶值  " + state.world.sin;
+        if (sinText != null) sinText.text = "罪恶值  " + state.world.sin + " / " + WorldResourceRules.MaxSin;
         if (questText != null) questText.text = "当前目标  " + MainStoryRules.GoalText(state);
         var itemLines = new StringBuilder();
         foreach (var item in state.inventory.items)

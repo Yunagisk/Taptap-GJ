@@ -316,6 +316,18 @@ public static class P0ScenePrefabBuilder
         replacement.SetActive(false);
         PrefabUtility.RecordPrefabInstancePropertyModifications(replacement);
         PrefabUtility.RecordPrefabInstancePropertyModifications(replacement.transform);
+        // Keep the migrated tavern entry when rebuilding unrelated P0 UI.
+        var tavernStory = screen.panelEvent != null
+            ? screen.panelEvent.GetComponent<VillageStoryPanelUI>() : null;
+        if (tavernStory != null)
+        {
+            tavernStory.template = screen.template;
+            foreach (var previous in Components<VillageStoryPanelUI>(scene).ToArray())
+                if (previous != tavernStory) Object.DestroyImmediate(previous.gameObject);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(tavernStory);
+            EditorUtility.SetDirty(screen);
+            return;
+        }
         foreach (var previous in Components<VillageStoryPanelUI>(scene).ToArray())
             Object.DestroyImmediate(previous.gameObject);
         var canvas = screen.hpText != null ? screen.hpText.GetComponentInParent<Canvas>()
@@ -489,8 +501,10 @@ public static class P0ScenePrefabBuilder
             var screen = Components<VillageScreen>(scene).First();
             ValidateEquipment(screen.panelBag.GetComponent<EquipmentPanelView>());
             var story = Components<VillageStoryPanelUI>(scene).Single();
-            Require(PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(story.gameObject) == StoryPath,
-                "Village story UI must be a connected prefab.");
+            string storyPrefab = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(story.gameObject);
+            Require(storyPrefab == StoryPath
+                || (storyPrefab == Folder + "/TavernPanel.prefab" && screen.panelEvent == story.gameObject),
+                "Village story UI must be a connected story or tavern prefab.");
             Require(story.questText != null && story.talkButton != null && story.template != null, "Story HUD references are missing.");
             Require(story.welcomeDialogue != null && story.commissionDialogue != null && story.afterTutorialDialogue != null
                 && story.turnInDialogue != null && story.afterTurnInDialogue != null, "Story dialogues are missing.");

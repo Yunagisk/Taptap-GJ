@@ -43,8 +43,9 @@ public static class DamageSystem
                 multiplier = resistance.GetDamageMultiplier(component.damageType);
             }
 
-            // 每个分量分别修正并向下取整。
-            int typeDamage = Mathf.Max( 0,Mathf.FloorToInt(baseDamage * multiplier));
+            // 强化与抗性一起计算，每个分量只向下取整一次。
+            int typeDamage = Mathf.Max(0,
+                Mathf.FloorToInt(baseDamage * multiplier * Mathf.Max(0f, info.damageMultiplier)));
 
             results[i] = new SingleDamageResult( component.damageType,reaction,baseDamage,typeDamage);
 
@@ -90,8 +91,18 @@ public static class DamageSystem
         string attackerName = info.attacker.name;
         string targetName = info.target.name;
 
-        // 玩家防御仍由 PlayerCombatant.TakeDamage 处理。
-        int actualDamage = info.target.TakeDamage(damage);
+        var runPlayer = info.target is PlayerCombatant && GameRoot.I != null
+            && GameRoot.I.state != null ? GameRoot.I.state.player : null;
+        int reductionPercent = runPlayer != null
+            ? Mathf.Clamp(runPlayer.nextDirectHitReductionPercent, 0, 100) : 0;
+        // 酒馆强化先减伤，再由 PlayerCombatant 计算防御。正伤害至少保留 1 点。
+        int reducedDamage = reductionPercent > 0
+            ? Mathf.Max(1, Mathf.FloorToInt(damage * (1f - reductionPercent / 100f))) : damage;
+        int actualDamage = info.target.TakeDamage(reducedDamage);
+        // 零伤害招式、未扣血的命中不消耗；旧战斗回调不能修改重开的状态。
+        if (actualDamage > 0 && reductionPercent > 0 && GameRoot.I != null
+            && GameRoot.I.state != null && GameRoot.I.state.player == runPlayer)
+            runPlayer.nextDirectHitReductionPercent = 0;
 
         Debug.Log(
             $"{attackerName} -> {targetName}，" +

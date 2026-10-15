@@ -6,6 +6,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Assets/Scripts/Core/GameState.cs" Link="GameState.cs" />
+    <Compile Include="../../Assets/Scripts/Core/WorldResourceRules.cs" Link="WorldResourceRules.cs" />
+    <Compile Include="../../Assets/Scripts/Wilderness/WildernessEventRules.cs" Link="WildernessEventRules.cs" />
+    <Compile Include="../../Assets/Scripts/Wilderness/MapWildernessRules.cs" Link="MapWildernessRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/VillageEventRules.cs" Link="VillageEventRules.cs" />
     <Compile Include="../../Assets/Scripts/Core/NewRunFactory.cs" Link="NewRunFactory.cs" />
     <Compile Include="../../Assets/Scripts/Core/MainStoryRules.cs" Link="MainStoryRules.cs" />
     <Compile Include="../../Assets/Scripts/Core/EquipmentRules.cs" Link="EquipmentRules.cs" />
@@ -15,6 +19,7 @@
     <Compile Include="../../Assets/Scripts/Map/Logic/MapLayoutValidator.cs" Link="MapLayoutValidator.cs" />
     <Compile Include="../../Assets/Scripts/Map/Logic/MapProgression.cs" Link="MapProgression.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="VillageEventChecks.cs" />
     <Content Include="../../Assets/Data/Maps/ThreeSinWhitebox.json" Link="ThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

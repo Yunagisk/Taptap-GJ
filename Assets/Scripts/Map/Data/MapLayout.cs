@@ -32,8 +32,8 @@ public class MapLayout
     public string villageNodeId = "village";
     public int initialSin = 40;
     public int sinThreshold = 100;
-    public int sinPerMoveMin = 8;
-    public int sinPerMoveMax = 12;
+    public int sinPerMoveMin = 3;
+    public int sinPerMoveMax = 3;
     public float bossNodeClearance;
     public float bossApproachDistance;
     public List<MapRegionDefinition> regions = new List<MapRegionDefinition>();

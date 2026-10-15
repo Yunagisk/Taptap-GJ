@@ -3,8 +3,8 @@
   "villageNodeId": "village",
   "initialSin": 40,
   "sinThreshold": 100,
-  "sinPerMoveMin": 8,
-  "sinPerMoveMax": 12,
+  "sinPerMoveMin": 3,
+  "sinPerMoveMax": 3,
   "regions": [
     {
       "id": 1,

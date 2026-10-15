@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 
 // Owns progression data; views and external encounters cannot complete a stale visit.
 public sealed class MapProgression
 {
     readonly Dictionary<string, MapNodeDefinition> nodes = new Dictionary<string, MapNodeDefinition>();
+    readonly List<WildernessRoad> repairableRoads;
     public MapLayout Layout { get; }
     public MapState State { get; }
     public WorldState World { get; }
@@ -20,10 +19,12 @@ public sealed class MapProgression
         State = state ?? throw new ArgumentNullException(nameof(state));
         World = world ?? throw new ArgumentNullException(nameof(world));
         foreach (var node in layout.nodes) nodes.Add(node.id, node);
+        repairableRoads = MapWildernessRules.GetRepairableRoads(layout);
         if (string.IsNullOrEmpty(state.templateId)) Initialize(newGameSeed);
         else if (state.templateId != layout.id)
             throw new InvalidOperationException("Map state belongs to a different template.");
         if (string.IsNullOrEmpty(State.checkpointNodeId)) State.checkpointNodeId = Layout.villageNodeId;
+        WorldResourceRules.Normalize(World);
     }
 
     void Initialize(int seed)
@@ -38,6 +39,7 @@ public sealed class MapProgression
         State.revivedAtCheckpoint = false;
         State.pendingNodeId = null;
         State.pendingRequestId = null;
+        State.wildernessEvents = null;
         State.visitedNodes.Clear();
         State.clearedNodes.Clear();
         State.revealedNodes.Clear();
@@ -48,6 +50,7 @@ public sealed class MapProgression
         State.revealedNodes.Add(Layout.villageNodeId);
         World.time = 0;
         World.sin = Layout.initialSin;
+        World.villageEvents = new VillageEventState();
         RevealNeighbors(Layout.villageNodeId);
         foreach (var region in Layout.regions)
             if (region.startsSpawned) SpawnBoss(region.bossNodeId);
@@ -56,6 +59,30 @@ public sealed class MapProgression
     public MapNodeDefinition GetNode(string id)
     {
         return id != null && nodes.TryGetValue(id, out var node) ? node : null;
+    }
+
+    public List<string> GetNeighbors(string id)
+    {
+        var result = new List<string>();
+        var node = GetNode(id);
+        if (node == null) return result;
+        result.AddRange(node.neighbors);
+        var level = State.wildernessEvents;
+        if (level == null || level.repairedRoads == null || level.nodes == null) return result;
+        foreach (var road in level.repairedRoads)
+        {
+            if (road == null || !repairableRoads.Exists(value => SameRoad(value, road.from, road.to))) continue;
+            // A serialized road is only active after its one-time repair choice was settled.
+            if (!level.nodes.Exists(value => value != null && value.shown && value.resolved
+                && !value.abandoned && value.templateId == "w08" && value.chosenIndex == 0
+                && !value.encounterPending && !value.encounterResolved
+                && value.rolls != null && value.rolls.Count == 2 && value.rolls[0] != null
+                && value.rolls[0].outcomeIndex == 0 && string.IsNullOrEmpty(value.rolls[0].enemyId)
+                && SameRoad(road, value.bridgeFrom, value.bridgeTo))) continue;
+            string other = road.from == id ? road.to : road.to == id ? road.from : null;
+            if (!string.IsNullOrEmpty(other) && !result.Contains(other)) result.Add(other);
+        }
+        return result;
     }
 
     public bool IsVisible(string id)
@@ -67,8 +94,8 @@ public sealed class MapProgression
 
     public bool IsRoadVisible(string from, string to)
     {
-        if (!IsVisible(from) || !IsVisible(to) || !GetNode(from).neighbors.Contains(to)) return false;
-        var villageNeighbors = GetNode(Layout.villageNodeId).neighbors;
+        if (!IsVisible(from) || !IsVisible(to) || !GetNeighbors(from).Contains(to)) return false;
+        var villageNeighbors = GetNeighbors(Layout.villageNodeId);
         // Roads inside the initially revealed village area are visible before any visit.
         return State.clearedNodes.Contains(from) || State.clearedNodes.Contains(to)
             || (villageNeighbors.Contains(from) && villageNeighbors.Contains(to));
@@ -93,7 +120,7 @@ public sealed class MapProgression
         return current != null && string.IsNullOrEmpty(State.pendingRequestId)
             && (State.clearedNodes.Contains(current.id) || State.revivedAtCheckpoint)
             && destinationId != current.id
-            && current.neighbors.Contains(destinationId) && IsVisible(destinationId);
+            && GetNeighbors(current.id).Contains(destinationId) && IsVisible(destinationId);
     }
 
     public bool TryMove(string destinationId, out MapNodeRequest request)
@@ -104,13 +131,13 @@ public sealed class MapProgression
         bool retryCurrentBattle = destinationId == State.currentNodeId;
         State.revivedAtCheckpoint = false;
         State.currentNodeId = destinationId;
+        if (State.wildernessEvents != null) State.wildernessEvents.currentNodeId = destinationId;
         AddOnce(State.visitedNodes, destinationId);
         // Retrying at the checkpoint traverses no road.
         if (!retryCurrentBattle)
         {
-            World.time++;
-            // Every road in this prototype traverses the wilderness, including the road home.
-            AdvanceSin();
+            // Every road traverses the wilderness, including the road home.
+            LastSpawnedBossId = WorldResourceRules.SpendTime(Layout, State, World, 1, false);
         }
         if (!State.clearedNodes.Contains(destinationId))
         {
@@ -119,7 +146,6 @@ public sealed class MapProgression
             State.pendingRequestId = State.randomSeed.ToString() + ":" + State.requestSequence + ":" + destinationId;
             request = GetPendingRequest();
         }
-        UpdateMorningCheckpoint();
         return true;
     }
 
@@ -144,22 +170,42 @@ public sealed class MapProgression
     {
         if (string.IsNullOrEmpty(requestId) || requestId != State.pendingRequestId) return false;
         var node = GetNode(State.pendingNodeId);
-        World.time++;
+        if (node == null || (node.kind == MapNodeKind.Event && State.wildernessEvents != null)) return false;
+        LastSpawnedBossId = WorldResourceRules.SpendTime(Layout, State, World, 1, false);
         AddOnce(State.clearedNodes, node.id);
         if (node.kind == MapNodeKind.Boss) AddOnce(State.defeatedBossNodes, node.id);
         State.pendingNodeId = null;
         State.pendingRequestId = null;
         RevealNeighbors(node.id);
-        UpdateMorningCheckpoint();
+        // A just-defeated Sloth invalidates its unfinished conditional event immediately.
+        VillageEventRules.OnTimeAdvanced(World, State, Layout);
         return true;
     }
 
-    void UpdateMorningCheckpoint()
+    // Event choices already paid their configured time; finishing must not add the old placeholder cost.
+    public bool FinishEvent(string requestId)
     {
-        // Existing clock: morning, afternoon, night.
-        if (World.time % 3 != 0) return;
-        State.checkpointNodeId = State.currentNodeId;
-        State.checkpointTime = World.time;
+        if (string.IsNullOrEmpty(requestId) || requestId != State.pendingRequestId) return false;
+        var node = GetNode(State.pendingNodeId);
+        var level = State.wildernessEvents;
+        var question = WildernessEventRules.FindNode(level, State.pendingNodeId);
+        if (node == null || node.kind != MapNodeKind.Event || node.id != State.currentNodeId
+            || level == null || level.currentNodeId != node.id || question == null || !question.shown
+            || (!question.resolved && !question.abandoned) || question.encounterPending) return false;
+        if (level.activeNodeId == node.id) WildernessEventRules.Leave(level);
+        LastSpawnedBossId = null;
+        AddOnce(State.clearedNodes, node.id);
+        State.pendingNodeId = null;
+        State.pendingRequestId = null;
+        RevealNeighbors(node.id);
+        if (level.repairedRoads != null)
+            foreach (var road in level.repairedRoads)
+                if (road != null && GetNeighbors(road.from).Contains(road.to))
+                {
+                    AddOnce(State.revealedNodes, road.from);
+                    AddOnce(State.revealedNodes, road.to);
+                }
+        return true;
     }
 
     public bool TryReviveAtCheckpoint(string requestId)
@@ -171,6 +217,7 @@ public sealed class MapProgression
         State.pendingNodeId = null;
         State.pendingRequestId = null;
         State.currentNodeId = State.checkpointNodeId;
+        if (State.wildernessEvents != null) State.wildernessEvents.currentNodeId = State.currentNodeId;
         // A battle reached at dawn can be uncleared; permit leaving without clearing it.
         State.revivedAtCheckpoint = true;
         return true;
@@ -178,33 +225,18 @@ public sealed class MapProgression
 
     void RevealNeighbors(string id)
     {
-        foreach (string neighbor in nodes[id].neighbors) AddOnce(State.revealedNodes, neighbor);
-    }
-
-    void AdvanceSin()
-    {
-        if (State.spawnedBossNodes.Count == Layout.regions.Count) return;
-        byte[] bytes;
-        using (var hash = SHA256.Create())
-            bytes = hash.ComputeHash(Encoding.UTF8.GetBytes(State.randomSeed + ":sin:" + State.sinRollCount));
-        State.sinRollCount++;
-        uint roll = (uint)bytes[0] | ((uint)bytes[1] << 8) | ((uint)bytes[2] << 16) | ((uint)bytes[3] << 24);
-        World.sin += Layout.sinPerMoveMin + (int)(roll % (uint)(Layout.sinPerMoveMax - Layout.sinPerMoveMin + 1));
-        if (World.sin < Layout.sinThreshold) return;
-        foreach (var region in Layout.regions)
-        {
-            if (State.spawnedBossNodes.Contains(region.bossNodeId)) continue;
-            SpawnBoss(region.bossNodeId);
-            LastSpawnedBossId = region.bossNodeId;
-            World.sin = 0;
-            break;
-        }
+        foreach (string neighbor in GetNeighbors(id)) AddOnce(State.revealedNodes, neighbor);
     }
 
     void SpawnBoss(string id)
     {
         AddOnce(State.spawnedBossNodes, id);
         AddOnce(State.revealedNodes, id);
+    }
+
+    static bool SameRoad(WildernessRoad road, string from, string to)
+    {
+        return road != null && ((road.from == from && road.to == to) || (road.from == to && road.to == from));
     }
 
     static void AddOnce(List<string> list, string id)

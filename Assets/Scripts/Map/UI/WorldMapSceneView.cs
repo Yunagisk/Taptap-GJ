@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,6 +21,10 @@ public class WorldMapSceneView : MonoBehaviour
     public bool useWhiteboxCompletion = true;
     public Image originalBackground;
     public bool showOriginalBackground;
+    public MapSceneRoad repairedRoadPrefab;
+
+    readonly Dictionary<string, MapSceneRoad> repairedRoads = new Dictionary<string, MapSceneRoad>();
+    readonly Dictionary<string, RectTransform> nodeTransforms = new Dictionary<string, RectTransform>();
 
     MapSceneNode[] nodes;
     MapSceneRoad[] roads;
@@ -33,7 +38,11 @@ public class WorldMapSceneView : MonoBehaviour
         if (controller.Progression == null) return;
         nodes = mapContent.GetComponentsInChildren<MapSceneNode>(true);
         roads = mapContent.GetComponentsInChildren<MapSceneRoad>(true);
-        foreach (var node in nodes) node.Bind(controller);
+        foreach (var node in nodes)
+        {
+            node.Bind(controller);
+            nodeTransforms[node.nodeId] = (RectTransform)node.transform;
+        }
         if (font != null && font.sourceFontFile != null)
         {
             runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
@@ -59,6 +68,7 @@ public class WorldMapSceneView : MonoBehaviour
         var map = controller.Progression;
         foreach (var node in nodes) node.Refresh(map);
         foreach (var road in roads) road.Refresh(map);
+        RefreshRepairedRoads(map);
         var player = GameRoot.I.state.player;
         hpText.text = "HP " + player.hp + " / " + player.maxHp;
         string[] periods = { "早晨", "下午", "夜间" };
@@ -67,7 +77,8 @@ public class WorldMapSceneView : MonoBehaviour
         bossCountText.text = "原罪 " + map.State.defeatedBossNodes.Count + " / 3";
         noticeText.text = controller.Notice;
         var request = map.GetPendingRequest();
-        bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle;
+        bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle
+            && !(request.kind == MapNodeKind.Event && controller.WildernessCatalog != null);
         displayedRequestId = showPlaceholder ? request.requestId : null;
         nodePanel.SetActive(showPlaceholder);
         if (!showPlaceholder) return;
@@ -76,6 +87,33 @@ public class WorldMapSceneView : MonoBehaviour
         string[] kinds = { "村庄", "普通战", "问号事件", "火堆", "原罪首领" };
         nodeDescription.text = kinds[(int)request.kind] + "\n处理中";
         completeButton.interactable = useWhiteboxCompletion;
+    }
+
+    void RefreshRepairedRoads(MapProgression map)
+    {
+        foreach (var road in repairedRoads.Values) road.gameObject.SetActive(false);
+        if (repairedRoadPrefab == null || map.State.wildernessEvents == null
+            || map.State.wildernessEvents.repairedRoads == null) return;
+        foreach (var repaired in map.State.wildernessEvents.repairedRoads)
+        {
+            if (repaired == null || !nodeTransforms.ContainsKey(repaired.from) || !nodeTransforms.ContainsKey(repaired.to)
+                || !map.GetNeighbors(repaired.from).Contains(repaired.to)) continue;
+            string key = string.CompareOrdinal(repaired.from, repaired.to) < 0
+                ? repaired.from + ":" + repaired.to : repaired.to + ":" + repaired.from;
+            MapSceneRoad road;
+            if (!repairedRoads.TryGetValue(key, out road))
+            {
+                road = Instantiate(repairedRoadPrefab, mapContent, false);
+                road.name = "RepairedRoad";
+                road.transform.SetAsFirstSibling();
+                road.fromNodeId = repaired.from;
+                road.toNodeId = repaired.to;
+                road.from = nodeTransforms[repaired.from];
+                road.to = nodeTransforms[repaired.to];
+                repairedRoads.Add(key, road);
+            }
+            road.Refresh(map);
+        }
     }
 
     void CompleteDisplayedNode()

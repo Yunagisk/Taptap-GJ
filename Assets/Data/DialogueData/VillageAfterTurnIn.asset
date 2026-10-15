@@ -11,14 +11,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
   m_Name: VillageAfterTurnIn
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   dialogueId: village_after_turn_in
   completionEffect: 0
   startNode:
     id: node0
-    speaker: "\u6751\u957f"
-    content: "\u61d2\u60f0\u7684\u59d4\u6258\u5df2\u7ecf\u4ea4\u4ed8\u3002\u4f60\u53ef\u4ee5\u7ee7\u7eed\u63a2\u7d22\u4e16\u754c\u5730\u56fe\u3002"
-    avatar: {fileID: 0}
+    speaker: "\u6751\u957F"
+    content: "\u61D2\u60F0\u7684\u59D4\u6258\u5DF2\u7ECF\u4EA4\u4ED8\u3002\u4F60\u53EF\u4EE5\u7EE7\u7EED\u63A2\u7D22\u4E16\u754C\u5730\u56FE\u3002"
+    avatar: {fileID: 21300000, guid: 6df8870734e57b44985e81d9e661d5d7, type: 3}
     choices: []
     nextNodeID: 
   nodes: []

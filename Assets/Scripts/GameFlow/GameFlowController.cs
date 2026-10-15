@@ -31,6 +31,8 @@ public class GameFlowController : MonoBehaviour
     public Toggle fullscreenToggle;
     public CanvasGroup worldMapGroup;
     public MapPlayerPanelView playerPanel;
+    public VillageEntryConfirmationUI villageEntryConfirmation;
+    public MapWildernessEventUI wildernessEventUI;
 
     public string SelectedWeapon { get; private set; }
     public bool IsLoading { get; private set; }
@@ -81,6 +83,16 @@ public class GameFlowController : MonoBehaviour
 
     public void HandleBack()
     {
+        if (wildernessEventUI != null && wildernessEventUI.IsOpen)
+        {
+            wildernessEventUI.controller.CloseWildernessEvent();
+            return;
+        }
+        if (villageEntryConfirmation != null && villageEntryConfirmation.IsOpen)
+        {
+            villageEntryConfirmation.controller.CancelVillageEntry();
+            return;
+        }
         if (playerPanel != null && playerPanel.IsInventoryOpen) { playerPanel.CloseInventory(); return; }
         if (confirmOverlay.activeSelf) { CancelConfirmation(); return; }
         if (settingsOverlay.activeSelf) { CloseSettings(); return; }

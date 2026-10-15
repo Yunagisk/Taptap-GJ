@@ -59,6 +59,7 @@ public class VillageScreen : MonoBehaviour
                 string.IsNullOrEmpty(root.state.map.templateId) ? Guid.NewGuid().GetHashCode() : root.state.map.randomSeed);
             MainStoryRules.EnsureInitialized(root.state, progression.Layout);
             EquipmentRules.EnsureInitialized(root.state);
+            VillageEventRules.InitializeForRun(root.state, progression.Layout);
         }
         catch (Exception error) { Debug.LogException(error, this); }
         if (font != null && font.sourceFontFile != null)
@@ -82,9 +83,8 @@ public class VillageScreen : MonoBehaviour
         var state = GameRoot.I.state;
         if (hpText != null) hpText.text = "生命 " + state.player.hp + "/" + state.player.maxHp;
         if (lanternText != null) lanternText.text = "提灯 " + state.player.lanternCharges + "/" + state.player.maxLanternCharges;
-        if (sinText != null) sinText.text = "罪骸 " + state.world.sinRemnant + "    罪恶 " + state.world.sin;
-        string[] periods = { "早晨", "下午", "夜间" };
-        if (timeText != null) timeText.text = "第 " + (state.world.time / 3 + 1) + " 天 " + periods[state.world.time % 3];
+        if (sinText != null) sinText.text = "罪骸 " + state.world.sinRemnant + "    罪恶 " + state.world.sin + "/100";
+        if (timeText != null) timeText.text = WorldResourceRules.TimeLabel(state.world);
         if (weaponText != null) weaponText.text = "当前武器：" + NewRunFactory.WeaponName(state.player.currentWeaponId);
     }
 
@@ -93,7 +93,7 @@ public class VillageScreen : MonoBehaviour
         RefreshStatus();
         if (IsLoading || !Input.GetKeyDown(KeyCode.Escape)) return;
         if (panelConflict != null && panelConflict.activeSelf) CloseConflict();
-        else if (panelRoot != null && panelRoot.activeSelf) ClosePanels();
+        else if (panelRoot != null && panelRoot.activeSelf && !ReturnToTavernEvents()) ClosePanels();
     }
 
     public void OpenInn()
@@ -114,19 +114,46 @@ public class VillageScreen : MonoBehaviour
         if (equipment != null) equipment.Open();
     }
 
+    public void OpenTavern()
+    {
+        if (IsLoading) return;
+        Show(panelEvent, focusOption);
+        var story = panelEvent != null ? panelEvent.GetComponent<VillageStoryPanelUI>() : null;
+        var browser = panelEvent != null ? panelEvent.GetComponent<TavernEventBrowserUI>() : null;
+        if (browser != null)
+        {
+            browser.Refresh();
+            Select(browser.GetPreferredFocus());
+        }
+        else if (story != null)
+        {
+            story.Refresh();
+            Select(story.GetPreferredFocus());
+        }
+    }
+
+    // Keep existing scene/button bindings compatible with the tavern entry.
     public void OpenEvent()
     {
-        Show(panelEvent, focusOption);
+        OpenTavern();
+    }
+
+    bool ReturnToTavernEvents()
+    {
+        if (panelEvent == null || !panelEvent.activeInHierarchy) return false;
+        var story = panelEvent.GetComponent<VillageStoryPanelUI>();
+        return story != null && story.ReturnToEventList();
     }
 
     public void ClosePanels()
     {
+        bool closingTavern = panelEvent != null && panelEvent.activeInHierarchy;
         SetBagButtons(true);
         if (panelConflict != null)
             panelConflict.SetActive(false);
         if (panelRoot != null)
             panelRoot.SetActive(false);
-        Select(focusInn);
+        Select(closingTavern ? focusTavern : focusInn);
     }
 
     public void OpenConflict()

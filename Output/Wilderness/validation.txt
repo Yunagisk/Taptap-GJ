@@ -1,0 +1,315 @@
+PASS: Tests execute in actual Play Mode
+PASS: Awake/OnEnable initialized a complete preview
+PASS: Unity JsonUtility reads 10 templates and 7 nodes
+PASS: Generated templates are unique
+PASS: All native node/choice buttons are wired
+PASS: Serialized content references exist
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: No missing script in native UI
+PASS: Native regenerate starts isolated seed at village
+PASS: Native node button exists: field01
+PASS: Native move spends exactly 1 time and 3 outdoor sin
+PASS: First arrival shows and commits question
+PASS: First arrival displays both choices
+PASS: Native node button exists: field01
+PASS: Clicking current point does not repay movement
+PASS: Preview has rendering Canvas
+RAYCAST screen=640x480 point=(910.00, 479.50) canvas=(x:0.00, y:0.00, width:1920.00, height:1080.00) scale=1 mode=ScreenSpaceCamera rect=(x:0.00, y:-105.00, width:900.00, height:105.00) position=(-4.63, -0.07, 5.00) target=Choice0 hits=3
+HIT: Choice0 / Window
+HIT: Window / WildernessEventPanel
+HIT: WildernessEventPanel / root
+PASS: Visible choice button is the top pointer raycast target
+RENDER: Wilderness-event-1920x1080.png
+PASS: Preview has rendering Canvas
+RENDER: Wilderness-event-1280x720.png
+PASS: Native leave permanently abandons unchosen event
+PASS: Native node button exists: village
+PASS: Native node button exists: field01
+PASS: Round trip still pays two road units
+PASS: Revisited abandoned question stays closed
+PASS: Native regenerate starts isolated seed at village
+PASS: Target is reachable before travel: field07
+PASS: Native node button exists: field01
+PASS: Actual native road reached field01
+PASS: Native node button exists: field02
+PASS: Actual native road reached field02
+PASS: Native node button exists: field03
+PASS: Actual native road reached field03
+PASS: Native node button exists: field07
+PASS: Actual native road reached field07
+PASS: Bridge shortcut is initially unavailable
+PASS: Native bridge repair spends exactly 2 extra time units
+PASS: Repair opens an actual bidirectional shortcut
+PASS: Bridge reverse direction is traversable
+PASS: Repair adds exactly one road
+PASS: Preview has rendering Canvas
+RENDER: Wilderness-bridge-1920x1080.png
+PASS: Repeated choice callback cannot repay or rereward
+PASS: Native save button writes separate preview save
+PASS: Native regenerate starts isolated seed at village
+PASS: Unity JsonUtility save/load restores exact rolls, resources and repaired road
+PASS: Target is reachable before travel: field02
+PASS: Native node button exists: field03
+PASS: Actual native road reached field03
+PASS: Native node button exists: field02
+PASS: Actual native road reached field02
+PASS: Native node button exists: field05
+PASS: Repaired shortcut can actually be crossed for one road unit
+PASS: Native regenerate starts isolated seed at village
+PASS: Native node button exists: field01
+PASS: Selected stored branch starts one pending enemy
+PASS: Hidden enemy adds exactly one time beyond the selected choice
+PASS: Text-only combat/item placeholder does not change HP or inventory
+PASS: Placeholder does not write attack or received-hit buffs
+PASS: Native pending encounter shows both text outcome buttons
+PASS: Native node button exists: village
+PASS: Pending encounter cannot be bypassed by leave or travel callbacks
+PASS: Native regenerate starts isolated seed at village
+PASS: Pending single enemy remains fixed after native save/load
+PASS: Preview has rendering Canvas
+RENDER: Wilderness-encounter-1920x1080.png
+PASS: Native victory grants exactly one sin remnant
+PASS: Enemy defeat does not lower sin
+PASS: Preview has rendering Canvas
+RENDER: Wilderness-victory-1920x1080.png
+PASS: Repeated encounter callbacks do not grant another reward
+PASS: Normal GameRoot state remains entirely unchanged
+PASS: No production map scene was loaded by preview
+SUCCESS: 310 assertions in actual Unity Play Mode

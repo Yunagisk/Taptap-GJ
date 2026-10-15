@@ -1,0 +1,10 @@
+Generator: built-in image_gen
+
+Use case: text-localization / precise typography edit.
+Edit this supplied game promotional concept art. Change ONLY the artistic design of its Chinese title. Keep the illustration, village buildings, traveler, lantern, trees, mist, sky, paper texture, color palette, lighting, perspective, framing, and every environmental detail unchanged. Preserve the image's existing dimensions and composition.
+
+Text must remain exactly “七宗罪”, three correct Chinese characters in that order, and remain in the existing title's upper sky area at approximately its current overall scale.
+Replace the ordinary printed type with a distinctive custom game-title lettering design: expressive hand-drawn Chinese calligraphy with the solemn character of old stone inscriptions, weathered ink rubbing and dry-brush strokes. Give the strokes beautiful variation in weight and rhythm, decisive angular cuts, restrained elongated tapering endings, and a few subtle dry-ink gaps. Looser and more emotionally charged than a standard Song font, with carefully balanced irregular spacing. It should feel like an artist designed a memorable title specifically for this bleak medieval game.
+The Chinese character structure must stay correct and readily legible. A controlled, elegant, ominous quality; ink-black with a lightly distressed surface matching the existing traditional charcoal/watercolor illustration. Let a few strokes have confident movement, without busy decoration.
+
+Do not add any additional text, symbols, tagline, borders, effects, scenery, or characters. No generic computer font, no chaotic brush scribbles, no overdone spikes, no glowing outline, no neon, no gold, no 3D lettering, no drop shadow, no ornate fantasy flourish. Change only the title lettering; preserve the rest of this artwork faithfully.

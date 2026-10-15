@@ -40,8 +40,13 @@ static class Program
         int oldBosses = map.State.spawnedBossNodes.Count;
         Check(map.TryCompleteNode(requestId), "complete " + requestId);
         Check(map.World.time == oldTime + 1, "exactly one time unit per node completion");
-        Check(map.World.sin == oldSin && map.State.sinRollCount == oldRolls
-            && map.State.spawnedBossNodes.Count == oldBosses, "completion does not change movement-based sin or boss spawning");
+        Check(map.State.sinRollCount == oldRolls + 1, "node settlement spends one outdoor sin-growth unit");
+        if (map.State.spawnedBossNodes.Count > oldBosses)
+            Check(map.World.sin == 0 && map.State.spawnedBossNodes.Count == oldBosses + 1,
+                "settlement reaching the threshold spawns one boss and resets sin");
+        else
+            Check(map.World.sin == Math.Min(100, oldSin + 3),
+                "clearing enemies never lowers sin; settlement has the same natural growth as movement");
         Check(!map.TryCompleteNode(requestId) && map.World.time == oldTime + 1, "repeated completion never charges time twice");
         return true;
     }
@@ -55,6 +60,7 @@ static class Program
         CheckEquipment();
         CheckShop();
         CheckWeaponPrices();
+        VillageEventChecks.Run(Layout, Check);
         var map = NewMap();
         foreach (string weapon in NewRunFactory.StartingWeapons)
         {
@@ -214,7 +220,7 @@ static class Program
         var first = Move(map, "r1_a");
         Check(first != null && first.kind == MapNodeKind.Battle, "battle request context");
         Check(!map.State.clearedNodes.Contains("r1_a") && !map.IsVisible("r1_b"), "arrival does not clear or reveal");
-        Check(map.World.sin >= 48 && map.World.sin <= 52, "sin roll within 8 to 12");
+        Check(map.World.sin == 43, "one outdoor time unit adds three sin");
         Check(!map.TryMove("village", out _) && map.World.time == 1, "pending node blocks all movement");
         Check(!map.TryCompleteNode("bad-token") && map.World.time == 1, "invalid callback rejected without charging time");
         Check(Complete(map, first.requestId), "complete current visit");
@@ -232,7 +238,7 @@ static class Program
         var restoredWorld = JsonSerializer.Deserialize<WorldState>(JsonSerializer.Serialize(map.World, Json), Json);
         var restored = new MapProgression(Layout(), restoredState, restoredWorld, 999);
         Check(restored.World.time == map.World.time && restored.State.randomSeed == 12345, "state reconstruction does not reset progress or seed");
-        for (int i = 0; i < 32; i++)
+        for (int i = 0; i < 64; i++)
         {
             string target = i % 2 == 0 ? "r1_a" : "village";
             int previousSpawnCount = map.State.spawnedBossNodes.Count;
@@ -244,12 +250,14 @@ static class Program
             if (map.State.spawnedBossNodes.Count > previousSpawnCount)
                 Check(map.World.sin == 0, "spawn resets sin and discards overflow");
             else if (previousSpawnCount < 3)
-                Check(map.World.sin - oldSin >= 8 && map.World.sin - oldSin <= 12, "continued natural sin bounds");
+                Check(map.World.sin - oldSin == 3, "continued outdoor natural sin is three");
         }
         Check(map.State.spawnedBossNodes.Count == 3 && map.State.spawnedBossNodes[1] == "r2_boss", "remaining bosses spawn in region order");
-        int stoppedRolls = map.State.sinRollCount;
+        int cappedRolls = map.State.sinRollCount;
+        int cappedSin = map.World.sin;
         Visit(map, "r1_a");
-        Check(map.State.sinRollCount == stoppedRolls, "sin growth stops after all bosses spawn");
+        Check(map.State.sinRollCount == cappedRolls + 1 && map.World.sin == Math.Min(100, cappedSin + 3),
+            "sin continues growing to its cap after all bosses spawn");
         Check(!map.IsRoadVisible("r2_camp", "r2_boss"), "remote spawn does not reveal its road");
         Visit(map, "r1_b");
         Visit(map, "r1_c");
@@ -310,7 +318,7 @@ static class Program
         bool rejected = false;
         try { MapLayoutValidator.Validate(broken); } catch (InvalidOperationException) { rejected = true; }
         Check(rejected, "validator rejects shortcuts bypassing required fights");
-        Console.WriteLine("PASS: " + checks + " checks; topology, reveal, transit, callbacks, sin spawning, restoration, complete three-boss flow.");
+        Console.WriteLine("PASS: " + checks + " checks; topology, reveal, transit, callbacks, sin spawning, restoration, village timed events, shared resources, complete three-boss flow.");
     }
 
     static void CheckVillageReentry()

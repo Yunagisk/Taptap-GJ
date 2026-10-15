@@ -1,0 +1,7 @@
+PASS: 430 Unity assertions.
+Scanned 3207 serialized object-reference properties.
+Saved prefab identity, three entry images, detail references, native button bindings and unrelated UI transforms validated.
+Rendered native 1600 x 1000 UI preview: C:\Users\ASUS\AppData\Local\Temp\codex-inn-20261013\UnityProject\ValidationReports\TavernBrowser-events-preview.png
+Rendered native 1600 x 1000 UI preview: C:\Users\ASUS\AppData\Local\Temp\codex-inn-20261013\UnityProject\ValidationReports\TavernBrowser-side-preview.png
+Rendered native 1600 x 1000 UI preview: C:\Users\ASUS\AppData\Local\Temp\codex-inn-20261013\UnityProject\ValidationReports\TavernBrowser-dialogue-preview.png
+Actual serialized Button clicks and dialogue callbacks exercised in edit mode. Awake/OnEnable/OnDisable were explicitly simulated because ordinary runtime MonoBehaviours do not automatically execute their lifecycle in edit mode.

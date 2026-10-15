@@ -1,0 +1,38 @@
+{
+  "prompts": [
+    {
+      "key": "TavernChief-v1",
+      "prompt": "Use case: stylized-concept. Asset type: a production-ready temporary NPC portrait sprite for a hand-drawn medieval dark-fantasy game's tavern UI.\nTraditional fine black ink line drawing, restrained crosshatching and a little charcoal shading, subtle warm gray and muted brown watercolor staining, like a worn book illustration. Match monochrome pencil-and-ink village art on aged paper, but NO paper rectangle behind the character. Matte, believable hand-made marks, clear readable silhouette. Avoid glossy rendering, photorealism, 3D, anime, neon, exaggerated features, heavy ornament, glowing eyes, weapons, text, letters, logos, frames, UI elements, or watermarks.\nSquare canvas. One single bust portrait only, head and upper chest with the full head clearly inside the image and generous space around the face, shoulders fading gently into transparent ink strokes. Subject occupies roughly 85 percent of the canvas height. True transparent background around the bust, including between loose hair and outer silhouette. No cast shadow outside the subject. Neutral soft light, simple front-three-quarter view toward the viewer, designed to remain readable when used as a small event-list icon.\nSubject: an elderly male village chief, approximately 65 years old, weathered face, calm but concerned eyes, short swept-back graying hair and a full gray beard, a modest wool cloak fastened over a plain medieval tunic. A dignified ordinary village elder, not royalty, not a wizard. No crown, no hat, no staff, no jewelry."
+    },
+    {
+      "key": "TavernVillager-v1",
+      "prompt": "Use case: stylized-concept. Asset type: a production-ready temporary NPC portrait sprite for a hand-drawn medieval dark-fantasy game's tavern UI.\nTraditional fine black ink line drawing, restrained crosshatching and a little charcoal shading, subtle warm gray and muted brown watercolor staining, like a worn book illustration. Match monochrome pencil-and-ink village art on aged paper, but NO paper rectangle behind the character. Matte, believable hand-made marks, clear readable silhouette. Avoid glossy rendering, photorealism, 3D, anime, neon, exaggerated features, heavy ornament, glowing eyes, weapons, text, letters, logos, frames, UI elements, or watermarks.\nSquare canvas. One single bust portrait only, head and upper chest with the full head clearly inside the image and generous space around the face, shoulders fading gently into transparent ink strokes. Subject occupies roughly 85 percent of the canvas height. True transparent background around the bust, including between loose hair and outer silhouette. No cast shadow outside the subject. Neutral soft light, simple front-three-quarter view toward the viewer, designed to remain readable when used as a small event-list icon.\nSubject: an ordinary middle-aged female villager, approximately 40 years old, practical headscarf loosely covering her hair, simple worn linen blouse and a modest wool shawl, attentive slightly wary expression. A believable local resident, not a glamorous heroine. No jewelry, no elaborate costume, no props."
+    },
+    {
+      "key": "TavernTraveler-v1",
+      "prompt": "Use case: stylized-concept. Asset type: a production-ready temporary NPC portrait sprite for a hand-drawn medieval dark-fantasy game's tavern UI.\nTraditional fine black ink line drawing, restrained crosshatching and a little charcoal shading, subtle warm gray and muted brown watercolor staining, like a worn book illustration. Match monochrome pencil-and-ink village art on aged paper, but NO paper rectangle behind the character. Matte, believable hand-made marks, clear readable silhouette. Avoid glossy rendering, photorealism, 3D, anime, neon, exaggerated features, heavy ornament, glowing eyes, weapons, text, letters, logos, frames, UI elements, or watermarks.\nSquare canvas. One single bust portrait only, head and upper chest with the full head clearly inside the image and generous space around the face, shoulders fading gently into transparent ink strokes. Subject occupies roughly 85 percent of the canvas height. True transparent background around the bust, including between loose hair and outer silhouette. No cast shadow outside the subject. Neutral soft light, simple front-three-quarter view toward the viewer, designed to remain readable when used as a small event-list icon.\nSubject: an ordinary adult human traveler resting at a tavern, wearing a modest worn hood and dark cloth cloak. A tired but observant human face visible within the hood, natural eyes, nose and chin clearly readable. Mysterious through restraint, not supernatural: not a ghost or monster, no mask, no glowing eyes, no weapons, no occult symbols."
+    },
+    {
+      "key": "TavernPaperFrame-v1",
+      "prompt": "Use case: stylized-concept. Asset type: one reusable 9-slice UI paper-panel background sprite for the same hand-drawn medieval game.\nCreate a flat, front-facing wide rectangular panel, approximately 3:2 aspect ratio. Pale warm ivory paper, very subtle natural fiber grain and faint aging confined mostly to the outer margins. A thin double hand-drawn charcoal-ink outline with tiny muted dark-brown wooden edge details. All four corners and all four edges must be complete, straight enough for a functional game UI, with restrained organic ink irregularity. The central 85 percent must be EMPTY, uniformly very light and quiet so dark Chinese UI text remains perfectly legible. Border decoration stays inside a narrow edge band, with simple corners suitable for Unity 9-slice scaling. True transparent pixels only outside the outer silhouette of this complete rectangle; paper center is opaque. No shadows beyond the frame.\nTraditional ink and watercolor illustration with controlled paper texture, not photorealistic, not glossy. No text, letters, symbols, drawings, icons, objects, UI controls, extra panels, perspective tilt, torn holes, heavy dirt, ornate filigree, watermark or drop shadow. One single complete blank paper panel only."
+    }
+  ],
+  "files": [
+    [
+      "exec-dae62ee3-afaa-4763-91c6-f575a97d733c.png",
+      "TavernChief-v1.png"
+    ],
+    [
+      "exec-eff62cb5-6a7f-437c-a38c-e15259ad49a8.png",
+      "TavernVillager-v1.png"
+    ],
+    [
+      "exec-992d4d1a-90f4-431f-a47e-90659677b670.png",
+      "TavernTraveler-v1.png"
+    ],
+    [
+      "exec-8a9853b8-bc6a-410b-9c9a-5cc15eef8bf7.png",
+      "TavernPaperFrame-v1.png"
+    ]
+  ]
+}

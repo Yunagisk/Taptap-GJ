@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Core/GameState.cs" Link="Production/GameState.cs" />
+    <Compile Include="../../Assets/Scripts/Core/WorldResourceRules.cs" Link="Production/WorldResourceRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/VillageEventRules.cs" Link="Production/VillageEventRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/MainStoryRules.cs" Link="Production/MainStoryRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/EquipmentRules.cs" Link="Production/EquipmentRules.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Weapons/WeaponTable.cs" Link="Production/WeaponTable.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Data/MapLayout.cs" Link="Production/MapLayout.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Logic/MapLayoutValidator.cs" Link="Production/MapLayoutValidator.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Logic/MapProgression.cs" Link="Production/MapProgression.cs" />
+    <Compile Include="../../Assets/Scripts/Wilderness/WildernessEventRules.cs" Link="Production/WildernessEventRules.cs" />
+    <Compile Include="../../Assets/Scripts/Wilderness/MapWildernessRules.cs" Link="Production/MapWildernessRules.cs" />
+    <Content Include="../../Assets/Data/Maps/CenteredThreeSinWhitebox.json" Link="CenteredThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../Assets/Data/Wilderness/WildernessEvents.json" Link="WildernessEvents.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../Assets/Data/Maps/ThreeSinWhitebox.json" Link="ThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

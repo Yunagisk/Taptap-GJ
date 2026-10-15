@@ -110,13 +110,13 @@ public static class MainStoryRules
     {
         switch (state != null && state.story != null ? state.story.stage : MainStoryStage.ArrivedVillage)
         {
-            case MainStoryStage.ArrivedVillage: return "与村长交谈，了解村庄。";
-            case MainStoryStage.VillageIntroductionComplete: return "与村长交谈，接受清剿委托。";
+            case MainStoryStage.ArrivedVillage: return "前往酒馆，与村民交谈，了解村庄。";
+            case MainStoryStage.VillageIntroductionComplete: return "前往酒馆，与村长交谈，接受清剿委托。";
             case MainStoryStage.CommissionAccepted: return "前往教学战斗节点，完成首次清剿。";
             case MainStoryStage.TutorialCompleted: return "探索地图，击败懒惰。";
-            case MainStoryStage.SlothDefeated: return "返回村庄，向村长交付委托。";
+            case MainStoryStage.SlothDefeated: return "返回村庄酒馆，向村长交付委托。";
             case MainStoryStage.CommissionTurnedIn: return "委托已交付，继续探索下一原罪。";
-            default: return "与村长交谈，确认当前目标。";
+            default: return "前往酒馆，确认当前目标。";
         }
     }
 }

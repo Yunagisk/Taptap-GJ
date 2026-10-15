@@ -1,0 +1,22 @@
+Generator: built-in image_gen
+
+Use case: ui-mockup.
+Create ONE clear comparison sheet containing FOUR distinct low-fidelity UI layout sketches for the tavern event hub in the user's Unity dark-fantasy game. Arrange four equal-sized panels in a clean 2 by 2 grid, A and B on the top row, C and D on the bottom row. A single large high-resolution landscape design sheet, around 3200 by 2200 pixels, with ample gutters. Every panel must be a complete straight-on game screen or modal mockup. This is a layout exploration for the user to choose from, NOT a finished marketing poster and NOT four copies of the same layout.
+
+Art direction: restrained pencil and ink wireframes, warm off-white paper, charcoal gray, a little dark brown framing. Simple boxes, light hatching, rough small silhouettes, clean readable Chinese interface labels. Strong UI hierarchy and large legible text. Minimal illustrative detail so the arrangements are easy to compare. Consistent visual language, viewport proportions and control scale across all four alternatives. No glossy UI, neon, ornate fantasy flourishes, gradients, elaborate paintings, perspective presentation mockups or photographic objects.
+
+Every alternative must include the tavern title “酒馆”, a clearly visible upper-right X close control, an obvious main-story interaction “村长委托”, secondary interactions “村民闲谈” and “酒馆见闻”, a current objective “当前目标：接受清剿委托”, and a clear action “交谈” or “开始交谈”. Use short Chinese labels and at most one short sentence of body copy; avoid tiny paragraphs, numbers, currency, combat HUD or implementation terminology.
+
+Panel A — place a large heading OUTSIDE its mockup frame: “A 列表＋详情”.
+A practical two-column event browser: narrow vertical event list on the LEFT, wide selected-event detail panel on the RIGHT. The left list contains three stacked event entries; “村长委托” is highlighted. Right panel shows “村长委托”, a short two-line description placeholder, and a clear large “开始交谈” button. Current-objective strip along the bottom. Clear spacing and a comfortable information hierarchy.
+
+Panel B — large heading OUTSIDE its frame: “B 事件卡片”.
+An event-card overview: three prominent equal cards placed side by side across the center, with simple small NPC icons and the labels “村长委托”, “村民闲谈”, “酒馆见闻”. Each card has a small “交谈” action, with the main-story card slightly emphasized by a darker hand-drawn border. A fixed full-width current-objective strip BELOW the cards. This must look structurally different from A: no vertical sidebar and no large detail column.
+
+Panel C — large heading OUTSIDE its frame: “C 人物热点”.
+An immersive tavern interior used as the interaction map. Very lightly sketch a counter, tables and three small human silhouettes, not detailed character art. Place clear clickable hotspot markers and short names near them: “村长”, “村民”, “酒馆见闻”. Make the selected village-chief hotspot distinct. Along the BOTTOM, a wide compact information bar shows selected NPC “村长”, the current objective, and a clear “开始交谈” button on the right. Small unobtrusive “酒馆” header and X at the top. This option is scene-led, not a list or a card grid.
+
+Panel D — large heading OUTSIDE its frame: “D 酒馆告示板”.
+A readable hand-drawn tavern noticeboard interface. A simple wooden board holds three pinned paper notices with gentle natural offsets: the larger main notice “村长委托”, a smaller note “村民闲谈”, and another note “酒馆见闻”. The selected main notice contains a clear “开始交谈” action. Place the current-objective strip below the board, separate from the notices. The notices look like UI controls with clear boundaries, not a photoreal collage. Light pencil texture and controlled irregularity; readable order takes priority.
+
+Constraints: exactly FOUR panels, each appearing once and labeled accurately A–D; all panels fully visible, no cropping; clear empty gutters separating alternatives; correct Chinese characters; no extra menu features or invented game systems. Do not label anything as placeholder, code, prefab, canvas or AI. No watermark. Make the four layouts immediately distinguishable at a glance.

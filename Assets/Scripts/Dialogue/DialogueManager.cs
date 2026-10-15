@@ -67,6 +67,16 @@ public class DialogueManager : MonoBehaviour
         ShowNode();
     }
 
+    // Leaving an unfinished conversation must not apply its completion effect.
+    public void CancelDialogue()
+    {
+        if (!IsPlaying) return;
+        IsPlaying = false;
+        currentNode = null;
+        data = null;
+        if (ui != null) ui.Hide();
+    }
+
     private DialogueNode FindNode(string id)
     {
         if (data.startNode != null && data.startNode.id == id) return data.startNode;

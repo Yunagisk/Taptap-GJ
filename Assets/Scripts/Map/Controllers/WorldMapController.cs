@@ -11,7 +11,20 @@ public class WorldMapController : MonoBehaviour
 {
     public const string BattleScene = "CombatScene";
     public WorldMapTemplate template;
+    public VillageEntryConfirmationUI villageEntryConfirmation;
+    public MapWildernessEventUI wildernessEventUI;
+    public WildernessEventCatalog WildernessCatalog { get; private set; }
+    public bool IsWildernessEventOpen => wildernessEventUI != null && wildernessEventUI.IsOpen;
+    GameState wildernessRun;
     bool isLoadingBattle;
+    string pendingVillageNodeId;
+    string pendingVillageOriginId;
+    GameState pendingVillageRun;
+
+    public bool IsVillageEntryConfirmationOpen => !string.IsNullOrEmpty(pendingVillageNodeId);
+
+    bool IsChangingScene => isLoadingBattle || villageEntryConfirmation != null
+        && villageEntryConfirmation.flow != null && villageEntryConfirmation.flow.IsLoading;
     [Tooltip("Zero chooses a new seed when starting a new map.")]
     public int seed;
     [Header("External screen entry slots")]
@@ -37,6 +50,8 @@ public class WorldMapController : MonoBehaviour
             Progression = new MapProgression(template.Load(), GameRoot.I.state.map, GameRoot.I.state.world, mapSeed);
             MainStoryRules.EnsureInitialized(GameRoot.I.state, Progression.Layout);
             EquipmentRules.EnsureInitialized(GameRoot.I.state);
+            VillageEventRules.InitializeForRun(GameRoot.I.state, Progression.Layout);
+            InitializeWilderness();
             Notice = "懒惰已出现";
         }
         catch (Exception error) { Debug.LogException(error, this); enabled = false; }
@@ -46,6 +61,7 @@ public class WorldMapController : MonoBehaviour
     {
         var pending = Progression?.GetPendingRequest();
         if (pending != null && pending.kind == MapNodeKind.Battle) EnterBattle(pending);
+        else if (pending != null && pending.kind == MapNodeKind.Event) OpenWildernessEvent(pending);
     }
 
     void EnterBattle(MapNodeRequest request)
@@ -74,14 +90,34 @@ public class WorldMapController : MonoBehaviour
 
     public void MoveToNode(string nodeId)
     {
-        if (isLoadingBattle || Progression == null) return;
+        MoveToNode(nodeId, false);
+    }
+
+    void MoveToNode(string nodeId, bool villageConfirmed)
+    {
+        if (IsChangingScene || Progression == null || IsVillageEntryConfirmationOpen || IsWildernessEventOpen) return;
         var destination = Progression.GetNode(nodeId);
+        if (destination != null && destination.kind == MapNodeKind.Event
+            && !Progression.State.clearedNodes.Contains(nodeId)
+            && (!HasWildernessContext() || wildernessEventUI == null || !wildernessEventUI.CanShow()))
+        {
+            Notice = "野外事件界面尚未就绪。";
+            StateChanged?.Invoke();
+            return;
+        }
         if (destination != null && destination.kind == MapNodeKind.Village
             && !Application.CanStreamedLevelBeLoaded(GameFlowController.VillageScene))
         {
             Notice = "村庄场景未加入构建列表";
             Debug.LogError("Village is missing from Build Settings.", this);
             StateChanged?.Invoke();
+            return;
+        }
+        if (!villageConfirmed && destination != null && destination.kind == MapNodeKind.Village
+            && !Progression.CanReenterVillage(nodeId))
+        {
+            if (!Progression.CanMove(nodeId)) return;
+            RequestVillageEntry(nodeId, destination.displayName);
             return;
         }
         if (destination != null && destination.kind == MapNodeKind.Battle
@@ -126,10 +162,162 @@ public class WorldMapController : MonoBehaviour
         switch (request.kind)
         {
             case MapNodeKind.Battle: onBattleEntered.Invoke(request); EnterBattle(request); break;
-            case MapNodeKind.Event: onEventEntered.Invoke(request); break;
+            case MapNodeKind.Event: onEventEntered.Invoke(request); OpenWildernessEvent(request); break;
             case MapNodeKind.Camp: onCampEntered.Invoke(request); break;
             case MapNodeKind.Boss: onBossEntered.Invoke(request); break;
         }
+    }
+
+    void InitializeWilderness()
+    {
+        if (wildernessEventUI == null || wildernessEventUI.catalogAsset == null) return;
+        var source = JsonUtility.FromJson<WildernessEventCatalog>(wildernessEventUI.catalogAsset.text);
+        WildernessCatalog = MapWildernessRules.BuildCatalog(source, Progression.Layout);
+        MapWildernessRules.EnsureInitialized(GameRoot.I.state, Progression.Layout, WildernessCatalog);
+        wildernessRun = GameRoot.I.state;
+    }
+
+    bool HasWildernessContext()
+    {
+        var run = GameRoot.I != null ? GameRoot.I.state : null;
+        return isActiveAndEnabled && Progression != null && WildernessCatalog != null
+            && run != null && run == wildernessRun && run.map == Progression.State
+            && run.world == Progression.World && run.map.wildernessEvents != null;
+    }
+
+    bool HasPendingWildernessEvent()
+    {
+        if (!HasWildernessContext() || IsChangingScene) return false;
+        var pending = Progression.GetPendingRequest();
+        var level = wildernessRun.map.wildernessEvents;
+        return pending != null && pending.kind == MapNodeKind.Event
+            && pending.nodeId == Progression.State.currentNodeId
+            && level.currentNodeId == pending.nodeId && level.activeNodeId == pending.nodeId;
+    }
+
+    void OpenWildernessEvent(MapNodeRequest request)
+    {
+        if (!HasWildernessContext() || request == null || request.kind != MapNodeKind.Event
+            || request.requestId != Progression.State.pendingRequestId
+            || request.nodeId != Progression.State.currentNodeId) return;
+        MapWildernessRules.EnsureInitialized(wildernessRun, Progression.Layout, WildernessCatalog);
+        var level = wildernessRun.map.wildernessEvents;
+        var question = WildernessEventRules.FindNode(level, request.nodeId);
+        // Previously visited placeholder nodes migrate as spent, without reopening or paying again.
+        if (question != null && (question.resolved || question.abandoned)
+            && !question.encounterPending && level.activeNodeId != request.nodeId)
+        {
+            if (Progression.FinishEvent(request.requestId))
+            {
+                Notice = "此处事件已经结束。";
+                StateChanged?.Invoke();
+            }
+            return;
+        }
+        if (wildernessEventUI == null || !wildernessEventUI.CanShow()) return;
+        bool resume = level.activeNodeId == request.nodeId && question != null && question.shown;
+        if (!resume && !MapWildernessRules.TryOpen(wildernessRun, Progression.Layout, WildernessCatalog, request)) return;
+        if (wildernessEventUI.Show()) return;
+        // A disabled UI must never strand a newly entered node in a pending request.
+        WildernessEventRules.Leave(level);
+        Progression.FinishEvent(request.requestId);
+        Notice = "暂时无法显示野外事件。";
+        StateChanged?.Invoke();
+    }
+
+    public void ChooseWildernessEvent(int choiceIndex)
+    {
+        if (!HasPendingWildernessEvent() || !IsWildernessEventOpen) return;
+        var result = WildernessEventRules.TryChoose(wildernessRun.map.wildernessEvents,
+            WildernessCatalog, wildernessRun, Progression.Layout, choiceIndex);
+        Notice = result.message;
+        if (result.success) Notice = result.message.Split('\n')[0];
+        wildernessEventUI.Refresh();
+        StateChanged?.Invoke();
+    }
+
+    public void ResolveWildernessEncounter(bool victory)
+    {
+        if (!HasPendingWildernessEvent() || !IsWildernessEventOpen) return;
+        var result = WildernessEventRules.ResolveEncounter(wildernessRun.map.wildernessEvents, wildernessRun, victory);
+        Notice = result.message;
+        wildernessEventUI.Refresh();
+        StateChanged?.Invoke();
+    }
+
+    public void CloseWildernessEvent()
+    {
+        if (!HasPendingWildernessEvent() || !IsWildernessEventOpen) return;
+        var level = wildernessRun.map.wildernessEvents;
+        var question = WildernessEventRules.FindNode(level, level.activeNodeId);
+        if (question == null) return;
+        if (question.encounterPending)
+        {
+            Notice = "请先结算当前遭遇。";
+            wildernessEventUI.Refresh();
+            return;
+        }
+        string requestId = Progression.State.pendingRequestId;
+        WildernessEventRules.Leave(level);
+        if (!Progression.FinishEvent(requestId)) return;
+        wildernessEventUI.Hide();
+        Notice = question.abandoned ? "你离开了这次事件。" : "事件已结束，可以继续探索。";
+        StateChanged?.Invoke();
+    }
+
+    void RequestVillageEntry(string nodeId, string destinationName)
+    {
+        var run = GameRoot.I != null ? GameRoot.I.state : null;
+        if (run == null || run.map != Progression.State || run.world != Progression.World) return;
+        if (villageEntryConfirmation == null)
+        {
+            Notice = "村庄进入确认界面尚未配置。";
+            StateChanged?.Invoke();
+            return;
+        }
+        pendingVillageNodeId = nodeId;
+        pendingVillageOriginId = Progression.State.currentNodeId;
+        pendingVillageRun = run;
+        if (villageEntryConfirmation.Show(destinationName)) return;
+        ClearVillageEntry();
+        Notice = "暂时无法打开村庄进入确认界面。";
+        StateChanged?.Invoke();
+    }
+
+    public void ConfirmVillageEntry()
+    {
+        if (!IsVillageEntryConfirmationOpen) return;
+        string destinationId = pendingVillageNodeId;
+        var run = GameRoot.I != null ? GameRoot.I.state : null;
+        bool valid = !IsChangingScene && isActiveAndEnabled && Progression != null
+            && villageEntryConfirmation != null && villageEntryConfirmation.IsOpen
+            && run != null && run == pendingVillageRun
+            && run.map == Progression.State && run.world == Progression.World
+            && Progression.State.currentNodeId == pendingVillageOriginId
+            && Progression.CanMove(destinationId);
+        // Clear before callbacks so a second confirmation cannot spend another unit.
+        ClearVillageEntry();
+        if (villageEntryConfirmation != null) villageEntryConfirmation.Hide(!valid);
+        if (valid) MoveToNode(destinationId, true);
+    }
+
+    public void CancelVillageEntry()
+    {
+        if (!IsVillageEntryConfirmationOpen) return;
+        ClearVillageEntry();
+        if (villageEntryConfirmation != null) villageEntryConfirmation.Hide(true);
+    }
+
+    void ClearVillageEntry()
+    {
+        pendingVillageNodeId = null;
+        pendingVillageOriginId = null;
+        pendingVillageRun = null;
+    }
+
+    void OnDisable()
+    {
+        CancelVillageEntry();
     }
 
     // External battle/event screens return the requestId they received on entry.
@@ -140,6 +328,11 @@ public class WorldMapController : MonoBehaviour
         if (!Progression.TryCompleteNode(requestId)) return;
         MainStoryRules.OnNodeCompleted(GameRoot.I.state, completed);
         Notice = Progression.IsComplete ? "三个原罪区域已完成" : "节点已完成";
+        if (completed != null && completed.kind == MapNodeKind.Camp)
+        {
+            int recovered = WorldResourceRules.RecoverAtCamp(GameRoot.I.state.player);
+            Notice += recovered > 0 ? " · 营地休息恢复 " + recovered + " 点生命" : " · 生命已满";
+        }
         StateChanged?.Invoke();
         if (Progression.IsComplete) onMapCompleted.Invoke();
     }

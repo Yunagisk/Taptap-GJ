@@ -1,0 +1,13 @@
+Pure rule checks: 5591 PASS (centered map); 3960 PASS (alternate map before nine additional invalid-config checks).
+PASS: 521 Unity assertions.
+Scanned 3768 serialized object-reference properties.
+Saved prefab identity, three entry images, detail references, native button bindings and unrelated UI transforms validated.
+Rendered native 1600 x 1000 UI preview: C:\Users\ASUS\AppData\Local\Temp\codex-inn-20261013\UnityProject\ValidationReports\TavernBrowser-events-preview.png
+Rendered native 1600 x 1000 UI preview: C:\Users\ASUS\AppData\Local\Temp\codex-inn-20261013\UnityProject\ValidationReports\TavernBrowser-side-preview.png
+Rendered native 1600 x 1000 UI preview: C:\Users\ASUS\AppData\Local\Temp\codex-inn-20261013\UnityProject\ValidationReports\TavernBrowser-dialogue-preview.png
+Actual serialized Button clicks and dialogue callbacks exercised in edit mode. Awake/OnEnable/OnDisable were explicitly simulated because ordinary runtime MonoBehaviours do not automatically execute their lifecycle in edit mode.
+Rendered native 1600 x 1000 UI preview: C:\Users\ASUS\AppData\Local\Temp\codex-inn-20261013\UnityProject\ValidationReports\TavernTimedEvents-selected-preview.png
+Rendered native 1600 x 1000 UI preview: C:\Users\ASUS\AppData\Local\Temp\codex-inn-20261013\UnityProject\ValidationReports\TavernTimedEvents-three-choice-preview.png
+Rendered native 1600 x 1000 UI preview: C:\Users\ASUS\AppData\Local\Temp\codex-inn-20261013\UnityProject\ValidationReports\TavernTimedEvents-settlement-preview.png
+Timed event UI tested using actual dynamic row, option and wait Button callbacks, including two-option and conditional three-option fixtures.
+Actual combat damage, multi-hit attack enumeration, resistance, shared-health events, and Camp controller callbacks validated.
