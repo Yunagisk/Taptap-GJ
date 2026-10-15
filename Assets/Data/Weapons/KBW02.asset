@@ -18,7 +18,7 @@ MonoBehaviour:
   - damageType: 1
     damage: 10
   attackCount: 1
-  skill: {fileID: 0}
+  skill: {fileID: 11400000, guid: c3a1e7b04d5f4a6e9b2c8d1f0a7e3b12, type: 2}
   price: 8
   attack: 16
   damageType: 0

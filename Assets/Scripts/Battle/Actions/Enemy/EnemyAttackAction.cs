@@ -17,6 +17,10 @@ public class EnemyAttackAction
 
         Debug.Log($"{enemy.name} 使用 {attackData.AttackName}");
 
+        // 喘息、准备只占这次行动。直接攻击才进基础伤害：基础值、衰弱、破甲、防御。
+        if (!EnemyAttackRules.UsesBasicDamage(attackData.MoveKind))
+            yield break;
+
         for (int i = 0; i < attackCount; i++)
         {
             // 协程等待期间，攻击者和目标可能已经死亡或销毁。
@@ -53,7 +57,8 @@ public class EnemyAttackAction
             }
         }
 
-        if (enemy != null && player != null && !player.IsDead)
+        if (enemy != null && player != null && !player.IsDead
+            && EnemyAttackRules.AppliesRider(attackData.MoveKind, attackData.AppliesStatus, attackData.StatusStacks))
             attackData.ApplyRider(player);
     }
 }

@@ -19,6 +19,7 @@
 *.csproj
 # This is a hand-written check project, not a generated Unity project.
 !/Tools/MapChecks/MapChecks.csproj
+!/Tools/StatusRulesTest/StatusRulesTest.csproj
 *.sln
 *.user
 *.userprefs

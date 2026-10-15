@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0192e4ecb5b697b42a420d9c5796622b, type: 3}
+  m_Name: SK_poleaxe
+  m_EditorClassIdentifier: 
+  skillName: "\u6A2A\u626B\u7A81\u523A"
+  skillDescription: "\u4E3B\u76EE\u6807\u7A7F\u523A8\uFF0C\u518D\u5BF9\u6240\u6709\u5B58\u6D3B\u654C\u4EBA\u5404\u5288\u780D6\u3002"
+  determinationCost: 3
+  aim: 2
+  hits:
+  - damageType: 0
+    damage: 8
+  hitCount: 1
+  ignoreResistance: 0
+  extraBreakOnWeak: 0
+  coefficientMilli: 1000
+  followHits:
+  - damageType: 1
+    damage: 6
+  statuses: []

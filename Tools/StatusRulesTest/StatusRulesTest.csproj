@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Assets\Scripts\Battle\Status\StatusId.cs" />
+    <Compile Include="..\..\Assets\Scripts\Battle\Status\StatusRules.cs" />
+    <Compile Include="..\..\Assets\Scripts\Battle\Status\StatusSet.cs" />
+    <Compile Include="..\..\Assets\Scripts\Battle\Status\BreakGauge.cs" />
+    <Compile Include="..\..\Assets\Scripts\Battle\Status\StatusSettlement.cs" />
+    <Compile Include="..\..\Assets\Scripts\Battle\Data\SkillRules.cs" />
+    <Compile Include="..\..\Assets\Scripts\Battle\Data\WeaponSkillTable.cs" />
+    <Compile Include="..\..\Assets\Scripts\Battle\Data\EnemyAttackRules.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+</Project>

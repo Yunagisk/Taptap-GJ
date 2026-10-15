@@ -16,7 +16,7 @@ MonoBehaviour:
   weaponId: flame_tongue
   damageComponents: []
   attackCount: 1
-  skill: {fileID: 0}
+  skill: {fileID: 11400000, guid: c3a1e7b04d5f4a6e9b2c8d1f0a7e3b1b, type: 2}
   price: 12
   attack: 0
   damageType: 0

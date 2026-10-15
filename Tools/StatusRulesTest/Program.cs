@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 static class Program
 {
@@ -15,6 +16,9 @@ static class Program
         TestResolve();
         TestBreakGauge();
         TestIgniteBreak();
+        TestWeaponSkills();
+        TestEnemyMoves();
+        TestSkillAssets();
 
         if (failures > 0)
         {
@@ -220,6 +224,146 @@ static class Program
         end = StatusSettlement.SettleOwnTurn(resist, 1);
         Eq(resist.Hp, 98, "抗性点燃扣 2");
         Eq(end.IgniteBroke ? 1 : 0, 0, "抗性不是弱点，不加破防");
+    }
+
+    static void TestWeaponSkills()
+    {
+        Eq(WeaponSkillTable.All.Length, 12, "12 把武器技能");
+        TypeRelation[] normal = NormalRelations();
+
+        WeaponSkillDef sword = WeaponSkillTable.Find("sword");
+        Eq(sword.Cost, 2, "剑消耗 2");
+        TypeRelation[] resist = NormalRelations();
+        resist[0] = TypeRelation.Resistant;
+        Eq(SkillRules.SegmentDamage(sword.Spec.Segment, resist, sword.Spec.IgnoreResistance, 1000, false, false), 30, "剑无视穿刺抗性");
+        Eq(SkillRules.SegmentDamage(sword.Spec.Segment, resist, false, 1000, false, false), 15, "抗性减半");
+        TypeRelation[] immune = NormalRelations();
+        immune[0] = TypeRelation.Immune;
+        Eq(SkillRules.SegmentDamage(sword.Spec.Segment, immune, true, 1000, false, false), 0, "剑不穿透免疫");
+
+        WeaponSkillDef greatsword = WeaponSkillTable.Find("greatsword");
+        Eq(greatsword.Cost, 3, "大剑消耗 3");
+        Eq(SkillRules.SegmentDamage(greatsword.Spec.Segment, normal, false, 1000, false, false), 36, "镇压 36");
+        Eq((int)greatsword.Spec.Statuses[0].status, (int)StatusId.Weak, "镇压衰弱");
+        Eq(greatsword.Spec.Statuses[0].stacks, 1, "镇压 1 层");
+
+        WeaponSkillDef spear = WeaponSkillTable.Find("spear");
+        TypeRelation[] weak = NormalRelations();
+        weak[0] = TypeRelation.Weak;
+        Eq(SkillRules.SegmentDamage(spear.Spec.Segment, normal, false, 1000, false, false), 22, "穿心 22");
+        Eq(SkillRules.SegmentBreak(spear.Spec.Segment, weak, spear.Spec.ExtraBreakOnWeak, false), 2, "穿心弱点额外破防");
+        Eq(SkillRules.SegmentBreak(spear.Spec.Segment, weak, spear.Spec.ExtraBreakOnWeak, true), 0, "保护期穿心不加");
+        Eq(SkillRules.SegmentBreak(spear.Spec.Segment, normal, spear.Spec.ExtraBreakOnWeak, false), 0, "没打中弱点不加");
+
+        WeaponSkillDef dual = WeaponSkillTable.Find("dual_swords");
+        Eq(dual.Cost, 3, "双剑消耗 3");
+        Eq(dual.Spec.SegmentCount, 4, "连刺 4 段");
+        Eq(SkillRules.SegmentDamage(dual.Spec.Segment, normal, false, 1000, false, false), 5, "连刺每段 5");
+
+        WeaponSkillDef axe = WeaponSkillTable.Find("axe");
+        Eq((int)axe.Spec.Aim, (int)SkillAim.EachLiving, "顺劈打每个存活敌人");
+        Eq(SkillRules.SegmentDamage(axe.Spec.Segment, normal, false, 1000, false, false), 12, "顺劈 12");
+
+        WeaponSkillDef sickle = WeaponSkillTable.Find("sickle");
+        Eq(sickle.Spec.SegmentCount, 2, "收割 2 段");
+        Eq(SkillRules.SegmentDamage(sickle.Spec.Segment, normal, false, sickle.Spec.CoefficientMilli, false, false), 12, "已破防收割一段 12");
+        Eq(SkillRules.SegmentDamage(sickle.Spec.Segment, normal, false, 1000, false, false), 9, "未破防收割一段 9");
+
+        WeaponSkillDef hammer = WeaponSkillTable.Find("hammer");
+        Eq(SkillRules.SegmentDamage(hammer.Spec.Segment, normal, false, 1000, false, false), 24, "破甲技能 24");
+        Eq((int)hammer.Spec.Statuses[0].status, (int)StatusId.Sunder, "锤施加破甲");
+        Eq(hammer.Spec.Statuses[0].stacks, 2, "锤破甲 2 层");
+
+        WeaponSkillDef flail = WeaponSkillTable.Find("flail");
+        Eq(flail.Spec.SegmentCount, 2, "缠击 2 段");
+        Eq(flail.Spec.Statuses.Length, 1, "缠击整次只加一次状态");
+        Eq(flail.Spec.Statuses[0].stacks, 1, "缠击衰弱 1 层");
+
+        WeaponSkillDef torch = WeaponSkillTable.Find("torch");
+        Eq((int)torch.Spec.Statuses[0].status, (int)StatusId.Ignite, "火把点燃");
+        Eq(torch.Spec.Statuses[0].stacks, 2, "火把点燃 2 层");
+
+        WeaponSkillDef pole = WeaponSkillTable.Find("poleaxe");
+        Eq((int)pole.Spec.Aim, (int)SkillAim.PrimaryThenEach, "斧枪先主目标再全体");
+        Eq(SkillRules.SegmentDamage(pole.Spec.Segment, normal, false, 1000, false, false), 8, "斧枪穿刺 8");
+        Eq(SkillRules.SegmentDamage(pole.Spec.FollowSegment, normal, false, 1000, false, false), 6, "斧枪劈砍 6");
+
+        WeaponSkillDef flame = WeaponSkillTable.Find("flame_tongue");
+        Eq(SkillRules.SegmentDamage(flame.Spec.Segment, normal, false, 1000, false, false), 20, "焚心 12+8");
+        Eq(flame.Spec.Statuses[0].onSelf ? 1 : 0, 1, "焚心坚定给自己");
+        Eq((int)flame.Spec.Statuses[0].status, (int)StatusId.Steadfast, "焚心是坚定");
+        TypeRelation[] fireResist = NormalRelations();
+        fireResist[3] = TypeRelation.Resistant;
+        Eq(SkillRules.SegmentDamage(flame.Spec.Segment, fireResist, false, 1000, false, false), 16, "焚心火焰抗性先减半");
+
+        WeaponSkillDef heaven = WeaponSkillTable.Find("heaven_fire");
+        Eq(heaven.Spec.Statuses.Length, 2, "烙刑两个状态");
+        Eq((int)heaven.Spec.Statuses[0].status, (int)StatusId.Sunder, "烙刑破甲");
+        Eq((int)heaven.Spec.Statuses[1].status, (int)StatusId.Ignite, "烙刑点燃");
+        Eq(SkillRules.SegmentDamage(heaven.Spec.Segment, normal, false, 1000, true, true), 17, "烙刑再吃衰弱和破甲");
+
+        Eq(SkillRules.CanPay(2, 2, false) ? 1 : 0, 1, "决心刚好够");
+        Eq(SkillRules.CanPay(1, 2, false) ? 1 : 0, 0, "决心不够不扣");
+        Eq(SkillRules.CanPay(4, 2, true) ? 1 : 0, 0, "疲惫不能放技能");
+    }
+
+    static void TestEnemyMoves()
+    {
+        Eq(EnemyAttackRules.UsesBasicDamage(EnemyMoveKind.Strike) ? 1 : 0, 1, "直接攻击进基础伤害");
+        Eq(EnemyAttackRules.UsesBasicDamage(EnemyMoveKind.Gasp) ? 1 : 0, 0, "喘息不进伤害");
+        Eq(EnemyAttackRules.UsesBasicDamage(EnemyMoveKind.Prepare) ? 1 : 0, 0, "准备不进伤害");
+        Eq(EnemyAttackRules.AppliesRider(EnemyMoveKind.Strike, true, 1) ? 1 : 0, 1, "带毒攻击挂 1 层");
+        Eq(EnemyAttackRules.AppliesRider(EnemyMoveKind.Strike, true, 0) ? 1 : 0, 0, "0 层不挂");
+        Eq(EnemyAttackRules.AppliesRider(EnemyMoveKind.Gasp, true, 1) ? 1 : 0, 0, "喘息不挂状态");
+        Eq(EnemyAttackRules.AppliesRider(EnemyMoveKind.Prepare, true, 1) ? 1 : 0, 0, "准备不挂状态");
+    }
+
+    static void TestSkillAssets()
+    {
+        string root = RepoRoot();
+        foreach (WeaponSkillDef def in WeaponSkillTable.All)
+        {
+            string path = Path.Combine(root, "Assets", "Data", "Skills", "SK_" + def.WeaponId + ".asset");
+            string text = File.ReadAllText(path);
+            Eq(text.Contains("determinationCost: " + def.Cost) ? 1 : 0, 1, def.WeaponId + " 资源消耗");
+            Eq(text.Contains("damage: " + def.Spec.Segment[0].Amount) ? 1 : 0, 1, def.WeaponId + " 资源伤害");
+        }
+
+        string poison = File.ReadAllText(Path.Combine(root, "Assets", "Data", "EnemyAttacks", "KBM02", "KBM02.asset"));
+        Eq(poison.Contains("applyStatus: 1") ? 1 : 0, 1, "带毒攻击会挂状态");
+        Eq(poison.Contains("statusStacks: 1") ? 1 : 0, 1, "带毒攻击 1 层");
+        Eq(poison.Contains("statusOnHit: 3") ? 1 : 0, 1, "带毒攻击是中毒");
+        string gasp = File.ReadAllText(Path.Combine(root, "Assets", "Data", "EnemyAttacks", "KBM02", "KBM03.asset"));
+        Eq(gasp.Contains("moveKind: 2") ? 1 : 0, 1, "伏击喘息");
+        string prepare = File.ReadAllText(Path.Combine(root, "Assets", "Data", "EnemyAttacks", "KBM03", "KBM02.asset"));
+        Eq(prepare.Contains("moveKind: 1") ? 1 : 0, 1, "重击准备");
+        string heavyGasp = File.ReadAllText(Path.Combine(root, "Assets", "Data", "EnemyAttacks", "KBM03", "KBM04.asset"));
+        Eq(heavyGasp.Contains("moveKind: 2") ? 1 : 0, 1, "重击喘息");
+    }
+
+    static TypeRelation[] NormalRelations()
+    {
+        return new[]
+        {
+            TypeRelation.Normal,
+            TypeRelation.Normal,
+            TypeRelation.Normal,
+            TypeRelation.Normal
+        };
+    }
+
+    static string RepoRoot()
+    {
+        DirectoryInfo dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null)
+        {
+            string skills = Path.Combine(dir.FullName, "Assets", "Data", "Skills");
+            if (Directory.Exists(skills))
+                return dir.FullName;
+            dir = dir.Parent;
+        }
+
+        throw new InvalidOperationException("找不到技能资源目录");
     }
 
     static void Eq(int actual, int expected, string name)

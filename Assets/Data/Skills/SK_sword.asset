@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0192e4ecb5b697b42a420d9c5796622b, type: 3}
+  m_Name: SK_sword
+  m_EditorClassIdentifier: 
+  skillName: "\u7A7F\u523A"
+  skillDescription: "\u5355\u4F53\u7A7F\u523A30\uFF0C\u65E0\u89C6\u7A7F\u523A\u6297\u6027\uFF0C\u4E0D\u7A7F\u900F\u514D\u75AB\u3002"
+  determinationCost: 2
+  aim: 0
+  hits:
+  - damageType: 0
+    damage: 30
+  hitCount: 1
+  ignoreResistance: 1
+  extraBreakOnWeak: 0
+  coefficientMilli: 1000
+  followHits: []
+  statuses: []

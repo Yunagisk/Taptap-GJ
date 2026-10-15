@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0192e4ecb5b697b42a420d9c5796622b, type: 3}
+  m_Name: SK_spear
+  m_EditorClassIdentifier: 
+  skillName: "\u7A7F\u5FC3"
+  skillDescription: "\u5355\u4F53\u7A7F\u523A22\uFF0C\u547D\u4E2D\u7A7F\u523A\u5F31\u70B9\u989D\u5916\u7D2F\u8BA11\u7834\u9632\u3002\u4FDD\u62A4\u671F\u65E0\u6548\u3002"
+  determinationCost: 2
+  aim: 0
+  hits:
+  - damageType: 0
+    damage: 22
+  hitCount: 1
+  ignoreResistance: 0
+  extraBreakOnWeak: 1
+  coefficientMilli: 1000
+  followHits: []
+  statuses: []

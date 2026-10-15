@@ -102,7 +102,8 @@ public static class DamageSystem
         return new AllDamageResult(Array.Empty<SingleDamageResult>(),0,0,0);
     }
 
-    //=================敌人伤害处理系统==================
+    // 敌人直接攻击的基础结算：基础伤害、衰弱、破甲、防御。
+    // 不含抗性、破防、护盾和武器系数。喘息和准备不要进这里。
     public static int DealDamage(EnemyAttackInfo info)
     {
         if (info.attacker == null || info.target == null)

@@ -19,5 +19,6 @@ public class SkillAction : IBattleAction
             yield break;
         }
         player.SpendDetermination(skill.DeterminationCost);
+        // 技能效果先不从战斗行动里执行。点击按钮走 BattleFlow.SpendWeaponResolveOnly。
     }
 }

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0192e4ecb5b697b42a420d9c5796622b, type: 3}
+  m_Name: SK_dual_swords
+  m_EditorClassIdentifier: 
+  skillName: "\u8FDE\u523A"
+  skillDescription: "\u540C\u76EE\u6807\u7A7F\u523A5\uFF0C\u51714\u6BB5\u3002"
+  determinationCost: 3
+  aim: 0
+  hits:
+  - damageType: 0
+    damage: 5
+  hitCount: 4
+  ignoreResistance: 0
+  extraBreakOnWeak: 0
+  coefficientMilli: 1000
+  followHits: []
+  statuses: []

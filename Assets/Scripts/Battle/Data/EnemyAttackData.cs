@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//CalculateDamage() 是给未来 Boss 伤害变种预留的扩展位置；OnHit() 是未来附加效果的入口，目前不执行任何效果。
+// CalculateDamage() 留给以后的 Boss 伤害变种。直接攻击的数值走 DamageSystem 基础结算。
+// 状态不写在 OnHit。整招结束走 ApplyRider，只施加一次。喘息和准备不进伤害。
 [CreateAssetMenu(fileName = "KBM",menuName = "EnemyAttackData")]
 public class EnemyAttackData : ScriptableObject
 {
@@ -27,10 +28,17 @@ public class EnemyAttackData : ScriptableObject
     [Min(0)]
     [SerializeField] private int statusStacks;
 
+    [Header("招式种类。喘息和准备不造成伤害")]
+    [SerializeField] private EnemyMoveKind moveKind = EnemyMoveKind.Strike;
+
     public string AttackName =>string.IsNullOrWhiteSpace(attackName) ? name : attackName;
     public int Damage => Mathf.Max(0, damage);
     public int AttackCount => Mathf.Max(1, attackCount);
     public float HitInterval => Mathf.Max(0f, hitInterval);
+    public EnemyMoveKind MoveKind => moveKind;
+    public bool AppliesStatus => applyStatus;
+    public int StatusStacks => Mathf.Max(0, statusStacks);
+    public StatusId StatusOnHit => statusOnHit;
 
     //将 SO 中的配置转换成定义的 EnemyAttackInfo
 
@@ -56,10 +64,12 @@ public class EnemyAttackData : ScriptableObject
 
     }
 
-    // 状态按整次招式施加一次，不按段叠加。
+    // 状态按整次招式施加一次，不按段叠加。喘息和准备不加状态。
     public void ApplyRider(Combatant target)
     {
-        if (!applyStatus || statusStacks <= 0 || target == null || target.IsDead)
+        if (!EnemyAttackRules.AppliesRider(moveKind, applyStatus, statusStacks))
+            return;
+        if (target == null || target.IsDead)
             return;
         target.ApplyStatus(statusOnHit, statusStacks);
     }

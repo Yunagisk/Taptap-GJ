@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0192e4ecb5b697b42a420d9c5796622b, type: 3}
+  m_Name: SK_flame_tongue
+  m_EditorClassIdentifier: 
+  skillName: "\u711A\u5FC3"
+  skillDescription: "\u5355\u4F53\u7A7F\u523A12\u52A0\u706B\u71308\uFF0C\u4E3B\u89D2\u83B7\u5F97\u575A\u5B9A1\u5C42\u3002"
+  determinationCost: 3
+  aim: 0
+  hits:
+  - damageType: 0
+    damage: 12
+  - damageType: 3
+    damage: 8
+  hitCount: 1
+  ignoreResistance: 0
+  extraBreakOnWeak: 0
+  coefficientMilli: 1000
+  followHits: []
+  statuses:
+  - status: 2
+    stacks: 1
+    onSelf: 1

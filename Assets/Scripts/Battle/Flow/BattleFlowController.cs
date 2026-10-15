@@ -36,6 +36,35 @@ public class BattleFlowController : MonoBehaviour
     public bool WeaponSkillBlocked =>
         player != null && player.Statuses.Has(StatusId.Exhaust);
 
+    public PlayerCombatant Player => player;
+
+    // 只扣当前武器的技能决心。不选目标，不结算技能效果，不结束回合。
+    public bool SpendWeaponResolveOnly()
+    {
+        if (player == null || player.IsDead)
+            return false;
+
+        bool exhausted = player.Statuses.Has(StatusId.Exhaust);
+        SkillData skill = player.CurrentWeapon != null ? player.CurrentWeapon.Skill : null;
+        int cost = skill != null ? skill.DeterminationCost : 0;
+        if (!SkillRules.CanPay(player.CurrentDetermination, cost, exhausted))
+        {
+            if (exhausted)
+                Debug.Log("疲惫：武器技能不可用");
+            else if (skill == null)
+                Debug.Log("当前武器没有技能");
+            else
+                Debug.Log("决心不足");
+            return false;
+        }
+
+        if (!player.SpendDetermination(cost))
+            return false;
+
+        Debug.Log($"消耗决心{cost}：{skill.SkillName}。技能效果尚未进入战斗结算。");
+        return true;
+    }
+
     private void Awake()
     {
         turnManager = new TurnManager();
