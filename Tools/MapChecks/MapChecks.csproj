@@ -22,8 +22,12 @@
     <Compile Include="Program.cs" />
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <Compile Include="VillageEventChecks.cs" />
     <Content Include="../../Assets/Data/Maps/ThreeSinWhitebox.json" Link="ThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
+=======
+    <Content Include="../../Assets/Data/EnemyAttacks/Maps/ThreeSinWhitebox.json" Link="ThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
+>>>>>>> origin/Feature/MapFunctional
 =======
     <Content Include="../../Assets/Data/EnemyAttacks/Maps/ThreeSinWhitebox.json" Link="ThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
 >>>>>>> origin/Feature/MapFunctional

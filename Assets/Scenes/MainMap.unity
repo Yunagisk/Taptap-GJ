@@ -2397,6 +2397,7 @@ CanvasRenderer:
   m_CullTransparentMesh: 1
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1 &920550577
 GameObject:
   m_ObjectHideFlags: 0
@@ -2526,6 +2527,8 @@ MonoBehaviour:
   onMapCompleted:
     m_PersistentCalls:
       m_Calls: []
+=======
+>>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
 =======
@@ -2938,6 +2941,7 @@ MonoBehaviour:
   m_PixelsPerUnitMultiplier: 1
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1 &1079502088
 GameObject:
   m_ObjectHideFlags: 0
@@ -3335,6 +3339,8 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1090423275}
   m_CullTransparentMesh: 1
+=======
+>>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
 =======
@@ -5939,6 +5945,7 @@ CanvasRenderer:
   m_CullTransparentMesh: 1
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!1 &1984922050
 GameObject:
   m_ObjectHideFlags: 0
@@ -6709,6 +6716,8 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2096183001}
   m_CullTransparentMesh: 1
+=======
+>>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
 =======

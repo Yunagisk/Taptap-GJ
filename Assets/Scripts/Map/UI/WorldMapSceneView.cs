@@ -27,11 +27,14 @@ public class WorldMapSceneView : MonoBehaviour
     public bool showOriginalBackground;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     public MapSceneRoad repairedRoadPrefab;
 
     readonly Dictionary<string, MapSceneRoad> repairedRoads = new Dictionary<string, MapSceneRoad>();
     readonly Dictionary<string, RectTransform> nodeTransforms = new Dictionary<string, RectTransform>();
 =======
+=======
+>>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
     [Header("Discovery animation")]
@@ -43,6 +46,9 @@ public class WorldMapSceneView : MonoBehaviour
 
     public bool IsRevealing { get; private set; }
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/Feature/MapFunctional
+=======
 >>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
@@ -83,6 +89,7 @@ public class WorldMapSceneView : MonoBehaviour
         roads = mapContent.GetComponentsInChildren<MapSceneRoad>(true);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         foreach (var node in nodes)
         {
             node.Bind(controller);
@@ -92,12 +99,17 @@ public class WorldMapSceneView : MonoBehaviour
 =======
 =======
 >>>>>>> origin/Feature/MapFunctional
+=======
+>>>>>>> origin/Feature/MapFunctional
         foreach (var node in nodes) { node.Bind(controller); nodeById[node.nodeId] = node; }
         foreach (var road in roads) roadById[MapRevealTransition.RoadKey(road.fromNodeId, road.toNodeId)] = road;
         ApplyVisualLayout(controller.Progression.Layout);
         viewport = WorldMapViewport.Configure(this);
         if (canvas != null && font != null && font.sourceFontFile != null)
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/Feature/MapFunctional
+=======
 >>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
@@ -238,8 +250,11 @@ public class WorldMapSceneView : MonoBehaviour
         foreach (var road in roads) road.Refresh(map);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         RefreshRepairedRoads(map);
 =======
+=======
+>>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
         if (currentLocationMarker != null) currentLocationMarker.Refresh(this, map, transition != null);
@@ -251,6 +266,9 @@ public class WorldMapSceneView : MonoBehaviour
         }
         if (transition != null) BeginReveal(transition);
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/Feature/MapFunctional
+=======
 >>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
@@ -264,8 +282,12 @@ public class WorldMapSceneView : MonoBehaviour
         var request = map.GetPendingRequest();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle
             && !(request.kind == MapNodeKind.Event && controller.WildernessCatalog != null);
+=======
+        bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle && !controller.IsWaitingToEnter;
+>>>>>>> origin/Feature/MapFunctional
 =======
         bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle && !controller.IsWaitingToEnter;
 >>>>>>> origin/Feature/MapFunctional
@@ -280,6 +302,7 @@ public class WorldMapSceneView : MonoBehaviour
         string[] kinds = { "村庄", "普通战", "问号事件", "火堆", "原罪首领" };
         nodeDescription.text = kinds[(int)request.kind] + "\n处理中";
         completeButton.interactable = useWhiteboxCompletion && !controller.IsEnteringNode;
+<<<<<<< HEAD
 <<<<<<< HEAD
     }
 
@@ -308,6 +331,8 @@ public class WorldMapSceneView : MonoBehaviour
             }
             road.Refresh(map);
         }
+=======
+>>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
     }

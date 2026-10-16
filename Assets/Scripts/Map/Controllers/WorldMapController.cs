@@ -13,6 +13,7 @@ public class WorldMapController : MonoBehaviour
     public WorldMapTemplate template;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     public VillageEntryConfirmationUI villageEntryConfirmation;
     public MapWildernessEventUI wildernessEventUI;
     public WildernessEventCatalog WildernessCatalog { get; private set; }
@@ -27,6 +28,11 @@ public class WorldMapController : MonoBehaviour
 
     bool IsChangingScene => isLoadingBattle || villageEntryConfirmation != null
         && villageEntryConfirmation.flow != null && villageEntryConfirmation.flow.IsLoading;
+=======
+    public MapSceneTransition entryTransitionPrefab;
+    bool isLoadingBattle;
+    bool entryDispatched;
+>>>>>>> origin/Feature/MapFunctional
 =======
     public MapSceneTransition entryTransitionPrefab;
     bool isLoadingBattle;
@@ -76,8 +82,12 @@ public class WorldMapController : MonoBehaviour
         var pending = Progression?.GetPendingRequest();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (pending != null && pending.kind == MapNodeKind.Battle) EnterBattle(pending);
         else if (pending != null && pending.kind == MapNodeKind.Event) OpenWildernessEvent(pending);
+=======
+        if (pending != null && pending.kind == MapNodeKind.Battle) BeginEntry(pending);
+>>>>>>> origin/Feature/MapFunctional
 =======
         if (pending != null && pending.kind == MapNodeKind.Battle) BeginEntry(pending);
 >>>>>>> origin/Feature/MapFunctional
@@ -115,6 +125,7 @@ public class WorldMapController : MonoBehaviour
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         MoveToNode(nodeId, false);
     }
 
@@ -124,6 +135,8 @@ public class WorldMapController : MonoBehaviour
 =======
 =======
 >>>>>>> origin/Feature/MapFunctional
+=======
+>>>>>>> origin/Feature/MapFunctional
         if (isLoadingBattle || IsEnteringNode || MapSceneTransition.IsBusy || Progression == null) return;
         if (entryTransitionPrefab == null)
         {
@@ -131,6 +144,9 @@ public class WorldMapController : MonoBehaviour
             return;
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/Feature/MapFunctional
+=======
 >>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
@@ -230,9 +246,12 @@ public class WorldMapController : MonoBehaviour
         {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             case MapNodeKind.Battle: onBattleEntered.Invoke(request); EnterBattle(request); break;
             case MapNodeKind.Event: onEventEntered.Invoke(request); OpenWildernessEvent(request); break;
 =======
+=======
+>>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
             case MapNodeKind.Battle: onBattleEntered.Invoke(request); return EnterBattle(request);
@@ -242,6 +261,7 @@ public class WorldMapController : MonoBehaviour
             case MapNodeKind.Boss: onBossEntered.Invoke(request); break;
         }
         return null;
+<<<<<<< HEAD
 <<<<<<< HEAD
     }
 
@@ -395,6 +415,8 @@ public class WorldMapController : MonoBehaviour
     void OnDisable()
     {
         CancelVillageEntry();
+=======
+>>>>>>> origin/Feature/MapFunctional
 =======
 >>>>>>> origin/Feature/MapFunctional
     }
