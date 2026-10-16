@@ -12,6 +12,7 @@ public class WorldMapController : MonoBehaviour
     public const string BattleScene = "CombatScene";
     public WorldMapTemplate template;
 <<<<<<< HEAD
+<<<<<<< HEAD
     public VillageEntryConfirmationUI villageEntryConfirmation;
     public MapWildernessEventUI wildernessEventUI;
     public WildernessEventCatalog WildernessCatalog { get; private set; }
@@ -26,6 +27,11 @@ public class WorldMapController : MonoBehaviour
 
     bool IsChangingScene => isLoadingBattle || villageEntryConfirmation != null
         && villageEntryConfirmation.flow != null && villageEntryConfirmation.flow.IsLoading;
+=======
+    public MapSceneTransition entryTransitionPrefab;
+    bool isLoadingBattle;
+    bool entryDispatched;
+>>>>>>> origin/Feature/MapFunctional
 =======
     public MapSceneTransition entryTransitionPrefab;
     bool isLoadingBattle;
@@ -69,8 +75,12 @@ public class WorldMapController : MonoBehaviour
     {
         var pending = Progression?.GetPendingRequest();
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (pending != null && pending.kind == MapNodeKind.Battle) EnterBattle(pending);
         else if (pending != null && pending.kind == MapNodeKind.Event) OpenWildernessEvent(pending);
+=======
+        if (pending != null && pending.kind == MapNodeKind.Battle) BeginEntry(pending);
+>>>>>>> origin/Feature/MapFunctional
 =======
         if (pending != null && pending.kind == MapNodeKind.Battle) BeginEntry(pending);
 >>>>>>> origin/Feature/MapFunctional
@@ -104,6 +114,7 @@ public class WorldMapController : MonoBehaviour
     public void MoveToNode(string nodeId)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         MoveToNode(nodeId, false);
     }
 
@@ -111,12 +122,17 @@ public class WorldMapController : MonoBehaviour
     {
         if (IsChangingScene || Progression == null || IsVillageEntryConfirmationOpen || IsWildernessEventOpen) return;
 =======
+=======
+>>>>>>> origin/Feature/MapFunctional
         if (isLoadingBattle || IsEnteringNode || MapSceneTransition.IsBusy || Progression == null) return;
         if (entryTransitionPrefab == null)
         {
             Debug.LogError("Assign the map scene transition prefab before entering nodes.", this);
             return;
         }
+<<<<<<< HEAD
+>>>>>>> origin/Feature/MapFunctional
+=======
 >>>>>>> origin/Feature/MapFunctional
         var destination = Progression.GetNode(nodeId);
         if (destination != null && destination.kind == MapNodeKind.Event
@@ -213,9 +229,12 @@ public class WorldMapController : MonoBehaviour
         switch (request.kind)
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             case MapNodeKind.Battle: onBattleEntered.Invoke(request); EnterBattle(request); break;
             case MapNodeKind.Event: onEventEntered.Invoke(request); OpenWildernessEvent(request); break;
 =======
+=======
+>>>>>>> origin/Feature/MapFunctional
             case MapNodeKind.Battle: onBattleEntered.Invoke(request); return EnterBattle(request);
             case MapNodeKind.Event: onEventEntered.Invoke(request); break;
 >>>>>>> origin/Feature/MapFunctional
@@ -223,6 +242,7 @@ public class WorldMapController : MonoBehaviour
             case MapNodeKind.Boss: onBossEntered.Invoke(request); break;
         }
         return null;
+<<<<<<< HEAD
     }
 
     void InitializeWilderness()
@@ -375,6 +395,8 @@ public class WorldMapController : MonoBehaviour
     void OnDisable()
     {
         CancelVillageEntry();
+=======
+>>>>>>> origin/Feature/MapFunctional
     }
 
     // External battle/event screens return the requestId they received on entry.

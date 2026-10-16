@@ -127,7 +127,11 @@ static class Program
         CheckShop();
         CheckWeaponPrices();
 <<<<<<< HEAD
+<<<<<<< HEAD
         VillageEventChecks.Run(Layout, Check);
+=======
+        CheckMapReveals();
+>>>>>>> origin/Feature/MapFunctional
 =======
         CheckMapReveals();
 >>>>>>> origin/Feature/MapFunctional

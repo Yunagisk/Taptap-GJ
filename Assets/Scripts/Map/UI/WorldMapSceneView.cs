@@ -26,11 +26,14 @@ public class WorldMapSceneView : MonoBehaviour
     public Image originalBackground;
     public bool showOriginalBackground;
 <<<<<<< HEAD
+<<<<<<< HEAD
     public MapSceneRoad repairedRoadPrefab;
 
     readonly Dictionary<string, MapSceneRoad> repairedRoads = new Dictionary<string, MapSceneRoad>();
     readonly Dictionary<string, RectTransform> nodeTransforms = new Dictionary<string, RectTransform>();
 =======
+=======
+>>>>>>> origin/Feature/MapFunctional
     [Header("Discovery animation")]
     [Min(0.1f)] public float revealDuration = 1;
     [Tooltip("The crack and grey fade continue while the roads flow outward.")]
@@ -39,6 +42,9 @@ public class WorldMapSceneView : MonoBehaviour
     [Range(0.45f, 0.9f)] public float roadRevealPortion = 0.72f;
 
     public bool IsRevealing { get; private set; }
+<<<<<<< HEAD
+>>>>>>> origin/Feature/MapFunctional
+=======
 >>>>>>> origin/Feature/MapFunctional
 
     MapSceneNode[] nodes;
@@ -76,6 +82,7 @@ public class WorldMapSceneView : MonoBehaviour
         nodes = mapContent.GetComponentsInChildren<MapSceneNode>(true);
         roads = mapContent.GetComponentsInChildren<MapSceneRoad>(true);
 <<<<<<< HEAD
+<<<<<<< HEAD
         foreach (var node in nodes)
         {
             node.Bind(controller);
@@ -83,11 +90,16 @@ public class WorldMapSceneView : MonoBehaviour
         }
         if (font != null && font.sourceFontFile != null)
 =======
+=======
+>>>>>>> origin/Feature/MapFunctional
         foreach (var node in nodes) { node.Bind(controller); nodeById[node.nodeId] = node; }
         foreach (var road in roads) roadById[MapRevealTransition.RoadKey(road.fromNodeId, road.toNodeId)] = road;
         ApplyVisualLayout(controller.Progression.Layout);
         viewport = WorldMapViewport.Configure(this);
         if (canvas != null && font != null && font.sourceFontFile != null)
+<<<<<<< HEAD
+>>>>>>> origin/Feature/MapFunctional
+=======
 >>>>>>> origin/Feature/MapFunctional
         {
             runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
@@ -225,8 +237,11 @@ public class WorldMapSceneView : MonoBehaviour
         foreach (var node in nodes) node.Refresh(map);
         foreach (var road in roads) road.Refresh(map);
 <<<<<<< HEAD
+<<<<<<< HEAD
         RefreshRepairedRoads(map);
 =======
+=======
+>>>>>>> origin/Feature/MapFunctional
         if (currentLocationMarker != null) currentLocationMarker.Refresh(this, map, transition != null);
         if (viewport != null && framedNodeId != map.State.currentNodeId)
         {
@@ -235,6 +250,9 @@ public class WorldMapSceneView : MonoBehaviour
             framedNodeId = map.State.currentNodeId;
         }
         if (transition != null) BeginReveal(transition);
+<<<<<<< HEAD
+>>>>>>> origin/Feature/MapFunctional
+=======
 >>>>>>> origin/Feature/MapFunctional
         var player = GameRoot.I.state.player;
         if (hpText != null) hpText.text = player.hp + " / " + player.maxHp;
@@ -245,8 +263,12 @@ public class WorldMapSceneView : MonoBehaviour
         noticeText.text = controller.Notice;
         var request = map.GetPendingRequest();
 <<<<<<< HEAD
+<<<<<<< HEAD
         bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle
             && !(request.kind == MapNodeKind.Event && controller.WildernessCatalog != null);
+=======
+        bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle && !controller.IsWaitingToEnter;
+>>>>>>> origin/Feature/MapFunctional
 =======
         bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle && !controller.IsWaitingToEnter;
 >>>>>>> origin/Feature/MapFunctional
@@ -258,6 +280,7 @@ public class WorldMapSceneView : MonoBehaviour
         string[] kinds = { "村庄", "普通战", "问号事件", "火堆", "原罪首领" };
         nodeDescription.text = kinds[(int)request.kind] + "\n处理中";
         completeButton.interactable = useWhiteboxCompletion && !controller.IsEnteringNode;
+<<<<<<< HEAD
     }
 
     void RefreshRepairedRoads(MapProgression map)
@@ -285,6 +308,8 @@ public class WorldMapSceneView : MonoBehaviour
             }
             road.Refresh(map);
         }
+=======
+>>>>>>> origin/Feature/MapFunctional
     }
 
     void CompleteDisplayedNode()

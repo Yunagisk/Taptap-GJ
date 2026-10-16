@@ -84,6 +84,7 @@ public class GameFlowController : MonoBehaviour
     public void HandleBack()
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (wildernessEventUI != null && wildernessEventUI.IsOpen)
         {
             wildernessEventUI.controller.CloseWildernessEvent();
@@ -94,6 +95,9 @@ public class GameFlowController : MonoBehaviour
             villageEntryConfirmation.controller.CancelVillageEntry();
             return;
         }
+=======
+        if (MapSceneTransition.IsBusy) return;
+>>>>>>> origin/Feature/MapFunctional
 =======
         if (MapSceneTransition.IsBusy) return;
 >>>>>>> origin/Feature/MapFunctional
