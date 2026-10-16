@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public static class MapPlayerPanelBuilder
 {
-    const string PortraitPath = "Assets/Sprite/UI/PlayerPortraitPlaceholder.png";
+    const string PortraitPath = "Assets/Sprite/UI/PlayerHUD2K/Portrait.png";
     static readonly Color Ink = new Color32(37, 40, 46, 255);
     static readonly Color Muted = new Color32(95, 100, 110, 255);
 
@@ -21,6 +21,13 @@ public static class MapPlayerPanelBuilder
             Debug.LogWarning("Open the copied map scene before updating its player UI.");
             return;
         }
+        var map = Object.FindObjectOfType<WorldMapSceneView>();
+        if (map != null && WorldMapUiPrefabBuilder.Connected(map.gameObject, WorldMapUiPrefabBuilder.MapPrefabPath))
+        {
+            AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath<GameObject>(WorldMapUiPrefabBuilder.HudPrefabPath));
+            Debug.Log("Edit the HUD in Prefab Mode. Inventory UI is in EquipmentPanel.prefab.");
+            return;
+        }
         if (!EditorUtility.DisplayDialog("Update Player UI", "Replace the player HUD and inventory layout in this copied scene? Map and background transforms are preserved.", "Update", "Cancel")) return;
         Apply();
         EditorSceneManager.SaveScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
@@ -30,6 +37,8 @@ public static class MapPlayerPanelBuilder
     {
         var map = Object.FindObjectOfType<WorldMapSceneView>();
         if (map == null) throw new System.InvalidOperationException("The native map scene is required.");
+        if (WorldMapUiPrefabBuilder.Connected(map.gameObject, WorldMapUiPrefabBuilder.MapPrefabPath))
+            throw new System.InvalidOperationException("Map UI is prefab-based. Edit WorldMapHUD.prefab and EquipmentPanel.prefab directly; the legacy HUD generator would replace the integrated equipment UI.");
         var canvas = map.canvas;
         var rects = canvas.GetComponentsInChildren<RectTransform>(true);
         RectTransform Find(string name) => rects.First(rect => rect.name == name);
@@ -37,7 +46,7 @@ public static class MapPlayerPanelBuilder
         var inventory = Find("InventoryPanel");
         var button = Find("Btn_Inventory").GetComponent<Button>();
         var close = Find("Btn_Close").GetComponent<Button>();
-        var portraitSprite = CreatePortrait();
+        var portraitSprite = LoadPortrait();
         var view = hud.GetComponent<MapPlayerPanelView>() ?? hud.gameObject.AddComponent<MapPlayerPanelView>();
         view.canvas = canvas;
         view.mapController = map.GetComponent<WorldMapController>();
@@ -176,7 +185,7 @@ public static class MapPlayerPanelBuilder
 
         while (button.onClick.GetPersistentEventCount() > 0) UnityEventTools.RemovePersistentListener(button.onClick, 0);
         while (close.onClick.GetPersistentEventCount() > 0) UnityEventTools.RemovePersistentListener(close.onClick, 0);
-        UnityEventTools.AddPersistentListener(button.onClick, view.OpenInventory);
+        UnityEventTools.AddPersistentListener(button.onClick, view.OnPortraitClicked);
         UnityEventTools.AddPersistentListener(close.onClick, view.CloseInventory);
         view.CloseInventory();
         inventory.SetAsLastSibling();
@@ -253,34 +262,11 @@ public static class MapPlayerPanelBuilder
         rect.localScale = Vector3.one;
     }
 
-    static Sprite CreatePortrait()
+    static Sprite LoadPortrait()
     {
-        var existing = AssetDatabase.LoadAssetAtPath<Sprite>(PortraitPath);
-        if (existing != null) return existing;
-        var texture = new Texture2D(32, 32, TextureFormat.RGBA32, false);
-        for (int y = 0; y < 32; y++)
-            for (int x = 0; x < 32; x++)
-            {
-                Color32 color = new Color32(65, 74, 84, 255);
-                if (y < 13 && x >= 5 && x <= 26) color = new Color32(171, 181, 189, 255);
-                if (y >= 10 && y < 29 && x >= 8 && x <= 23) color = new Color32(39, 44, 52, 255);
-                if (y >= 13 && y < 25 && x >= 11 && x <= 20) color = new Color32(214, 218, 218, 255);
-                if (y == 21 && (x == 13 || x == 18)) color = new Color32(50, 55, 64, 255);
-                if (y >= 9 && y <= 13 && x >= 9 && x <= 23) color = new Color32(151, 61, 74, 255);
-                if (y >= 3 && y <= 10 && x >= 18 && x <= 21) color = new Color32(151, 61, 74, 255);
-                texture.SetPixel(x, y, color);
-            }
-        texture.Apply();
-        System.IO.File.WriteAllBytes(PortraitPath, texture.EncodeToPNG());
-        Object.DestroyImmediate(texture);
-        AssetDatabase.ImportAsset(PortraitPath);
-        var importer = (TextureImporter)AssetImporter.GetAtPath(PortraitPath);
-        importer.textureType = TextureImporterType.Sprite;
-        importer.spriteImportMode = SpriteImportMode.Single;
-        importer.filterMode = FilterMode.Point;
-        importer.textureCompression = TextureImporterCompression.Uncompressed;
-        importer.mipmapEnabled = false;
-        importer.SaveAndReimport();
-        return AssetDatabase.LoadAssetAtPath<Sprite>(PortraitPath);
+        var portrait = AssetDatabase.LoadAssetAtPath<Sprite>(PortraitPath);
+        if (portrait == null)
+            throw new System.InvalidOperationException("The imported player portrait is missing: " + PortraitPath);
+        return portrait;
     }
 }

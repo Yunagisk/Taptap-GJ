@@ -69,7 +69,7 @@ public class GameFlowController : MonoBehaviour
 
     void Update()
     {
-        if (!IsLoading && Input.GetKeyDown(KeyCode.Escape)) HandleBack();
+        if (!IsLoading && !MapSceneTransition.IsBusy && Input.GetKeyDown(KeyCode.Escape)) HandleBack();
     }
 
     void LateUpdate()
@@ -83,6 +83,7 @@ public class GameFlowController : MonoBehaviour
 
     public void HandleBack()
     {
+<<<<<<< HEAD
         if (wildernessEventUI != null && wildernessEventUI.IsOpen)
         {
             wildernessEventUI.controller.CloseWildernessEvent();
@@ -93,6 +94,9 @@ public class GameFlowController : MonoBehaviour
             villageEntryConfirmation.controller.CancelVillageEntry();
             return;
         }
+=======
+        if (MapSceneTransition.IsBusy) return;
+>>>>>>> origin/Feature/MapFunctional
         if (playerPanel != null && playerPanel.IsInventoryOpen) { playerPanel.CloseInventory(); return; }
         if (confirmOverlay.activeSelf) { CancelConfirmation(); return; }
         if (settingsOverlay.activeSelf) { CloseSettings(); return; }
@@ -197,7 +201,7 @@ public class GameFlowController : MonoBehaviour
             IsLoading = true;
             WorldMapVisible(false);
             Set(loadingOverlay, true);
-            SceneManager.LoadSceneAsync(VillageScene);
+            MapSceneTransition.LoadSceneAsync(VillageScene);
         }
         catch (Exception error)
         {

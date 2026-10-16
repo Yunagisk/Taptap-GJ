@@ -4,6 +4,7 @@ using UnityEngine;
 public class WorldMapTemplate : ScriptableObject
 {
     public TextAsset definition;
+    public WorldMapVisualLayout visualLayout;
 
     public MapLayout Load()
     {

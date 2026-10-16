@@ -13,6 +13,9 @@
 **/[Bb]in/
 *.log
 
+# Local art previews, generation history and temporary check binaries.
+/output/
+
 # Visual Studio / Rider
 **/.vs/
 **/.idea/

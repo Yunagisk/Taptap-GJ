@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: CenteredThreeSinWhitebox
   m_EditorClassIdentifier:
   definition: {fileID: 4900000, guid: b10f2c9e820647d1b0e93c18b4200201, type: 3}
+  visualLayout: {fileID: 11400000, guid: 225448cae74c46d8a7b4a4d9eff41b49, type: 2}
