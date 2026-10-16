@@ -43,6 +43,13 @@ public static class MapWildernessEventBuilder
             var map = Components<WorldMapController>(scene).Single();
             var view = Components<WorldMapSceneView>(scene).Single();
             var flow = Components<GameFlowController>(scene).Single(item => !item.isMainMenu);
+            if (view.canvas == null)
+            {
+                view.canvas = view.GetComponentInParent<Canvas>(true);
+                EditorUtility.SetDirty(view);
+                if (PrefabUtility.IsPartOfPrefabInstance(view))
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(view);
+            }
             Require(view.canvas != null, "MainMap must have its existing world-map Canvas.");
             var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Fonts/Huiwen.asset");
             var paper = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprite/UI/TavernTemp/TavernPaperFrame-v1.png");
@@ -109,18 +116,18 @@ public static class MapWildernessEventBuilder
 
     static GameObject MakeRoadPrefab()
     {
-        var root = new GameObject("WildernessRepairedRoad", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        var root = new GameObject("WildernessRepairedRoad", typeof(RectTransform),
+            typeof(CanvasRenderer), typeof(MapSceneRoad));
         root.layer = 5;
-        Box((RectTransform)root.transform, Vector2.one * 0.5f, Vector2.zero,
-            new Vector2(100, 3), Vector2.one * 0.5f);
-        var image = root.GetComponent<Image>();
-        image.color = new Color32(105, 87, 67, 190);
-        image.raycastTarget = false;
-        var road = root.AddComponent<MapSceneRoad>();
+        Stretch((RectTransform)root.transform);
+        var road = root.GetComponent<MapSceneRoad>();
+        road.color = new Color32(105, 87, 67, 190);
+        road.raycastTarget = false;
         road.fromNodeId = "";
         road.toNodeId = "";
         road.from = null;
         road.to = null;
+        road.village = null;
         return root;
     }
     static GameObject MakePrefab(TMP_FontAsset font, Sprite paper, TextAsset catalog)

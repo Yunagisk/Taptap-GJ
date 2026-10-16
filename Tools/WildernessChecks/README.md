@@ -6,16 +6,16 @@ Run from the Unity project root:
 dotnet run --project Tools/WildernessChecks/WildernessChecks.csproj
 ```
 
-This standalone .NET 10 harness links the actual pure production rules. It does not load a Unity scene, instantiate GameRoot, alter the production map, or write gameplay saves. All resource transactions use fresh GameState instances and copies of the real map layout. The catalog and layout are copied into the test output directory by the project.
+This standalone .NET 10 harness links the actual pure production rules. It does not load a Unity scene, instantiate GameRoot, alter the production map, or write gameplay saves. All resource transactions use fresh GameState instances and copies of the real map layout. The catalog and layouts are copied into the test output directory by the project. The production map assets now live in `Assets/Data/EnemyAttacks/Maps`; the catalog remains in `Assets/Data/Wilderness`.
 
 The expected table is independently transcribed from the supplied design images. Checks cover all 10 templates, 20 choices, 27 branches, every integer probability boundary, and 10,000 fixed seeds for weighted sampling without replacement. First- and conditional second-draw distributions verify that whole templates are removed after selection. All option and encounter results, JSON continuity, one-time prompts, ignored duplicate callbacks, resource bounds, text-only rewards, real camp recovery, and repairable-road constraints are exercised.
 
 System.Text.Json needs a check-only ItemStack converter because the existing production constructor is `(id,n)` while serialized fields are `itemId,count`. This does not change Unity serialization. Native Unity JsonUtility and scene/prefab rendering require separate Unity validation.
 
-To check another catalog/layout pair, pass absolute paths after the project argument:
+To check a catalog/layout pair explicitly, pass their paths after the project argument:
 
 ```powershell
-dotnet run --project Tools/WildernessChecks/WildernessChecks.csproj -- C:/path/WildernessEvents.json C:/path/CenteredThreeSinWhitebox.json
+dotnet run --project Tools/WildernessChecks/WildernessChecks.csproj -- Assets/Data/Wilderness/WildernessEvents.json Assets/Data/EnemyAttacks/Maps/CenteredThreeSinWhitebox.json
 ```
 
 

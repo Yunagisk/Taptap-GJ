@@ -14,7 +14,7 @@ public static class MapWhiteboxTools
     [MenuItem("Tools/Map Whitebox/Validate Template")]
     public static void ValidateTemplate()
     {
-        var template = AssetDatabase.LoadAssetAtPath<WorldMapTemplate>("Assets/Data/Maps/CenteredThreeSinWhitebox.asset");
+        var template = AssetDatabase.LoadAssetAtPath<WorldMapTemplate>("Assets/Data/EnemyAttacks/Maps/CenteredThreeSinWhitebox.asset");
         MapLayoutValidator.Validate(template.Load());
         Debug.Log("Map whitebox valid: 28 nodes, 3 regions; shortest route 5, minimum ordinary battles 3.");
     }

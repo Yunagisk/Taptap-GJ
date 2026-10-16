@@ -18,7 +18,7 @@ public sealed class MapRevealTransition
             foreach (var node in map.Layout.nodes)
             {
                 if (map.IsVisible(node.id)) nodes.Add(node.id);
-                foreach (string neighbor in node.neighbors)
+                foreach (string neighbor in map.GetNeighbors(node.id))
                     if (map.IsRoadVisible(node.id, neighbor)) roads.Add(RoadKey(node.id, neighbor));
             }
         }
@@ -49,7 +49,7 @@ public sealed class MapRevealTransition
         foreach (var node in map.Layout.nodes)
         {
             if (map.IsVisible(node.id) && !before.nodes.Contains(node.id)) result.nodeIds.Add(node.id);
-            foreach (string neighbor in node.neighbors)
+            foreach (string neighbor in map.GetNeighbors(node.id))
             {
                 if (string.CompareOrdinal(node.id, neighbor) >= 0 || !map.IsRoadVisible(node.id, neighbor)
                     || before.roads.Contains(RoadKey(node.id, neighbor))) continue;

@@ -37,6 +37,13 @@ public static class VillageEntryConfirmationBuilder
             var map = Components<WorldMapController>(scene).Single();
             var view = Components<WorldMapSceneView>(scene).Single();
             var flow = Components<GameFlowController>(scene).Single(item => !item.isMainMenu);
+            if (view.canvas == null)
+            {
+                view.canvas = view.GetComponentInParent<Canvas>(true);
+                EditorUtility.SetDirty(view);
+                if (PrefabUtility.IsPartOfPrefabInstance(view))
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(view);
+            }
             Require(view.canvas != null, "MainMap must have its existing world map Canvas.");
             var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Fonts/Huiwen.asset");
             var paper = AssetDatabase.LoadAssetAtPath<Sprite>(PaperPath);

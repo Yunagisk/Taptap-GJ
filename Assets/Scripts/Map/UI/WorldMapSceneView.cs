@@ -25,18 +25,7 @@ public class WorldMapSceneView : MonoBehaviour
     public bool useWhiteboxCompletion = true;
     public Image originalBackground;
     public bool showOriginalBackground;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     public MapSceneRoad repairedRoadPrefab;
-
-    readonly Dictionary<string, MapSceneRoad> repairedRoads = new Dictionary<string, MapSceneRoad>();
-    readonly Dictionary<string, RectTransform> nodeTransforms = new Dictionary<string, RectTransform>();
-=======
-=======
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
     [Header("Discovery animation")]
     [Min(0.1f)] public float revealDuration = 1;
     [Tooltip("The crack and grey fade continue while the roads flow outward.")]
@@ -45,13 +34,6 @@ public class WorldMapSceneView : MonoBehaviour
     [Range(0.45f, 0.9f)] public float roadRevealPortion = 0.72f;
 
     public bool IsRevealing { get; private set; }
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
 
     MapSceneNode[] nodes;
     MapSceneRoad[] roads;
@@ -87,32 +69,13 @@ public class WorldMapSceneView : MonoBehaviour
         if (visualLayout == null) visualLayout = controller.template.visualLayout;
         nodes = mapContent.GetComponentsInChildren<MapSceneNode>(true);
         roads = mapContent.GetComponentsInChildren<MapSceneRoad>(true);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        foreach (var node in nodes)
-        {
-            node.Bind(controller);
-            nodeTransforms[node.nodeId] = (RectTransform)node.transform;
-        }
-        if (font != null && font.sourceFontFile != null)
-=======
-=======
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
         foreach (var node in nodes) { node.Bind(controller); nodeById[node.nodeId] = node; }
+        InitializeRepairedRoads(controller.Progression);
+        roads = mapContent.GetComponentsInChildren<MapSceneRoad>(true);
         foreach (var road in roads) roadById[MapRevealTransition.RoadKey(road.fromNodeId, road.toNodeId)] = road;
         ApplyVisualLayout(controller.Progression.Layout);
         viewport = WorldMapViewport.Configure(this);
         if (canvas != null && font != null && font.sourceFontFile != null)
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
         {
             runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
             runtimeFont.isMultiAtlasTexturesEnabled = true;
@@ -248,15 +211,6 @@ public class WorldMapSceneView : MonoBehaviour
         if (transition != null) FinishReveal();
         foreach (var node in nodes) node.Refresh(map);
         foreach (var road in roads) road.Refresh(map);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        RefreshRepairedRoads(map);
-=======
-=======
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
         if (currentLocationMarker != null) currentLocationMarker.Refresh(this, map, transition != null);
         if (viewport != null && framedNodeId != map.State.currentNodeId)
         {
@@ -265,13 +219,6 @@ public class WorldMapSceneView : MonoBehaviour
             framedNodeId = map.State.currentNodeId;
         }
         if (transition != null) BeginReveal(transition);
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
         var player = GameRoot.I.state.player;
         if (hpText != null) hpText.text = player.hp + " / " + player.maxHp;
         string[] periods = { "早晨", "下午", "夜间" };
@@ -280,20 +227,9 @@ public class WorldMapSceneView : MonoBehaviour
         if (bossCountText != null) bossCountText.text = "原罪 " + map.State.defeatedBossNodes.Count + " / 3";
         noticeText.text = controller.Notice;
         var request = map.GetPendingRequest();
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle
-            && !(request.kind == MapNodeKind.Event && controller.WildernessCatalog != null);
-=======
-        bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle && !controller.IsWaitingToEnter;
->>>>>>> origin/Feature/MapFunctional
-=======
-        bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle && !controller.IsWaitingToEnter;
->>>>>>> origin/Feature/MapFunctional
-=======
-        bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle && !controller.IsWaitingToEnter;
->>>>>>> origin/Feature/MapFunctional
+            && !(request.kind == MapNodeKind.Event && controller.WildernessCatalog != null)
+            && !controller.IsWaitingToEnter;
         displayedRequestId = showPlaceholder ? request.requestId : null;
         nodePanel.SetActive(showPlaceholder);
         if (!showPlaceholder) return;
@@ -302,39 +238,49 @@ public class WorldMapSceneView : MonoBehaviour
         string[] kinds = { "村庄", "普通战", "问号事件", "火堆", "原罪首领" };
         nodeDescription.text = kinds[(int)request.kind] + "\n处理中";
         completeButton.interactable = useWhiteboxCompletion && !controller.IsEnteringNode;
-<<<<<<< HEAD
-<<<<<<< HEAD
     }
 
-    void RefreshRepairedRoads(MapProgression map)
+    void InitializeRepairedRoads(MapProgression map)
     {
-        foreach (var road in repairedRoads.Values) road.gameObject.SetActive(false);
-        if (repairedRoadPrefab == null || map.State.wildernessEvents == null
-            || map.State.wildernessEvents.repairedRoads == null) return;
-        foreach (var repaired in map.State.wildernessEvents.repairedRoads)
+        if (repairedRoadPrefab == null) return;
+        var layoutGroup = mapContent.GetComponentInChildren<MapRoadLayoutGroup>(true);
+        Transform roadRoot = layoutGroup != null ? layoutGroup.transform
+            : roads.Length > 0 ? roads[0].transform.parent : mapContent;
+        // Reserve the candidate shortcuts from the start. The shared planner includes
+        // hidden roads, so repairing one never rearranges the existing ink strokes.
+        foreach (var candidate in MapWildernessRules.GetRepairableRoads(map.Layout))
         {
-            if (repaired == null || !nodeTransforms.ContainsKey(repaired.from) || !nodeTransforms.ContainsKey(repaired.to)
-                || !map.GetNeighbors(repaired.from).Contains(repaired.to)) continue;
-            string key = string.CompareOrdinal(repaired.from, repaired.to) < 0
-                ? repaired.from + ":" + repaired.to : repaired.to + ":" + repaired.from;
-            MapSceneRoad road;
-            if (!repairedRoads.TryGetValue(key, out road))
+            if (!nodeById.TryGetValue(candidate.from, out var fromNode)
+                || !nodeById.TryGetValue(candidate.to, out var toNode)) continue;
+            string key = MapRevealTransition.RoadKey(candidate.from, candidate.to);
+            bool exists = false;
+            foreach (var existing in roads)
+                if (MapRevealTransition.RoadKey(existing.fromNodeId, existing.toNodeId) == key)
+                { exists = true; break; }
+            if (exists) continue;
+            var road = Instantiate(repairedRoadPrefab, roadRoot, false);
+            road.name = "RepairedRoad_" + candidate.from + "_" + candidate.to;
+            road.transform.SetAsFirstSibling();
+            road.fromNodeId = candidate.from;
+            road.toNodeId = candidate.to;
+            road.from = (RectTransform)fromNode.transform;
+            road.to = (RectTransform)toNode.transform;
+            road.village = NodeTransform(map.Layout.villageNodeId);
+            if (roads.Length > 0)
             {
-                road = Instantiate(repairedRoadPrefab, mapContent, false);
-                road.name = "RepairedRoad";
-                road.transform.SetAsFirstSibling();
-                road.fromNodeId = repaired.from;
-                road.toNodeId = repaired.to;
-                road.from = nodeTransforms[repaired.from];
-                road.to = nodeTransforms[repaired.to];
-                repairedRoads.Add(key, road);
+                var style = roads[0];
+                road.color = style.color;
+                road.lineWidth = style.lineWidth;
+                road.bendAmount = style.bendAmount;
+                road.inkWear = style.inkWear;
+                road.villagePadding = style.villagePadding;
+                road.villageBoundsScale = style.villageBoundsScale;
+                road.villageBoundsOffset = style.villageBoundsOffset;
             }
-            road.Refresh(map);
+            road.raycastTarget = false;
+            road.gameObject.SetActive(false);
         }
-=======
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
+        if (layoutGroup != null) layoutGroup.InvalidateHierarchy();
     }
 
     void CompleteDisplayedNode()

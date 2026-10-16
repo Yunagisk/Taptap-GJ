@@ -117,6 +117,64 @@ static class Program
             "already completed encounters do not replay their crack on reload");
     }
 
+    static void CheckRepairedRoadReveals()
+    {
+        var layout = Layout();
+        var source = JsonSerializer.Deserialize<WildernessEventCatalog>(File.ReadAllText(
+            FindRepoFile(Path.Combine("Assets", "Data", "Wilderness", "WildernessEvents.json"))), Json);
+        var catalog = MapWildernessRules.BuildCatalog(source, layout);
+        GameState state = null;
+        MapProgression map = null;
+        WildernessNodeState bridge = null;
+        for (int seed = 0; seed < 1000 && bridge == null; seed++)
+        {
+            state = new GameState();
+            map = new MapProgression(layout, state.map, state.world, seed);
+            MapWildernessRules.EnsureInitialized(state, layout, catalog);
+            bridge = state.map.wildernessEvents.nodes.Find(node => node.templateId == "w08");
+        }
+        Check(bridge != null, "a real weighted run contains a repairable bridge event");
+        var level = state.map.wildernessEvents;
+        // Reveal the fixture's existing graph, then enter and settle the genuine repair choice.
+        foreach (var node in layout.nodes)
+        {
+            if (!state.map.revealedNodes.Contains(node.id)) state.map.revealedNodes.Add(node.id);
+            if (node.id != bridge.id && !state.map.clearedNodes.Contains(node.id)) state.map.clearedNodes.Add(node.id);
+        }
+        state.map.currentNodeId = map.GetNode(bridge.id).neighbors[0];
+        Check(map.TryMove(bridge.id, out var request) && request != null
+            && MapWildernessRules.TryOpen(state, layout, catalog, request), "reveal fixture opens the real bridge visit");
+        string key = MapRevealTransition.RoadKey(bridge.bridgeFrom, bridge.bridgeTo);
+        Check(!map.GetNeighbors(bridge.bridgeFrom).Contains(bridge.bridgeTo), "repair road is absent before its choice");
+        var before = MapRevealTransition.Capture(map);
+        int time = state.world.time;
+        Check(WildernessEventRules.TryChoose(level, catalog, state, layout, 0).success
+            && map.FinishEvent(request.requestId) && state.world.time == time + 2,
+            "repair and Event completion charge only the configured two units");
+        Check(map.GetNeighbors(bridge.bridgeFrom).Contains(bridge.bridgeTo)
+            && map.IsRoadVisible(bridge.bridgeFrom, bridge.bridgeTo), "settled repair creates a visible dynamic road");
+        string settled = JsonSerializer.Serialize(state, Json);
+        var transition = MapRevealTransition.AfterCompletion(map, before, bridge.id);
+        Check(transition != null && transition.roads.FindAll(road =>
+            MapRevealTransition.RoadKey(road.fromId, road.toId) == key).Count == 1,
+            "new repaired road enters the reveal once despite not being a template edge");
+        Check(JsonSerializer.Serialize(state, Json) == settled, "repair reveal data does not mutate gameplay resources or state");
+        Check(MapRevealTransition.AfterCompletion(map, MapRevealTransition.Capture(map), bridge.id) == null,
+            "completed repair does not replay its reveal on reopening");
+
+        // A later real completion must capture the repaired edge as already visible.
+        var next = layout.nodes.Find(node => node.kind == MapNodeKind.Battle && node.id != bridge.id);
+        state.map.clearedNodes.Remove(next.id);
+        state.map.currentNodeId = next.neighbors[0];
+        Check(map.TryMove(next.id, out var nextRequest) && nextRequest != null,
+            "later completion enters an ordinary battle after repairing");
+        var laterBefore = MapRevealTransition.Capture(map);
+        Check(map.TryCompleteNode(nextRequest.requestId), "later battle completes through production progression");
+        var later = MapRevealTransition.AfterCompletion(map, laterBefore, next.id);
+        Check(later != null && !later.roads.Exists(road => MapRevealTransition.RoadKey(road.fromId, road.toId) == key),
+            "already repaired road is not rediscovered by later completions");
+    }
+
     static void Main(string[] args)
     {
         if (args.Length > 0) layoutPath = Path.GetFullPath(args[0]);
@@ -126,19 +184,9 @@ static class Program
         CheckEquipment();
         CheckShop();
         CheckWeaponPrices();
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         VillageEventChecks.Run(Layout, Check);
-=======
         CheckMapReveals();
->>>>>>> origin/Feature/MapFunctional
-=======
-        CheckMapReveals();
->>>>>>> origin/Feature/MapFunctional
-=======
-        CheckMapReveals();
->>>>>>> origin/Feature/MapFunctional
+        CheckRepairedRoadReveals();
         var map = NewMap();
         foreach (string weapon in NewRunFactory.StartingWeapons)
         {

@@ -66,7 +66,7 @@ public static class GameFlowSceneBuilder
         flow.isMainMenu = true;
         flow.canvas = canvas;
         flow.font = Font;
-        flow.template = AssetDatabase.LoadAssetAtPath<WorldMapTemplate>("Assets/Data/Maps/CenteredThreeSinWhitebox.asset");
+        flow.template = AssetDatabase.LoadAssetAtPath<WorldMapTemplate>("Assets/Data/EnemyAttacks/Maps/CenteredThreeSinWhitebox.asset");
         Background(root);
         var main = Rect("MainMenuPage", root);
         Stretch(main);

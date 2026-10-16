@@ -15,7 +15,7 @@ public static class WildernessPreviewBuilder
     public const string ScenePath = "Assets/Scenes/WildernessPreview.unity";
     public const string PrefabPath = "Assets/Prefabs/UI/WildernessEventPanel.prefab";
     public const string CatalogPath = "Assets/Data/Wilderness/WildernessEvents.json";
-    public const string TemplatePath = "Assets/Data/Maps/CenteredThreeSinWhitebox.asset";
+    public const string TemplatePath = "Assets/Data/EnemyAttacks/Maps/CenteredThreeSinWhitebox.asset";
     static readonly Color Ink = new Color32(56, 45, 38, 255);
     static readonly Color Muted = new Color32(105, 83, 63, 255);
     static TMP_FontAsset font;

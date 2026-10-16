@@ -11,38 +11,23 @@ public class WorldMapController : MonoBehaviour
 {
     public const string BattleScene = "CombatScene";
     public WorldMapTemplate template;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
+    public MapSceneTransition entryTransitionPrefab;
     public VillageEntryConfirmationUI villageEntryConfirmation;
     public MapWildernessEventUI wildernessEventUI;
     public WildernessEventCatalog WildernessCatalog { get; private set; }
     public bool IsWildernessEventOpen => wildernessEventUI != null && wildernessEventUI.IsOpen;
     GameState wildernessRun;
     bool isLoadingBattle;
+    bool entryDispatched;
     string pendingVillageNodeId;
     string pendingVillageOriginId;
     GameState pendingVillageRun;
 
     public bool IsVillageEntryConfirmationOpen => !string.IsNullOrEmpty(pendingVillageNodeId);
 
-    bool IsChangingScene => isLoadingBattle || villageEntryConfirmation != null
+    bool IsChangingScene => isLoadingBattle || IsEnteringNode || MapSceneTransition.IsBusy
+        || villageEntryConfirmation != null
         && villageEntryConfirmation.flow != null && villageEntryConfirmation.flow.IsLoading;
-=======
-    public MapSceneTransition entryTransitionPrefab;
-    bool isLoadingBattle;
-    bool entryDispatched;
->>>>>>> origin/Feature/MapFunctional
-=======
-    public MapSceneTransition entryTransitionPrefab;
-    bool isLoadingBattle;
-    bool entryDispatched;
->>>>>>> origin/Feature/MapFunctional
-=======
-    public MapSceneTransition entryTransitionPrefab;
-    bool isLoadingBattle;
-    bool entryDispatched;
->>>>>>> origin/Feature/MapFunctional
     [Tooltip("Zero chooses a new seed when starting a new map.")]
     public int seed;
     [Header("External screen entry slots")]
@@ -80,20 +65,8 @@ public class WorldMapController : MonoBehaviour
     void Start()
     {
         var pending = Progression?.GetPendingRequest();
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        if (pending != null && pending.kind == MapNodeKind.Battle) EnterBattle(pending);
-        else if (pending != null && pending.kind == MapNodeKind.Event) OpenWildernessEvent(pending);
-=======
-        if (pending != null && pending.kind == MapNodeKind.Battle) BeginEntry(pending);
->>>>>>> origin/Feature/MapFunctional
-=======
-        if (pending != null && pending.kind == MapNodeKind.Battle) BeginEntry(pending);
->>>>>>> origin/Feature/MapFunctional
-=======
-        if (pending != null && pending.kind == MapNodeKind.Battle) BeginEntry(pending);
->>>>>>> origin/Feature/MapFunctional
+        if (pending != null && (pending.kind == MapNodeKind.Battle || pending.kind == MapNodeKind.Event))
+            BeginEntry(pending);
     }
 
     AsyncOperation EnterBattle(MapNodeRequest request)
@@ -123,33 +96,19 @@ public class WorldMapController : MonoBehaviour
 
     public void MoveToNode(string nodeId)
     {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         MoveToNode(nodeId, false);
     }
 
     void MoveToNode(string nodeId, bool villageConfirmed)
     {
         if (IsChangingScene || Progression == null || IsVillageEntryConfirmationOpen || IsWildernessEventOpen) return;
-=======
-=======
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
-        if (isLoadingBattle || IsEnteringNode || MapSceneTransition.IsBusy || Progression == null) return;
         if (entryTransitionPrefab == null)
         {
+            Notice = "节点进入转场尚未配置。";
             Debug.LogError("Assign the map scene transition prefab before entering nodes.", this);
+            StateChanged?.Invoke();
             return;
         }
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
         var destination = Progression.GetNode(nodeId);
         if (destination != null && destination.kind == MapNodeKind.Event
             && !Progression.State.clearedNodes.Contains(nodeId)
@@ -205,14 +164,10 @@ public class WorldMapController : MonoBehaviour
         Notice = node.displayName;
         if (Progression.LastSpawnedBossId != null)
             Notice += " · " + Progression.GetNode(Progression.LastSpawnedBossId).displayName + "已出现";
-        if (request == null)
-        {
-            if (node.kind == MapNodeKind.Village) BeginEntry(null, true);
-            else StateChanged?.Invoke();
-            return;
-        }
-        BeginEntry(request);
+        // Cleared nodes still play the marker/entry transition, but dispatch no encounter.
+        BeginEntry(request, node.kind == MapNodeKind.Village);
     }
+
 
     void BeginEntry(MapNodeRequest request, bool village = false)
     {
@@ -237,32 +192,22 @@ public class WorldMapController : MonoBehaviour
 
     AsyncOperation DispatchEntry(MapNodeRequest request, bool village)
     {
-        if (!village && (request == null || Progression.GetPendingRequest()?.requestId != request.requestId)) return null;
+        if (Progression == null || request != null
+            && Progression.GetPendingRequest()?.requestId != request.requestId) return null;
+        if (village && Progression.GetNode(Progression.State.currentNodeId)?.kind != MapNodeKind.Village) return null;
         entryDispatched = true;
         StateChanged?.Invoke();
         if (village) { onVillageEntered.Invoke(); return null; }
+        if (request == null) return null;
         NodeEntered?.Invoke(request);
         switch (request.kind)
         {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-            case MapNodeKind.Battle: onBattleEntered.Invoke(request); EnterBattle(request); break;
-            case MapNodeKind.Event: onEventEntered.Invoke(request); OpenWildernessEvent(request); break;
-=======
-=======
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
             case MapNodeKind.Battle: onBattleEntered.Invoke(request); return EnterBattle(request);
-            case MapNodeKind.Event: onEventEntered.Invoke(request); break;
->>>>>>> origin/Feature/MapFunctional
+            case MapNodeKind.Event: onEventEntered.Invoke(request); OpenWildernessEvent(request); break;
             case MapNodeKind.Camp: onCampEntered.Invoke(request); break;
             case MapNodeKind.Boss: onBossEntered.Invoke(request); break;
         }
         return null;
-<<<<<<< HEAD
-<<<<<<< HEAD
     }
 
     void InitializeWilderness()
@@ -304,7 +249,7 @@ public class WorldMapController : MonoBehaviour
         if (question != null && (question.resolved || question.abandoned)
             && !question.encounterPending && level.activeNodeId != request.nodeId)
         {
-            if (Progression.FinishEvent(request.requestId))
+            if (FinishWildernessEvent(request.requestId))
             {
                 Notice = "此处事件已经结束。";
                 StateChanged?.Invoke();
@@ -317,7 +262,7 @@ public class WorldMapController : MonoBehaviour
         if (wildernessEventUI.Show()) return;
         // A disabled UI must never strand a newly entered node in a pending request.
         WildernessEventRules.Leave(level);
-        Progression.FinishEvent(request.requestId);
+        FinishWildernessEvent(request.requestId);
         Notice = "暂时无法显示野外事件。";
         StateChanged?.Invoke();
     }
@@ -356,10 +301,19 @@ public class WorldMapController : MonoBehaviour
         }
         string requestId = Progression.State.pendingRequestId;
         WildernessEventRules.Leave(level);
-        if (!Progression.FinishEvent(requestId)) return;
+        if (!FinishWildernessEvent(requestId)) return;
         wildernessEventUI.Hide();
         Notice = question.abandoned ? "你离开了这次事件。" : "事件已结束，可以继续探索。";
         StateChanged?.Invoke();
+    }
+
+    bool FinishWildernessEvent(string requestId)
+    {
+        var completed = Progression.GetPendingRequest();
+        var before = MapRevealTransition.Capture(Progression);
+        if (!Progression.FinishEvent(requestId)) return false;
+        GameRoot.I.pendingMapReveal = MapRevealTransition.AfterCompletion(Progression, before, completed.nodeId);
+        return true;
     }
 
     void RequestVillageEntry(string nodeId, string destinationName)
@@ -383,7 +337,7 @@ public class WorldMapController : MonoBehaviour
 
     public void ConfirmVillageEntry()
     {
-        if (!IsVillageEntryConfirmationOpen) return;
+        if (!IsVillageEntryConfirmationOpen || IsChangingScene) return;
         string destinationId = pendingVillageNodeId;
         var run = GameRoot.I != null ? GameRoot.I.state : null;
         bool valid = !IsChangingScene && isActiveAndEnabled && Progression != null
@@ -400,7 +354,7 @@ public class WorldMapController : MonoBehaviour
 
     public void CancelVillageEntry()
     {
-        if (!IsVillageEntryConfirmationOpen) return;
+        if (!IsVillageEntryConfirmationOpen || isActiveAndEnabled && IsChangingScene) return;
         ClearVillageEntry();
         if (villageEntryConfirmation != null) villageEntryConfirmation.Hide(true);
     }
@@ -415,10 +369,6 @@ public class WorldMapController : MonoBehaviour
     void OnDisable()
     {
         CancelVillageEntry();
-=======
->>>>>>> origin/Feature/MapFunctional
-=======
->>>>>>> origin/Feature/MapFunctional
     }
 
     // External battle/event screens return the requestId they received on entry.

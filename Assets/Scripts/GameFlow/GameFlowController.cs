@@ -83,9 +83,7 @@ public class GameFlowController : MonoBehaviour
 
     public void HandleBack()
     {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
+        if (MapSceneTransition.IsBusy) return;
         if (wildernessEventUI != null && wildernessEventUI.IsOpen)
         {
             wildernessEventUI.controller.CloseWildernessEvent();
@@ -96,15 +94,6 @@ public class GameFlowController : MonoBehaviour
             villageEntryConfirmation.controller.CancelVillageEntry();
             return;
         }
-=======
-        if (MapSceneTransition.IsBusy) return;
->>>>>>> origin/Feature/MapFunctional
-=======
-        if (MapSceneTransition.IsBusy) return;
->>>>>>> origin/Feature/MapFunctional
-=======
-        if (MapSceneTransition.IsBusy) return;
->>>>>>> origin/Feature/MapFunctional
         if (playerPanel != null && playerPanel.IsInventoryOpen) { playerPanel.CloseInventory(); return; }
         if (confirmOverlay.activeSelf) { CancelConfirmation(); return; }
         if (settingsOverlay.activeSelf) { CloseSettings(); return; }
