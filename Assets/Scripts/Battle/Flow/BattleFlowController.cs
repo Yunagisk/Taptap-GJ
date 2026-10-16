@@ -33,6 +33,9 @@ public class BattleFlowController : MonoBehaviour
 
     public event Action<bool> OnTargetSelectionChanged;
 
+    public bool WeaponSkillBlocked =>
+        player != null && player.Statuses.Has(StatusId.Exhaust);
+
     private void Awake()
     {
         turnManager = new TurnManager();
@@ -61,6 +64,7 @@ public class BattleFlowController : MonoBehaviour
     private void StartNewRound()
     {
         round++;
+        StampRound();
 
         roundText.text = $"回合：{round}";
 
@@ -68,6 +72,17 @@ public class BattleFlowController : MonoBehaviour
 
         StartPlayerTurn();
 
+    }
+
+    void StampRound()
+    {
+        if (player != null)
+            player.BattleRound = round;
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if (enemies[i] != null)
+                enemies[i].BattleRound = round;
+        }
     }
 
     private void SetState(BattleState newState)
@@ -98,6 +113,21 @@ public class BattleFlowController : MonoBehaviour
 
         currentAction = new PlayerAttackAction();
 
+        if (player.Statuses.Has(StatusId.Confuse))
+        {
+            EnemyCombatant rolled = PickLivingEnemy();
+            if (rolled == null)
+            {
+                currentAction = null;
+                return;
+            }
+            Debug.Log($"混乱：普攻改为 {rolled.name}");
+            SetState(BattleState.ExecutingAction);
+            OnTargetSelectionChanged?.Invoke(false);
+            StartCoroutine(AttackTargetCoroutine(rolled));
+            return;
+        }
+
         SetState(BattleState.SelectingTarget);
 
         OnTargetSelectionChanged?.Invoke(true);  //true 通知敌人现在可以被选择为攻击目标
@@ -127,11 +157,44 @@ public class BattleFlowController : MonoBehaviour
         Debug.Log($"玩家攻击{target.gameObject.name}");
 
         yield return currentAction.Execute(player, target); //等待多段攻击全部完成
+        yield return FinishPlayerAction();
+    }
+
+    EnemyCombatant PickLivingEnemy()
+    {
+        List<EnemyCombatant> living = new List<EnemyCombatant>();
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if (enemies[i] != null && !enemies[i].IsDead)
+                living.Add(enemies[i]);
+        }
+        if (living.Count == 0)
+            return null;
+        return living[UnityEngine.Random.Range(0, living.Count)];
+    }
+
+    IEnumerator FinishPlayerAction()
+    {
         currentAction = null;
+        if (player == null || player.IsDead)
+        {
+            Defeat();
+            yield break;
+        }
 
         if (CheckAllEnemiesIsDead())
         {
             Victory();
+            yield break;
+        }
+
+        TurnEndResult end = StatusSettlement.SettleOwnTurn(new CombatantStatusHost(player), round);
+        if (end.IgniteBroke)
+            Debug.Log($"{player.name} 点燃造成破防");
+
+        if (player == null || player.IsDead)
+        {
+            Defeat();
             yield break;
         }
 
@@ -195,8 +258,34 @@ public class BattleFlowController : MonoBehaviour
             Victory();
             yield break;
         }
+        TickDurationStatuses();
         player.EndDefense();
         StartNewRound();
+    }
+
+    void TickDurationStatuses()
+    {
+        if (player != null && !player.IsDead)
+            player.Statuses.TickDuration(round);
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if (enemies[i] != null && !enemies[i].IsDead)
+                enemies[i].Statuses.TickDuration(round);
+        }
+    }
+
+    void ClearBattleStatuses()
+    {
+        if (player != null)
+        {
+            player.Statuses.ClearOrdinary();
+            player.EndDefense();
+        }
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if (enemies[i] != null)
+                enemies[i].Statuses.ClearOrdinary();
+        }
     }
     private void Victory()
     {
@@ -208,6 +297,7 @@ public class BattleFlowController : MonoBehaviour
         currentAction = null;
 
         Debug.Log("战斗胜利");
+        ClearBattleStatuses();
         SetState(BattleState.Victory);
     }
     private void Defeat()
@@ -220,6 +310,7 @@ public class BattleFlowController : MonoBehaviour
         currentAction = null;
 
         Debug.Log("战斗失败");
+        ClearBattleStatuses();
         SetState(BattleState.Defeat);
     }
 
@@ -240,8 +331,7 @@ public class BattleFlowController : MonoBehaviour
     {
         SetState(BattleState.ExecutingAction);
         yield return currentAction.Execute(user, user);
-        currentAction = null;
-        yield return EnemyTurn();
+        yield return FinishPlayerAction();
     }
 }
 

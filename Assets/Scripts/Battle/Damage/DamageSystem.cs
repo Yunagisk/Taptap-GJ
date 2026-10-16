@@ -54,8 +54,18 @@ public static class DamageSystem
         }
 
         // 防御由 PlayerCombatant.TakeDamage 统一处理。
-        // 全部分量伤害为 0 时，不触发扣血。
-        int actualDamage = totalTypeDamage > 0 ? info.target.TakeDamage(totalTypeDamage): 0;
+        // 衰弱和破甲在防御之前乘上。全部分量伤害为 0 时，不触发扣血。
+        int modifiedDamage = ScaleDirect(info.attacker, info.target, totalTypeDamage);
+        int actualDamage = modifiedDamage > 0 ? info.target.TakeDamage(modifiedDamage): 0;
+
+        if (info.target is EnemyCombatant enemy && enemy.Break != null && !info.target.IsDead)
+        {
+            int gain = StatusRules.BreakFromSegment(PartsFrom(results));
+            if (gain > 0 && enemy.Break.TryAdd(gain, enemy.BattleRound))
+            {
+                Debug.Log($"{enemy.name} 破防。保护到第{enemy.Break.ProtectedThroughRound}轮，下一次行动跳过。");
+            }
+        }
 
         string attackerName = info.attacker != null? info.attacker.name: "未知攻击者";
 
@@ -63,9 +73,29 @@ public static class DamageSystem
          $"{attackerName} -> {info.target.name}，" +
          $"基础总伤害：{totalBaseDamage}，" +
          $"抗性修正后：{totalTypeDamage}，" +
+         $"状态修正后：{modifiedDamage}，" +
          $"实际扣血：{actualDamage}");
 
         return new AllDamageResult(results,totalBaseDamage,totalTypeDamage,actualDamage);
+    }
+
+    static int ScaleDirect(Combatant attacker, Combatant target, int amount)
+    {
+        bool weak = attacker != null && attacker.Statuses.Has(StatusId.Weak);
+        bool sunder = target != null && target.Statuses.Has(StatusId.Sunder);
+        return StatusRules.ScaleDirectDamage(amount, weak, sunder);
+    }
+
+    static SegmentPart[] PartsFrom(SingleDamageResult[] results)
+    {
+        SegmentPart[] parts = new SegmentPart[results.Length];
+        for (int i = 0; i < results.Length; i++)
+        {
+            parts[i] = new SegmentPart(
+                CombatantStatusHost.Map(results[i].damageReaction),
+                results[i].baseDamage);
+        }
+        return parts;
     }
 
     private static AllDamageResult EmptyResult()
@@ -91,22 +121,25 @@ public static class DamageSystem
         string attackerName = info.attacker.name;
         string targetName = info.target.name;
 
+        // 衰弱、破甲先计算；酒馆首次受击减伤随后生效，防御仍由 TakeDamage 处理。
+        int modifiedDamage = ScaleDirect(info.attacker, info.target, damage);
         var runPlayer = info.target is PlayerCombatant && GameRoot.I != null
             && GameRoot.I.state != null ? GameRoot.I.state.player : null;
         int reductionPercent = runPlayer != null
             ? Mathf.Clamp(runPlayer.nextDirectHitReductionPercent, 0, 100) : 0;
-        // 酒馆强化先减伤，再由 PlayerCombatant 计算防御。正伤害至少保留 1 点。
-        int reducedDamage = reductionPercent > 0
-            ? Mathf.Max(1, Mathf.FloorToInt(damage * (1f - reductionPercent / 100f))) : damage;
-        int actualDamage = info.target.TakeDamage(reducedDamage);
-        // 零伤害招式、未扣血的命中不消耗；旧战斗回调不能修改重开的状态。
+        // 正伤害减免后至少保留 1 点；状态修正后的零伤害不会被抬高。
+        int reducedDamage = reductionPercent > 0 && modifiedDamage > 0
+            ? Mathf.Max(1, Mathf.FloorToInt(modifiedDamage * (1f - reductionPercent / 100f)))
+            : modifiedDamage;
+        int actualDamage = reducedDamage > 0 ? info.target.TakeDamage(reducedDamage) : 0;
+        // 零伤害、未扣血的命中不消耗；旧战斗回调不能修改重开的状态。
         if (actualDamage > 0 && reductionPercent > 0 && GameRoot.I != null
             && GameRoot.I.state != null && GameRoot.I.state.player == runPlayer)
             runPlayer.nextDirectHitReductionPercent = 0;
 
         Debug.Log(
             $"{attackerName} -> {targetName}，" +
-            $"基础伤害：{damage}，实际扣血：{actualDamage}");
+            $"基础伤害：{damage}，状态修正后：{modifiedDamage}，实际扣血：{actualDamage}");
 
         return actualDamage;
     }

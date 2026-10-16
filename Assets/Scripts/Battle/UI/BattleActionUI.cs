@@ -42,9 +42,10 @@ public class BattleActionUI : MonoBehaviour
     {
         bool canUseAction = state == BattleState.PlayerTurn;
 
+        bool skillAllowed = canUseAction && (battleFlow == null || !battleFlow.WeaponSkillBlocked);
         attackButton.interactable = canUseAction;
         defendButton.interactable = canUseAction;
-        skillButton.interactable = canUseAction;
+        skillButton.interactable = skillAllowed;
         itemButton0.interactable = canUseAction;
         itemButton1.interactable = canUseAction;
         itemButton2.interactable = canUseAction;

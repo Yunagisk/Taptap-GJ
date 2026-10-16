@@ -33,7 +33,7 @@ public class DamageResistance : MonoBehaviour
         switch (reaction)
         {
             case DamageReaction.Weak:
-                return 1.5f; 
+                return 1f; // 弱点不加成伤害，只给破防计数。易伤是破甲。
             case DamageReaction.Normal:
                 return 1.0f; 
             case DamageReaction.Resistant:
