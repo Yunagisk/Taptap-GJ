@@ -89,9 +89,11 @@ public class BattleResultUI : MonoBehaviour
                 villageTemplate = root.battleMapTemplate;
                 if (battleFlow.CurrentState == BattleState.Victory)
                 {
+                    var before = MapRevealTransition.Capture(map);
                     if (!map.TryCompleteNode(root.battleRequestId))
                         throw new InvalidOperationException("Cannot complete the battle request.");
                     MainStoryRules.OnNodeCompleted(root.state, pending);
+                    root.pendingMapReveal = MapRevealTransition.AfterCompletion(map, before, pending.nodeId);
                 }
                 else
                 {
@@ -141,6 +143,7 @@ public class BattleResultUI : MonoBehaviour
             var root = GameRoot.I;
             if (root == null) return;
             root.state = new GameState();
+            root.pendingMapReveal = null;
             root.enterVillageOnLoad = false;
             root.villageMapTemplate = null;
             root.villageReturnScene = null;

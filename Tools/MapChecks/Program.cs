@@ -46,6 +46,72 @@ static class Program
         return true;
     }
 
+    static void CheckMapReveals()
+    {
+        var map = NewMap();
+        string source = map.GetNode(map.Layout.villageNodeId).neighbors[0];
+        Check(map.TryMove(source, out var request) && request != null, "reveal test enters an unfinished node");
+        var visibleBefore = new HashSet<string>();
+        var roadsBefore = new HashSet<string>();
+        foreach (var node in map.Layout.nodes)
+        {
+            if (map.IsVisible(node.id)) visibleBefore.Add(node.id);
+            foreach (string neighbor in node.neighbors)
+                if (map.IsRoadVisible(node.id, neighbor)) roadsBefore.Add(MapRevealTransition.RoadKey(node.id, neighbor));
+        }
+        string beforeCapture = JsonSerializer.Serialize(map.State, Json);
+        var snapshot = MapRevealTransition.Capture(map);
+        Check(JsonSerializer.Serialize(map.State, Json) == beforeCapture, "capturing reveal visibility does not mutate map state");
+        Check(MapRevealTransition.AfterCompletion(map, snapshot, source) == null, "unfinished nodes do not trigger a completion reveal");
+        Check(map.TryCompleteNode(request.requestId), "reveal test completes its visit");
+        string completedState = JsonSerializer.Serialize(map.State, Json);
+        int completedTime = map.World.time;
+        var transition = MapRevealTransition.AfterCompletion(map, snapshot, source);
+        Check(transition != null && transition.sourceId == source && transition.Matches(map), "completion produces a reveal bound to this run");
+        var actualNodes = new HashSet<string>(transition.nodeIds);
+        Check(actualNodes.Count == transition.nodeIds.Count, "new nodes animate once per transition");
+        var actualRoads = new HashSet<string>();
+        foreach (var road in transition.roads)
+        {
+            Check(actualRoads.Add(MapRevealTransition.RoadKey(road.fromId, road.toId)), "new roads animate once regardless of edge direction");
+            Check(road.originId == source && map.IsRoadVisible(road.fromId, road.toId), "reveal flows outward from the completed node");
+            Check(!roadsBefore.Contains(MapRevealTransition.RoadKey(road.fromId, road.toId)), "existing roads are excluded from reveal animations");
+        }
+        foreach (var node in map.Layout.nodes)
+        {
+            Check(actualNodes.Contains(node.id) == (map.IsVisible(node.id) && !visibleBefore.Contains(node.id)), "animation contains exactly the newly visible nodes");
+            foreach (string neighbor in node.neighbors)
+                Check(actualRoads.Contains(MapRevealTransition.RoadKey(node.id, neighbor))
+                    == (map.IsRoadVisible(node.id, neighbor) && !roadsBefore.Contains(MapRevealTransition.RoadKey(node.id, neighbor))),
+                    "animation contains exactly the newly visible roads");
+        }
+        Check(JsonSerializer.Serialize(map.State, Json) == completedState && map.World.time == completedTime,
+            "building presentation data changes neither progression nor time");
+        Check(!transition.Matches(NewMap()), "a new run rejects a stale reveal transition");
+        Check(MapRevealTransition.AfterCompletion(map, MapRevealTransition.Capture(map), source) == null,
+            "reopening the same visibility state does not replay the reveal");
+        Check(MapRevealTransition.AfterCompletion(NewMap(), snapshot, source) == null, "snapshots from a different run are rejected");
+        Check(!map.TryCompleteNode(request.requestId) && map.World.time == completedTime, "reveal does not make duplicate completion valid");
+
+        // All adjacent destinations are already cleared: completing the final
+        // encounter must still animate its icon, even with no visibility delta.
+        var deadEnd = NewMap();
+        foreach (var node in deadEnd.Layout.nodes)
+        {
+            if (!deadEnd.State.revealedNodes.Contains(node.id)) deadEnd.State.revealedNodes.Add(node.id);
+            if (node.id != source && !deadEnd.State.clearedNodes.Contains(node.id)) deadEnd.State.clearedNodes.Add(node.id);
+        }
+        Check(deadEnd.TryMove(source, out var lastRequest) && lastRequest != null, "enter final unfinished encounter");
+        var finalSnapshot = MapRevealTransition.Capture(deadEnd);
+        Check(deadEnd.TryCompleteNode(lastRequest.requestId), "complete final encounter");
+        var finalTransition = MapRevealTransition.AfterCompletion(deadEnd, finalSnapshot, source);
+        Check(finalTransition != null && finalTransition.sourceId == source
+            && finalTransition.roads.Count == 0 && finalTransition.nodeIds.Count == 0,
+            "completion crack still plays when no routes or nodes are revealed");
+        Check(MapRevealTransition.AfterCompletion(deadEnd, MapRevealTransition.Capture(deadEnd), source) == null,
+            "already completed encounters do not replay their crack on reload");
+    }
+
     static void Main(string[] args)
     {
         if (args.Length > 0) layoutPath = Path.GetFullPath(args[0]);
@@ -55,6 +121,7 @@ static class Program
         CheckEquipment();
         CheckShop();
         CheckWeaponPrices();
+        CheckMapReveals();
         var map = NewMap();
         foreach (string weapon in NewRunFactory.StartingWeapons)
         {

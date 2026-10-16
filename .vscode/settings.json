@@ -56,5 +56,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "26taptap_gj.sln"
+    "dotnet.defaultSolution": "Taptap-GJ.sln",
+    "dotnet.preferCSharpExtension": true
 }

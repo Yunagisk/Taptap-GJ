@@ -10,6 +10,7 @@ public class EquipmentPanelView : MonoBehaviour
     public RectTransform window;
     public CanvasGroup visibility;
     public PanelToggler panelToggler;
+    public InventoryParchmentView parchment;
     public TMP_FontAsset font;
     public WeaponLibrary weaponLibrary;
     public TMP_Text healthText, statusText, sinText, itemsText, questText, selectionText, messageText;
@@ -29,7 +30,8 @@ public class EquipmentPanelView : MonoBehaviour
     float nextRefresh;
     TMP_FontAsset runtimeFont;
 
-    public bool IsOpen => gameObject.activeInHierarchy && (visibility == null || visibility.alpha > 0.5f);
+    public bool IsOpen => gameObject.activeInHierarchy && (parchment != null ? parchment.IsVisible
+        : visibility == null || visibility.alpha > 0.5f);
     public int SelectedSlot => selectedSlot;
 
     void Awake()
@@ -64,6 +66,7 @@ public class EquipmentPanelView : MonoBehaviour
 
     void LateUpdate()
     {
+        if (parchment != null) { parchment.FitContent(window); return; }
         var canvas = GetComponentInParent<Canvas>();
         if (canvas == null || window == null) return;
         var area = ((RectTransform)canvas.transform).rect.size;
@@ -74,7 +77,8 @@ public class EquipmentPanelView : MonoBehaviour
     public void Open()
     {
         gameObject.SetActive(true);
-        if (panelToggler != null) panelToggler.Show();
+        if (parchment != null) parchment.Open();
+        else if (panelToggler != null) panelToggler.Show();
         else SetVisibility(true);
         transform.SetAsLastSibling();
         Refresh();
@@ -82,7 +86,8 @@ public class EquipmentPanelView : MonoBehaviour
 
     public void Close()
     {
-        if (panelToggler != null) panelToggler.Hide();
+        if (parchment != null) parchment.Close();
+        else if (panelToggler != null) panelToggler.Hide();
         else SetVisibility(false);
     }
 
@@ -165,8 +170,9 @@ public class EquipmentPanelView : MonoBehaviour
                 slotLabels[i].text = "槽 " + (i + 1) + "  " + (string.IsNullOrEmpty(id) ? "空槽" : NameOf(id))
                     + (current ? "\n当前武器" : "");
             var image = slotButtons[i] != null ? slotButtons[i].targetGraphic as Image : null;
-            if (image != null) image.color = i == selectedSlot ? new Color32(198, 218, 202, 255)
-                : new Color32(234, 232, 224, 255);
+            if (image != null) image.color = parchment != null
+                ? new Color(0, 0, 0, i == selectedSlot ? .14f : .045f)
+                : i == selectedSlot ? new Color32(198, 218, 202, 255) : new Color32(234, 232, 224, 255);
         }
         string signature = string.Join("|", state.inventory.weapons.ToArray());
         if (signature != ownedSignature) RebuildOwnedRows(state, signature);
@@ -177,8 +183,9 @@ public class EquipmentPanelView : MonoBehaviour
             int equippedSlot = state.inventory.equippedWeaponIds.IndexOf(id);
             if (label != null) label.text = NameOf(id) + (equippedSlot >= 0 ? "  [槽 " + (equippedSlot + 1) + "]" : "");
             var image = ownedRows[i].targetGraphic as Image;
-            if (image != null) image.color = id == selectedOwnedWeaponId ? new Color32(198, 218, 202, 255)
-                : new Color32(245, 243, 235, 255);
+            if (image != null) image.color = parchment != null
+                ? new Color(0, 0, 0, id == selectedOwnedWeaponId ? .14f : .045f)
+                : id == selectedOwnedWeaponId ? new Color32(198, 218, 202, 255) : new Color32(245, 243, 235, 255);
         }
         if (selectionText != null) selectionText.text = "选中槽 " + (selectedSlot + 1)
             + "    武器：" + (string.IsNullOrEmpty(selectedOwnedWeaponId) ? "未选择" : NameOf(selectedOwnedWeaponId));

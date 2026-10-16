@@ -14,7 +14,8 @@
     <Compile Include="../../Assets/Scripts/Map/Data/MapLayout.cs" Link="MapLayout.cs" />
     <Compile Include="../../Assets/Scripts/Map/Logic/MapLayoutValidator.cs" Link="MapLayoutValidator.cs" />
     <Compile Include="../../Assets/Scripts/Map/Logic/MapProgression.cs" Link="MapProgression.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Logic/MapRevealTransition.cs" Link="MapRevealTransition.cs" />
     <Compile Include="Program.cs" />
-    <Content Include="../../Assets/Data/Maps/ThreeSinWhitebox.json" Link="ThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../Assets/Data/EnemyAttacks/Maps/ThreeSinWhitebox.json" Link="ThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

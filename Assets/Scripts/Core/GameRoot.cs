@@ -11,6 +11,7 @@ public class GameRoot : MonoBehaviour
     [System.NonSerialized] public WorldMapTemplate battleMapTemplate;
     [System.NonSerialized] public string battleRequestId;
     [System.NonSerialized] public string battleReturnScene;
+    [System.NonSerialized] public MapRevealTransition pendingMapReveal;
     void Awake()
     {
         if (I != null) { Destroy(gameObject); return; }

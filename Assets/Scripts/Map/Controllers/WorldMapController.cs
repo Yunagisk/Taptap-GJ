@@ -11,7 +11,9 @@ public class WorldMapController : MonoBehaviour
 {
     public const string BattleScene = "CombatScene";
     public WorldMapTemplate template;
+    public MapSceneTransition entryTransitionPrefab;
     bool isLoadingBattle;
+    bool entryDispatched;
     [Tooltip("Zero chooses a new seed when starting a new map.")]
     public int seed;
     [Header("External screen entry slots")]
@@ -26,6 +28,8 @@ public class WorldMapController : MonoBehaviour
     public event Action StateChanged;
     public event Action<MapNodeRequest> NodeEntered;
     public string Notice { get; private set; }
+    public bool IsEnteringNode { get; private set; }
+    public bool IsWaitingToEnter => IsEnteringNode && !entryDispatched;
 
     void Awake()
     {
@@ -45,16 +49,16 @@ public class WorldMapController : MonoBehaviour
     void Start()
     {
         var pending = Progression?.GetPendingRequest();
-        if (pending != null && pending.kind == MapNodeKind.Battle) EnterBattle(pending);
+        if (pending != null && pending.kind == MapNodeKind.Battle) BeginEntry(pending);
     }
 
-    void EnterBattle(MapNodeRequest request)
+    AsyncOperation EnterBattle(MapNodeRequest request)
     {
-        if (isLoadingBattle) return;
+        if (isLoadingBattle) return null;
         if (!Application.CanStreamedLevelBeLoaded(BattleScene))
         {
             Debug.LogError("CombatScene is missing from Build Settings.", this);
-            return;
+            return null;
         }
         var root = GameRoot.I;
         root.battleMapTemplate = template;
@@ -63,18 +67,24 @@ public class WorldMapController : MonoBehaviour
         try
         {
             isLoadingBattle = true;
-            SceneManager.LoadSceneAsync(BattleScene);
+            return MapSceneTransition.LoadSceneAsync(BattleScene);
         }
         catch (Exception error)
         {
             isLoadingBattle = false;
             Debug.LogException(error, this);
+            return null;
         }
     }
 
     public void MoveToNode(string nodeId)
     {
-        if (isLoadingBattle || Progression == null) return;
+        if (isLoadingBattle || IsEnteringNode || MapSceneTransition.IsBusy || Progression == null) return;
+        if (entryTransitionPrefab == null)
+        {
+            Debug.LogError("Assign the map scene transition prefab before entering nodes.", this);
+            return;
+        }
         var destination = Progression.GetNode(nodeId);
         if (destination != null && destination.kind == MapNodeKind.Village
             && !Application.CanStreamedLevelBeLoaded(GameFlowController.VillageScene))
@@ -107,8 +117,7 @@ public class WorldMapController : MonoBehaviour
         if (Progression.CanReenterVillage(nodeId))
         {
             Notice = destination.displayName;
-            StateChanged?.Invoke();
-            onVillageEntered.Invoke();
+            BeginEntry(null, true);
             return;
         }
         if (!Progression.TryMove(nodeId, out var request)) return;
@@ -116,29 +125,62 @@ public class WorldMapController : MonoBehaviour
         Notice = node.displayName;
         if (Progression.LastSpawnedBossId != null)
             Notice += " · " + Progression.GetNode(Progression.LastSpawnedBossId).displayName + "已出现";
-        StateChanged?.Invoke();
         if (request == null)
         {
-            if (node.kind == MapNodeKind.Village) onVillageEntered.Invoke();
+            if (node.kind == MapNodeKind.Village) BeginEntry(null, true);
+            else StateChanged?.Invoke();
             return;
         }
+        BeginEntry(request);
+    }
+
+    void BeginEntry(MapNodeRequest request, bool village = false)
+    {
+        if (IsEnteringNode || MapSceneTransition.IsBusy) return;
+        IsEnteringNode = true;
+        entryDispatched = false;
+        // Refresh moves the marker and starts its writing animation before the
+        // transition coroutine waits for it. Gameplay callbacks stay deferred.
+        StateChanged?.Invoke();
+        if (!MapSceneTransition.Begin(entryTransitionPrefab, this, () => DispatchEntry(request, village), () =>
+        {
+            if (this == null) return;
+            IsEnteringNode = false;
+            entryDispatched = false;
+            if (GameRoot.I != null) StateChanged?.Invoke();
+        }))
+        {
+            IsEnteringNode = false;
+            StateChanged?.Invoke();
+        }
+    }
+
+    AsyncOperation DispatchEntry(MapNodeRequest request, bool village)
+    {
+        if (!village && (request == null || Progression.GetPendingRequest()?.requestId != request.requestId)) return null;
+        entryDispatched = true;
+        StateChanged?.Invoke();
+        if (village) { onVillageEntered.Invoke(); return null; }
         NodeEntered?.Invoke(request);
         switch (request.kind)
         {
-            case MapNodeKind.Battle: onBattleEntered.Invoke(request); EnterBattle(request); break;
+            case MapNodeKind.Battle: onBattleEntered.Invoke(request); return EnterBattle(request);
             case MapNodeKind.Event: onEventEntered.Invoke(request); break;
             case MapNodeKind.Camp: onCampEntered.Invoke(request); break;
             case MapNodeKind.Boss: onBossEntered.Invoke(request); break;
         }
+        return null;
     }
 
     // External battle/event screens return the requestId they received on entry.
     public void CompleteNode(string requestId)
     {
-        if (Progression == null) return;
+        if (Progression == null || IsWaitingToEnter) return;
         var completed = Progression.GetPendingRequest();
+        var before = MapRevealTransition.Capture(Progression);
         if (!Progression.TryCompleteNode(requestId)) return;
         MainStoryRules.OnNodeCompleted(GameRoot.I.state, completed);
+        GameRoot.I.pendingMapReveal = MapRevealTransition.AfterCompletion(Progression, before, completed.nodeId);
         Notice = Progression.IsComplete ? "三个原罪区域已完成" : "节点已完成";
         StateChanged?.Invoke();
         if (Progression.IsComplete) onMapCompleted.Invoke();

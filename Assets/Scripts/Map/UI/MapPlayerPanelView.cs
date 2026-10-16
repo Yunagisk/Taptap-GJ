@@ -9,6 +9,13 @@ public class MapPlayerPanelView : MonoBehaviour
     public Canvas canvas;
     public WorldMapController mapController;
     public RectTransform hudRoot;
+    [Tooltip("Uniform size of the portrait and its hover details. Shrinks to fit smaller windows.")]
+    [Min(0.1f)] public float hudScale = 1;
+    [Tooltip("Keep the complete HUD at a fixed position near the bottom-left corner.")]
+    public bool alignHudPortraitToCorner;
+    [Min(0)] public float hudEdgeMargin = 4;
+    [Tooltip("Offset the complete HUD from the fitted corner, in Canvas units.")]
+    public Vector2 hudOffset = new Vector2(55, 22);
     public RectTransform inventoryWindow;
     public PanelToggler inventoryPanel;
     public Image portrait;
@@ -30,6 +37,8 @@ public class MapPlayerPanelView : MonoBehaviour
     public bool manageEscape = true;
 
     float nextRefresh;
+    MapPlayerInkHud inkHud;
+    Material healthReadoutMaterial;
 
     public bool IsInventoryOpen => equipmentPanel != null ? equipmentPanel.IsOpen
         : inventoryPanel != null && inventoryPanel.target != null && inventoryPanel.target.alpha > 0;
@@ -57,11 +66,36 @@ public class MapPlayerPanelView : MonoBehaviour
     {
         if (canvas == null) return;
         Vector2 area = ((RectTransform)canvas.transform).rect.size;
-        if (inventoryWindow != null)
+        if (inventoryWindow != null && (equipmentPanel == null || equipmentPanel.parchment == null))
             inventoryWindow.localScale = Vector3.one * Mathf.Max(0.1f,
                 Mathf.Min(1f, (area.x - 48) / 960f, (area.y - 48) / 640f));
         if (hudRoot != null)
-            hudRoot.localScale = Vector3.one * Mathf.Min(1f, area.x / 1280f);
+        {
+            float requested = Mathf.Max(0.1f, hudScale) * Mathf.Min(1f, area.x / 1280f);
+            if (alignHudPortraitToCorner && portrait != null)
+            {
+                Rect expandedBounds = hudRoot.rect;
+                if (inkHud == null) inkHud = hudRoot.GetComponent<MapPlayerInkHud>();
+                if (inkHud != null && inkHud.TryGetExpandedBounds(hudRoot, out var contentBounds))
+                    expandedBounds = contentBounds;
+                var pose = MapHudScreenLayout.Fit(area, expandedBounds, requested, hudEdgeMargin, hudOffset);
+                hudRoot.localScale = Vector3.one * pose.scale;
+                hudRoot.anchoredPosition = pose.position;
+            }
+            else
+            {
+                Vector2 available = area - Vector2.Max(Vector2.zero, hudRoot.anchoredPosition) - Vector2.one * 24;
+                float fitted = Mathf.Min(requested, available.x / Mathf.Max(1, hudRoot.rect.width),
+                    available.y / Mathf.Max(1, hudRoot.rect.height));
+                hudRoot.localScale = Vector3.one * Mathf.Max(0.01f, fitted);
+            }
+        }
+    }
+
+    public void OnPortraitClicked()
+    {
+        if (IsInventoryOpen) return;
+        OpenInventory();
     }
 
     public void OpenInventory()
@@ -85,7 +119,21 @@ public class MapPlayerPanelView : MonoBehaviour
         var state = GameRoot.I.state;
         var player = state.player;
         string health = player.hp + " / " + player.maxHp;
-        if (hudHealthText != null) hudHealthText.text = "HP " + health;
+        if (hudHealthText != null)
+        {
+            hudHealthText.text = health;
+            // Use this label's material instance so the pale digits stay clear
+            // over both the ink fill and empty track without changing the font.
+            if (hudHealthText.fontSharedMaterial != null
+                && hudHealthText.fontSharedMaterial != healthReadoutMaterial)
+            {
+                healthReadoutMaterial = hudHealthText.fontMaterial;
+                healthReadoutMaterial.SetColor(ShaderUtilities.ID_OutlineColor, new Color32(18, 18, 18, 255));
+                healthReadoutMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.22f);
+                hudHealthText.UpdateMeshPadding();
+                hudHealthText.havePropertiesChanged = true;
+            }
+        }
         float healthRatio = player.maxHp > 0 ? Mathf.Clamp01((float)player.hp / player.maxHp) : 0;
         SetFill(hudHealthFill, healthRatio);
         if (equipmentPanel != null)

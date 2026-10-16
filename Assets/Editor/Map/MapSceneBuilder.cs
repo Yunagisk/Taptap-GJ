@@ -9,7 +9,8 @@ using UnityEngine.UI;
 public static class MapSceneBuilder
 {
     public const string ScenePath = "Assets/Scenes/MainMap.unity";
-    public const string NodePrefabPath = "Assets/Prefabs/Map/WorldMapNode.prefab";
+    public const string NodePrefabPath = "Assets/Prefabs/MapPrefabs/WorldMapNode.prefab";
+    public const string VisualLayoutPath = "Assets/Data/EnemyAttacks/Maps/CenteredWorldMapVisual.asset";
 
     [MenuItem("Tools/Map Whitebox/Create From Original Scene")]
     public static void CreateFromOriginal()
@@ -53,6 +54,7 @@ public static class MapSceneBuilder
         referenceNodes.gameObject.SetActive(false);
         lineRoot.SetParent(mapRoot, false);
         Center(lineRoot, Vector2.zero, new Vector2(1920, 1080));
+        lineRoot.gameObject.AddComponent<MapRoadLayoutGroup>();
 
         var baseImage = Image("MapSurface", worldPanel, new Color32(237, 239, 235, 255));
         Stretch(baseImage.rectTransform);
@@ -64,7 +66,7 @@ public static class MapSceneBuilder
         background.transform.SetSiblingIndex(1);
         mapRoot.SetAsLastSibling();
 
-        var template = AssetDatabase.LoadAssetAtPath<WorldMapTemplate>("Assets/Data/Maps/CenteredThreeSinWhitebox.asset");
+        var template = AssetDatabase.LoadAssetAtPath<WorldMapTemplate>("Assets/Data/EnemyAttacks/Maps/CenteredThreeSinWhitebox.asset");
         var layout = template.Load();
         MapLayoutValidator.Validate(layout);
         var controller = worldPanel.gameObject.AddComponent<WorldMapController>();
@@ -72,6 +74,7 @@ public static class MapSceneBuilder
         var view = worldPanel.gameObject.AddComponent<WorldMapSceneView>();
         view.canvas = canvas;
         view.mapContent = mapRoot;
+        view.visualLayout = AssetDatabase.LoadAssetAtPath<WorldMapVisualLayout>(VisualLayoutPath);
         view.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Fonts/Huiwen.asset");
         view.originalBackground = background;
         view.showOriginalBackground = showOriginalBackground;
@@ -85,7 +88,10 @@ public static class MapSceneBuilder
             var node = obj.GetComponent<MapSceneNode>();
             node.nodeId = definition.id;
             node.label.text = definition.displayName;
-            Center((RectTransform)obj.transform, new Vector2(definition.x, definition.y), new Vector2(112, 64));
+            Vector2 size = definition.kind == MapNodeKind.Village ? new Vector2(144, 108)
+                : definition.kind == MapNodeKind.Boss ? new Vector2(112, 64)
+                : ((RectTransform)nodePrefab.transform).sizeDelta;
+            Center((RectTransform)obj.transform, new Vector2(definition.x, definition.y), size);
             nodeObjects.Add(definition.id, node);
         }
         foreach (var definition in layout.nodes)
@@ -93,15 +99,21 @@ public static class MapSceneBuilder
             foreach (string neighbor in definition.neighbors)
             {
                 if (string.CompareOrdinal(definition.id, neighbor) >= 0) continue;
-                var image = Image("Road_" + definition.id + "_" + neighbor, lineRoot, new Color32(90, 96, 86, 255));
-                var road = image.gameObject.AddComponent<MapSceneRoad>();
+                var road = Rect("Road_" + definition.id + "_" + neighbor, lineRoot).gameObject.AddComponent<MapSceneRoad>();
+                road.color = new Color32(35, 34, 29, 245);
                 road.fromNodeId = definition.id;
                 road.toNodeId = neighbor;
                 road.from = (RectTransform)nodeObjects[definition.id].transform;
                 road.to = (RectTransform)nodeObjects[neighbor].transform;
+                road.village = (RectTransform)nodeObjects[layout.villageNodeId].transform;
                 road.SendMessage("LateUpdate");
             }
         }
+
+        view.ApplyVisualLayout(layout);
+        WorldMapViewport.Configure(view);
+        WorldMapUiPrefabBuilder.EnsureLocationMarker(view);
+        WorldMapUiPrefabBuilder.EnsureEntryTransition(view);
 
         var hp = Find("Txt_Hp");
         var time = Find("Txt_Time");
@@ -161,12 +173,13 @@ public static class MapSceneBuilder
     {
         var existing = AssetDatabase.LoadAssetAtPath<GameObject>(NodePrefabPath);
         if (existing != null) return existing;
-        if (!AssetDatabase.IsValidFolder("Assets/Prefabs/Map")) AssetDatabase.CreateFolder("Assets/Prefabs", "Map");
+        if (!AssetDatabase.IsValidFolder("Assets/Prefabs/MapPrefabs")) AssetDatabase.CreateFolder("Assets/Prefabs", "MapPrefabs");
         var source = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Btn_Node.prefab");
         var obj = (GameObject)PrefabUtility.InstantiatePrefab(source);
         PrefabUtility.UnpackPrefabInstance(obj, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
         Object.DestroyImmediate(obj.GetComponent<NodeView>());
         obj.name = "WorldMapNode";
+        ((RectTransform)obj.transform).sizeDelta = new Vector2(128, 128);
         var node = obj.AddComponent<MapSceneNode>();
         node.button = obj.GetComponent<Button>();
         node.label = obj.GetComponentInChildren<TMP_Text>();
@@ -179,6 +192,7 @@ public static class MapSceneBuilder
         node.label.margin = new Vector4(5, 3, 5, 3);
         node.label.raycastTarget = false;
         Stretch(node.label.rectTransform);
+        node.label.gameObject.SetActive(false);
         var colors = node.button.colors;
         colors.disabledColor = Color.white;
         node.button.colors = colors;
