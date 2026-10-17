@@ -16,3 +16,6 @@ MonoBehaviour:
   damage: 6
   attackCount: 1
   hitInterval: 0.3
+  applyStatus: 0
+  statusOnHit: 5
+  statusStacks: 0
