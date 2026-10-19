@@ -28,6 +28,7 @@ public class BattleActionUI : MonoBehaviour
     {
         if(battleFlow != null)
         {
+            skillButton.onClick.AddListener(battleFlow.PlayerSkill);
             HandleBattleStateChanged(battleFlow.CurrentState);
         }
     }
@@ -42,7 +43,7 @@ public class BattleActionUI : MonoBehaviour
     {
         bool canUseAction = state == BattleState.PlayerTurn;
 
-        bool skillAllowed = canUseAction && (battleFlow == null || !battleFlow.WeaponSkillBlocked);
+        bool skillAllowed = canUseAction && battleFlow != null && battleFlow.CanUseWeaponSkill;
         attackButton.interactable = canUseAction;
         defendButton.interactable = canUseAction;
         skillButton.interactable = skillAllowed;

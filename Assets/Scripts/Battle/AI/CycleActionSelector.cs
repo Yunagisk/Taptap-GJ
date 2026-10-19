@@ -43,6 +43,18 @@ public class CycleActionSelector : IEnemyActionSelector
         return null;
     }
 
+    // Presentation must not change selectedIndex or advance the action cycle.
+    public EnemyAttackData PeekAction()
+    {
+        if (actions == null || actions.Count == 0) return null;
+        for (int offset = 0; offset < actions.Count; offset++)
+        {
+            var action = actions[(currentIndex + offset) % actions.Count];
+            if (action != null) return action;
+        }
+        return null;
+    }
+
     //本招式执行完成后，指向下一个招式。
     public void OnActionCompleted()
     {

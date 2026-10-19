@@ -19,6 +19,7 @@ public class EnemyCombatant : Combatant
     private bool isActing;  //敌人是否正在行动中，避免重复调用。
     private bool remnantPaid;
     public int Priority => priority;
+    public virtual EnemyAttackData UpcomingAction => (actionSelector as CycleActionSelector)?.PeekAction();
 
     [Header("罪骸")]
     [SerializeField] private bool isBoss;
@@ -41,6 +42,7 @@ public class EnemyCombatant : Combatant
         ResetBreak(breakThreshold);
         actionSelector = CreateActionSelector();
         actionSelector?.Reset();    //“如果 actionSelector 不为空，就调用 Reset()
+        GetComponent<DamageResistance>()?.ResetDiscovery();
         NotifyMarks();
     }
 
@@ -64,8 +66,16 @@ public class EnemyCombatant : Combatant
         return new CycleActionSelector(attackDatas);
     }
 
+    public override int TakeDamage(int damage)
+    {
+        int actualDamage = base.TakeDamage(damage);
+        if (actualDamage > 0 && !IsDead) GetComponent<EnemySpriteAnimation>()?.PlayHurt();
+        return actualDamage;
+    }
+
     protected override void Die()
     {
+        GetComponent<EnemySpriteAnimation>()?.PlayDefeat();
         if (!remnantPaid)
         {
             remnantPaid = true;

@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: "\u9524"
   weaponId: hammer
-  attack: 14
+  damageComponents:
+  - damageType: 2
+    damage: 14
   attackCount: 1
-  damageType: 2
-  skill: {fileID: 0}
+  skill: {fileID: 11400000, guid: d3f599376ecc46d1acd60858f489df7e, type: 2}
   price: 4

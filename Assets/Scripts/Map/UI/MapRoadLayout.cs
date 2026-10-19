@@ -26,6 +26,14 @@ public static class MapRoadLayout
         public readonly List<Vector2> points;
         public readonly Rect bounds;
         public readonly float radius;
+        Segment[] segments;
+        float maxSegmentSpan;
+
+        struct Segment
+        {
+            public Vector2 a, b;
+            public float minX, maxX, minY, maxY;
+        }
 
         public Route(List<Vector2> path, float width)
         {
@@ -37,6 +45,95 @@ public static class MapRoadLayout
             foreach (var p in path) { min = Vector2.Min(min, p); max = Vector2.Max(max, p); }
             bounds = Rect.MinMaxRect(min.x, min.y, max.x, max.y);
         }
+
+        void IndexSegments()
+        {
+            if (segments != null) return;
+            segments = new Segment[Math.Max(0, points.Count - 1)];
+            for (int i = 1; i < points.Count; i++)
+            {
+                Vector2 a = points[i - 1], b = points[i];
+                var segment = new Segment { a = a, b = b,
+                    minX = Mathf.Min(a.x, b.x), maxX = Mathf.Max(a.x, b.x),
+                    minY = Mathf.Min(a.y, b.y), maxY = Mathf.Max(a.y, b.y) };
+                segments[i - 1] = segment;
+                maxSegmentSpan = Mathf.Max(maxSegmentSpan, segment.maxX - segment.minX);
+            }
+            Array.Sort(segments, (a, b) => a.minX.CompareTo(b.minX));
+        }
+
+        Route(Route source)
+        {
+            points = new List<Vector2>(source.points);
+            bounds = source.bounds; radius = source.radius;
+            segments = source.segments; maxSegmentSpan = source.maxSegmentSpan;
+        }
+
+        public Route Copy() => new Route(this);
+
+        // Conservative x ranges skip distant segments; the final distance test
+        // is unchanged, so routing appearance and clearance remain identical.
+        public bool Overlaps(Route other, float gap)
+        {
+            IndexSegments(); other.IndexSegments();
+            float squaredGap = gap * gap;
+            foreach (var a in segments)
+            {
+                float minimum = a.minX - gap, maximum = a.maxX + gap;
+                float firstX = minimum - other.maxSegmentSpan;
+                firstX -= Mathf.Max(0.001f, Mathf.Abs(firstX) * 0.000001f);
+                int low = 0, high = other.segments.Length;
+                while (low < high)
+                {
+                    int middle = (low + high) / 2;
+                    if (other.segments[middle].minX < firstX) low = middle + 1; else high = middle;
+                }
+                for (int i = low; i < other.segments.Length; i++)
+                {
+                    var b = other.segments[i];
+                    if (b.minX > maximum) break;
+                    if (b.maxX < minimum || b.maxY < a.minY - gap || b.minY > a.maxY + gap) continue;
+                    if (MapRoadGeometry.SegmentDistanceSquared(a.a, a.b, b.a, b.b) < squaredGap) return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    sealed class CachedLayout
+    {
+        public Request[] requests;
+        public float spacing;
+        public int conflicts;
+        public Route[] routes;
+    }
+    static readonly List<CachedLayout> cache = new List<CachedLayout>();
+
+    public static Route[] PlanCached(IList<Request> requests, float spacing, out int remainingConflicts)
+    {
+        foreach (var entry in cache)
+        {
+            if (spacing != entry.spacing || requests.Count != entry.requests.Length) continue;
+            bool same = true;
+            for (int i = 0; i < requests.Count && same; i++) same = requests[i].SameAs(entry.requests[i]);
+            if (!same) continue;
+            remainingConflicts = entry.conflicts;
+            return Copy(entry.routes);
+        }
+        var result = Plan(requests, spacing, out remainingConflicts);
+        var snapshot = new Request[requests.Count];
+        for (int i = 0; i < requests.Count; i++) snapshot[i] = requests[i];
+        if (cache.Count == 4) cache.RemoveAt(0);
+        cache.Add(new CachedLayout { requests = snapshot, spacing = spacing,
+            conflicts = remainingConflicts, routes = Copy(result) });
+        return result;
+    }
+
+    static Route[] Copy(Route[] source)
+    {
+        var result = new Route[source.Length];
+        for (int i = 0; i < source.Length; i++) result[i] = source[i].Copy();
+        return result;
     }
 
     static readonly float[] Bends = { -2, -1.5f, -1, -0.6f, -0.25f, 0, 0.25f, 0.6f, 1, 1.5f, 2 };
@@ -191,20 +288,6 @@ public static class MapRoadLayout
     {
         float gap = a.radius + b.radius + Mathf.Max(0, spacing);
         if (!MapRoadGeometry.Expand(a.bounds, gap).Overlaps(b.bounds)) return false;
-        float squaredGap = gap * gap;
-        for (int i = 1; i < a.points.Count; i++)
-        {
-            Vector2 p = a.points[i - 1], q = a.points[i];
-            float xMin = Mathf.Min(p.x, q.x) - gap, xMax = Mathf.Max(p.x, q.x) + gap;
-            float yMin = Mathf.Min(p.y, q.y) - gap, yMax = Mathf.Max(p.y, q.y) + gap;
-            for (int j = 1; j < b.points.Count; j++)
-            {
-                Vector2 u = b.points[j - 1], v = b.points[j];
-                if (Mathf.Max(u.x, v.x) < xMin || Mathf.Min(u.x, v.x) > xMax
-                    || Mathf.Max(u.y, v.y) < yMin || Mathf.Min(u.y, v.y) > yMax) continue;
-                if (MapRoadGeometry.SegmentDistanceSquared(p, q, u, v) < squaredGap) return true;
-            }
-        }
-        return false;
+        return a.Overlaps(b, gap);
     }
 }

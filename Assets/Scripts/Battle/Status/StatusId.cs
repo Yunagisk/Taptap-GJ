@@ -4,6 +4,14 @@
 // 再生、中毒、衰弱、破甲、点燃双方都结算。
 // 加速只加玩家普攻段。坚定、疲惫只改玩家决心和武器技能。混乱只改玩家单体普攻目标。
 // 破防进度和破防阈值只在敌人身上。主角没有破防条。
+[System.Serializable]
+public struct StatusSnapshot
+{
+    public StatusId id;
+    public int stacks;
+    public StatusSnapshot(StatusId id, int stacks) { this.id = id; this.stacks = stacks; }
+}
+
 public enum StatusId
 {
     Regen,      // 再生：自身回合末按层数回血，然后减 1 层

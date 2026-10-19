@@ -11,6 +11,7 @@ public class EquipmentPanelView : MonoBehaviour
     public CanvasGroup visibility;
     public PanelToggler panelToggler;
     public InventoryParchmentView parchment;
+    public InventoryLayoutView inventoryLayout;
     public TMP_FontAsset font;
     public WeaponLibrary weaponLibrary;
     public TMP_Text healthText, statusText, sinText, itemsText, questText, selectionText, messageText;
@@ -33,12 +34,13 @@ public class EquipmentPanelView : MonoBehaviour
     public bool IsOpen => gameObject.activeInHierarchy && (parchment != null ? parchment.IsVisible
         : visibility == null || visibility.alpha > 0.5f);
     public int SelectedSlot => selectedSlot;
+    public string SelectedWeaponId => selectedOwnedWeaponId;
 
     void Awake()
     {
-        if (font != null && font.sourceFontFile != null)
+        if (font != null)
         {
-            runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
+            runtimeFont = SharedUIFont.Get(font);
             runtimeFont.isMultiAtlasTexturesEnabled = true;
             foreach (var label in GetComponentsInChildren<TMP_Text>(true)) label.font = runtimeFont;
         }
@@ -52,6 +54,7 @@ public class EquipmentPanelView : MonoBehaviour
         if (unequipButton != null) unequipButton.onClick.AddListener(UnequipSelected);
         if (selectWeaponButton != null) selectWeaponButton.onClick.AddListener(UseSelectedSlot);
         selectedSlot = Mathf.Clamp(selectedSlot, 0, EquipmentRules.SlotCount - 1);
+        if (inventoryLayout != null) inventoryLayout.Bind(this, runtimeFont);
     }
 
     void OnEnable() { nextRefresh = 0; Refresh(); }
@@ -106,13 +109,15 @@ public class EquipmentPanelView : MonoBehaviour
         Refresh();
     }
 
-    void SelectOwnedWeapon(string id)
+    public void SelectOwnedWeapon(string id)
     {
         var state = GameRoot.I != null ? GameRoot.I.state : null;
         if (state == null || !state.inventory.weapons.Contains(id)) return;
         selectedOwnedWeaponId = id;
         Refresh();
     }
+
+    public void SetWeaponSelection(string id) { selectedOwnedWeaponId = id; }
 
     public void EquipSelected()
     {
@@ -136,8 +141,18 @@ public class EquipmentPanelView : MonoBehaviour
         var state = GameRoot.I != null ? GameRoot.I.state : null;
         if (state == null) return;
         EquipmentRules.EnsureInitialized(state);
-        bool ok = EquipmentRules.TrySelectWeapon(state, state.inventory.equippedWeaponIds[selectedSlot]);
+        string id = inventoryLayout != null ? selectedOwnedWeaponId : state.inventory.equippedWeaponIds[selectedSlot];
+        bool ok = EquipmentRules.TrySelectWeapon(state, id);
         Say(ok ? "当前武器：" + NameOf(state.player.currentWeaponId) : "当前槽位没有武器。");
+        Refresh();
+    }
+
+    public void UseSelectedItem()
+    {
+        if (!IsOpen || inventoryLayout == null || GameRoot.I == null) return;
+        if (GameRoot.I.activeBattle != null) { Say("请在战斗道具菜单中使用。"); return; }
+        var result = ItemRules.TryUse(GameRoot.I.state, inventoryLayout.SelectedItemId, false);
+        Say(result.message);
         Refresh();
     }
 
@@ -146,6 +161,7 @@ public class EquipmentPanelView : MonoBehaviour
         var state = GameRoot.I != null ? GameRoot.I.state : null;
         if (state == null) return;
         EquipmentRules.EnsureInitialized(state);
+        if (inventoryLayout != null) { inventoryLayout.Refresh(state); return; }
         var player = state.player;
         if (healthText != null) healthText.text = "生命  " + player.hp + " / " + player.maxHp;
         if (statusText != null) statusText.text = "决心  " + player.resolve + " / " + player.maxResolve
@@ -225,12 +241,4 @@ public class EquipmentPanelView : MonoBehaviour
     string NameOf(string id) => weaponLibrary != null ? weaponLibrary.NameOf(id) : WeaponTable.NameOf(id);
     void Say(string message) { if (messageText != null) messageText.text = message; }
 
-    void OnDestroy()
-    {
-        if (runtimeFont == null) return;
-        foreach (var texture in runtimeFont.atlasTextures)
-            if (texture != null) Destroy(texture);
-        Destroy(runtimeFont.material);
-        Destroy(runtimeFont);
-    }
 }

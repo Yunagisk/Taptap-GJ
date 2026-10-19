@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Battle/UI/BattleWeaponWheelMath.cs" Link="BattleWeaponWheelMath.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/AI/CycleActionSelector.cs" Link="CycleActionSelector.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/AI/IEnemyActionSelector.cs" Link="IEnemyActionSelector.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+</Project>

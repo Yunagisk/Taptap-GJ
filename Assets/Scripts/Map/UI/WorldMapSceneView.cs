@@ -75,9 +75,9 @@ public class WorldMapSceneView : MonoBehaviour
         foreach (var road in roads) roadById[MapRevealTransition.RoadKey(road.fromNodeId, road.toNodeId)] = road;
         ApplyVisualLayout(controller.Progression.Layout);
         viewport = WorldMapViewport.Configure(this);
-        if (canvas != null && font != null && font.sourceFontFile != null)
+        if (canvas != null && font != null)
         {
-            runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
+            runtimeFont = SharedUIFont.Get(font);
             runtimeFont.isMultiAtlasTexturesEnabled = true;
             foreach (var text in canvas.GetComponentsInChildren<TMP_Text>(true)) text.font = runtimeFont;
         }
@@ -221,8 +221,7 @@ public class WorldMapSceneView : MonoBehaviour
         if (transition != null) BeginReveal(transition);
         var player = GameRoot.I.state.player;
         if (hpText != null) hpText.text = player.hp + " / " + player.maxHp;
-        string[] periods = { "早晨", "下午", "夜间" };
-        if (timeText != null) timeText.text = "第 " + (map.World.time / 3 + 1) + " 天 · " + periods[map.World.time % 3] + "   T " + map.World.time;
+        if (timeText != null) timeText.text = MapTimeDialMotion.FormatLabel(map.World.time);
         if (sinText != null) sinText.text = "罪恶 " + map.World.sin + " / " + map.Layout.sinThreshold;
         if (bossCountText != null) bossCountText.text = "原罪 " + map.State.defeatedBossNodes.Count + " / 3";
         noticeText.text = controller.Notice;
@@ -300,10 +299,5 @@ public class WorldMapSceneView : MonoBehaviour
     {
         if (controller != null) controller.StateChanged -= Refresh;
         if (completeButton != null) completeButton.onClick.RemoveListener(CompleteDisplayedNode);
-        if (runtimeFont == null) return;
-        foreach (var texture in runtimeFont.atlasTextures)
-            if (texture != null) Destroy(texture);
-        Destroy(runtimeFont.material);
-        Destroy(runtimeFont);
     }
 }

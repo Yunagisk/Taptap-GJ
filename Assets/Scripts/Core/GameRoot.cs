@@ -12,6 +12,7 @@ public class GameRoot : MonoBehaviour
     [System.NonSerialized] public string battleRequestId;
     [System.NonSerialized] public string battleReturnScene;
     [System.NonSerialized] public MapRevealTransition pendingMapReveal;
+    [System.NonSerialized] public BattleFlowController activeBattle;
     void Awake()
     {
         if (I != null) { Destroy(gameObject); return; }

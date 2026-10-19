@@ -16,9 +16,7 @@ MonoBehaviour:
   weaponId: spear
   damageComponents:
   - damageType: 0
-    damage: 0
+    damage: 13
   attackCount: 1
-  skill: {fileID: 0}
+  skill: {fileID: 11400000, guid: 23eb4f889d044191bee5c46a53f78e3b, type: 2}
   price: 8
-  attack: 13
-  damageType: 0

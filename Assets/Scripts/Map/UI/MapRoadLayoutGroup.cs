@@ -45,7 +45,11 @@ public class MapRoadLayoutGroup : MonoBehaviour
             changed |= !pending[i].SameAs(previous[i]);
         }
         if (!changed) return;
-        var routes = MapRoadLayout.Plan(pending, roadSpacing, out int conflicts);
+        MapRoadLayout.Route[] routes;
+        int conflicts;
+        UnityEngine.Profiling.Profiler.BeginSample("Map.RoadRouting");
+        try { routes = MapRoadLayout.PlanCached(pending, roadSpacing, out conflicts); }
+        finally { UnityEngine.Profiling.Profiler.EndSample(); }
         for (int i = 0; i < roads.Length; i++) roads[i].SetPlannedPath(routes[i].points);
         Array.Copy(pending, previous, pending.Length);
         previousSpacing = roadSpacing;

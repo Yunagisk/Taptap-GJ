@@ -77,6 +77,45 @@ public sealed class StatusSet
         return true;
     }
 
+    public int DebuffCount
+    {
+        get
+        {
+            int count = 0;
+            foreach (var id in map.Keys) if (StatusRules.IsDebuff(id)) count++;
+            return count;
+        }
+    }
+
+    public int PurgeAllDebuffs()
+    {
+        int count = 0;
+        foreach (StatusId id in Enum.GetValues(typeof(StatusId)))
+            if (StatusRules.IsDebuff(id) && map.Remove(id)) count++;
+        if (count > 0) Changed?.Invoke();
+        return count;
+    }
+
+    public void WriteSnapshot(List<StatusSnapshot> result)
+    {
+        if (result == null) return;
+        result.Clear();
+        foreach (var pair in map) result.Add(new StatusSnapshot(pair.Key, pair.Value.Stacks));
+    }
+
+    public void RestoreSnapshot(IReadOnlyList<StatusSnapshot> source)
+    {
+        map.Clear();
+        if (source != null)
+            foreach (var entry in source)
+            {
+                if (entry.stacks <= 0 || !Enum.IsDefined(typeof(StatusId), entry.id)) continue;
+                map[entry.id] = new StatusInstance
+                { Stacks = Math.Min(entry.stacks, StatusRules.CapOf(entry.id)), AppliedRound = 0 };
+            }
+        Changed?.Invoke();
+    }
+
     public void ClearOrdinary()
     {
         if (map.Count == 0)

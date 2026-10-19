@@ -62,9 +62,9 @@ public class VillageScreen : MonoBehaviour
             VillageEventRules.InitializeForRun(root.state, progression.Layout);
         }
         catch (Exception error) { Debug.LogException(error, this); }
-        if (font != null && font.sourceFontFile != null)
+        if (font != null)
         {
-            runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
+            runtimeFont = SharedUIFont.Get(font);
             runtimeFont.isMultiAtlasTexturesEnabled = true;
             var canvas = hpText != null ? hpText.GetComponentInParent<Canvas>()
                 : GetComponentInChildren<Canvas>(true);
@@ -179,23 +179,25 @@ public class VillageScreen : MonoBehaviour
             || panelInn == null || !panelInn.activeInHierarchy) return;
         var player = GameRoot.I != null && GameRoot.I.state != null ? GameRoot.I.state.player : null;
         if (player == null) return;
-        if (player.hp >= player.maxHp)
+        if (player.hp >= player.maxHp && player.lanternCharges >= player.maxLanternCharges)
         {
-            Say("生命已满，无需休息。");
+            Say("生命和提灯次数已满，无需休息。");
             ClosePanels();
             return;
         }
 
         int recovered = player.maxHp - player.hp;
+        int lanternRecovered = Math.Max(0, player.maxLanternCharges - player.lanternCharges);
         player.hp = player.maxHp;
+        player.lanternCharges = player.maxLanternCharges;
         RefreshStatus();
-        Say("休息完成，恢复 " + recovered + " 点生命。");
+        Say("休息完成，恢复 " + recovered + " 点生命，补充 " + lanternRecovered + " 次提灯。");
         ClosePanels();
     }
 
     public void ConfirmBuy()
     {
-        Say("点列表里的武器购买。买后不补货。");
+        Say("选择列表中的商品购买。消耗品每日补货，武器买后不补货。");
     }
 
     public void ConfirmOptionA()
@@ -212,7 +214,8 @@ public class VillageScreen : MonoBehaviour
 
     public void ConfirmUseItem()
     {
-        Say("使用道具已提交一次。");
+        var equipment = panelBag != null ? panelBag.GetComponent<EquipmentPanelView>() : null;
+        if (equipment != null) equipment.UseSelectedItem();
     }
 
     public void ConfirmConflict()
@@ -343,10 +346,35 @@ public class VillageScreen : MonoBehaviour
         if (!shopReady || GameRoot.I == null) return;
         var state = GameRoot.I.state;
         ShopRules.EnsureStock(state);
+        ItemRules.EnsureShopStock(state);
         for (int i = shopContent.childCount - 1; i >= 0; i--)
+        {
+            shopContent.GetChild(i).gameObject.SetActive(false);
             Destroy(shopContent.GetChild(i).gameObject);
+        }
 
         var buttons = new List<Button>();
+        foreach (var item in ItemTable.All)
+        {
+            if (item.dailyStock <= 0) continue;
+            string itemId = item.id;
+            int stock = ItemRules.ShopStock(state, itemId);
+            bool full = ItemRules.Count(state.inventory, itemId) >= item.carryLimit;
+            var button = Instantiate(focusBuy.GetComponent<Button>(), shopContent);
+            button.name = "BuyItem_" + itemId;
+            button.gameObject.SetActive(true);
+            button.onClick = new Button.ButtonClickedEvent();
+            button.onClick.AddListener(() => BuyItem(itemId));
+            button.interactable = stock > 0 && !full && state.world.sinRemnant >= item.price;
+            var label = button.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+            {
+                if (runtimeFont != null) label.font = runtimeFont;
+                label.text = item.displayName + "    " + item.price + " 罪骸    今日库存 " + stock
+                    + (full ? "    已达携带上限" : "    携带上限 " + item.carryLimit);
+            }
+            buttons.Add(button);
+        }
         var ids = state.shop.availableWeaponIds;
         for (int i = 0; i < ids.Count; i++)
         {
@@ -384,9 +412,7 @@ public class VillageScreen : MonoBehaviour
         if (bodyText != null)
         {
             if (runtimeFont != null) bodyText.font = runtimeFont;
-            bodyText.text = ids.Count == 0
-                ? "武器已全部售出，不再补货。"
-                : "每把库存 1，买后不补货。价格全关卡通用。";
+            bodyText.text = "绷带、圣水每日各补货 1 件，各可携带 1 件。武器买后不补货。";
         }
         if (buttons.Count > 0) Select(buttons[0].gameObject);
     }
@@ -400,6 +426,15 @@ public class VillageScreen : MonoBehaviour
         if (result.ok) RebuildShop();
     }
 
+    void BuyItem(string id)
+    {
+        if (IsLoading || GameRoot.I == null || panelShop == null || !panelShop.activeInHierarchy) return;
+        var result = ItemRules.TryBuy(GameRoot.I.state, id);
+        Say(result.message);
+        RefreshStatus();
+        RebuildShop();
+    }
+
     static void Stretch(RectTransform rect)
     {
         rect.anchorMin = Vector2.zero;
@@ -408,12 +443,4 @@ public class VillageScreen : MonoBehaviour
         rect.offsetMax = Vector2.zero;
     }
 
-    void OnDestroy()
-    {
-        if (runtimeFont == null) return;
-        foreach (var texture in runtimeFont.atlasTextures)
-            if (texture != null) Destroy(texture);
-        Destroy(runtimeFont.material);
-        Destroy(runtimeFont);
-    }
 }

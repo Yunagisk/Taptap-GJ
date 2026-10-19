@@ -29,9 +29,9 @@ public class BattleLoadoutView : MonoBehaviour
             originalColors[i] = image != null ? image.color : Color.white;
             button.onClick.AddListener(() => SwitchSlot(slot));
         }
-        if (font != null && font.sourceFontFile != null)
+        if (font != null)
         {
-            runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
+            runtimeFont = SharedUIFont.Get(font);
             runtimeFont.isMultiAtlasTexturesEnabled = true;
             if (slotLabels != null)
                 foreach (var label in slotLabels)
@@ -92,12 +92,4 @@ public class BattleLoadoutView : MonoBehaviour
         if (flow != null) flow.OnBattleStateChanged -= OnBattleStateChanged;
     }
 
-    void OnDestroy()
-    {
-        if (runtimeFont == null) return;
-        foreach (var texture in runtimeFont.atlasTextures)
-            if (texture != null) Destroy(texture);
-        Destroy(runtimeFont.material);
-        Destroy(runtimeFont);
-    }
 }

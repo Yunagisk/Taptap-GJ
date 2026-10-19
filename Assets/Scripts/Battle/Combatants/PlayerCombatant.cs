@@ -9,25 +9,27 @@ public class PlayerCombatant : Combatant
     // ================= 初始化 =================
 
     PlayerState runPlayer;
+    bool restoringStatuses;
 
     void Awake()
     {
         OnHpChanged += SyncRunHealth;
         OnDeterminationChanged += SyncRunDetermination;
+        OnMarksChanged += SyncRunStatuses;
     }
 
     void OnDestroy()
     {
         OnHpChanged -= SyncRunHealth;
         OnDeterminationChanged -= SyncRunDetermination;
+        OnMarksChanged -= SyncRunStatuses;
     }
 
     public override void Initialize()
     {
         var root = GameRoot.I;
-        bool sharedRun = root != null && root.state != null && root.state.map != null
-            && !string.IsNullOrEmpty(root.state.map.templateId);
-        runPlayer = sharedRun ? root.state.player : null;
+        runPlayer = root != null && root.state != null ? root.state.player : null;
+        restoringStatuses = true;
         maxDetermination = runPlayer != null ? Mathf.Max(0, runPlayer.maxResolve) : StandaloneMaxDetermination;
         currentDetermination = runPlayer != null
             ? Mathf.Clamp(runPlayer.resolve, 0, maxDetermination) : 0;
@@ -38,7 +40,8 @@ public class PlayerCombatant : Combatant
         else
             base.Initialize();
 
-        Statuses.ClearOrdinary();
+        Statuses.RestoreSnapshot(runPlayer != null ? runPlayer.ordinaryStatuses : null);
+        restoringStatuses = false;
         NotifyMarks();
         OnDeterminationChanged?.Invoke(currentDetermination);
         OnDefenseChanged?.Invoke(this, IsDefending);
@@ -52,6 +55,15 @@ public class PlayerCombatant : Combatant
     void SyncRunDetermination(int determination)
     {
         SyncRunState();
+    }
+
+    void SyncRunStatuses(Combatant combatant)
+    {
+        if (restoringStatuses || runPlayer == null || GameRoot.I == null
+            || GameRoot.I.state?.player != runPlayer) return;
+        if (runPlayer.ordinaryStatuses == null)
+            runPlayer.ordinaryStatuses = new List<StatusSnapshot>();
+        Statuses.WriteSnapshot(runPlayer.ordinaryStatuses);
     }
 
     void SyncRunState()

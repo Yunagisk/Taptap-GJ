@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0192e4ecb5b697b42a420d9c5796622b, type: 3}
+  m_Name: KBS08
+  m_EditorClassIdentifier: 
+  skillName: "\u7f20\u51fb"
+  skillDescription: "\u5355\u4f53\u949d\u51fb10\u00d72\u6bb5\uff1b\u6574\u6b21\u884c\u52a8\u9644\u52a0\u4e00\u6b21\u8870\u5f311\u5c42\uff0c\u949d\u51fb\u514d\u75ab\u963b\u6b62\u8870\u5f31\u3002"
+  determinationCost: 2
+  stages:
+  - target: 0
+    hitCount: 2
+    damageComponents:
+    - damageType: 2
+      damage: 10
+  statusEffects:
+  - applyToSelf: 0
+    status: 4
+    stacks: 1
+    requiredDamageType: 2
+  ignoreResistance: 0
+  extraBreakOnWeakness: 0
+  extraBreakDamageType: 0
+  brokenTargetMultiplier: 1

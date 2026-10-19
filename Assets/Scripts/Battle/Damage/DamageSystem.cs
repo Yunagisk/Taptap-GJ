@@ -38,9 +38,13 @@ public static class DamageSystem
 
             if (resistance != null)
             {
+                if (baseDamage > 0) resistance.ObserveDamageType(component.damageType);
                 reaction = resistance.GetDamageReaction(component.damageType);
 
                 multiplier = resistance.GetDamageMultiplier(component.damageType);
+                // 剑技能只忽略抗性减伤，仍保留免疫和原本的弱点关系。
+                if (info.ignoreResistance && reaction == DamageReaction.Resistant)
+                    multiplier = 1f;
             }
 
             // 强化与抗性一起计算，每个分量只向下取整一次。

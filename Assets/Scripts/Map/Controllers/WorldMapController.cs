@@ -164,13 +164,18 @@ public class WorldMapController : MonoBehaviour
         Notice = node.displayName;
         if (Progression.LastSpawnedBossId != null)
             Notice += " · " + Progression.GetNode(Progression.LastSpawnedBossId).displayName + "已出现";
-        // Cleared nodes still play the marker/entry transition, but dispatch no encounter.
+        // Cleared nodes only move the location marker; there is no encounter to fade into.
         BeginEntry(request, node.kind == MapNodeKind.Village);
     }
 
 
     void BeginEntry(MapNodeRequest request, bool village = false)
     {
+        if (request == null && !village)
+        {
+            StateChanged?.Invoke();
+            return;
+        }
         if (IsEnteringNode || MapSceneTransition.IsBusy) return;
         IsEnteringNode = true;
         entryDispatched = false;

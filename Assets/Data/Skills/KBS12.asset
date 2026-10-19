@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0192e4ecb5b697b42a420d9c5796622b, type: 3}
+  m_Name: KBS12
+  m_EditorClassIdentifier: 
+  skillName: "\u70d9\u5211"
+  skillDescription: "\u5355\u4f53\u949d\u51fb10\uff0b\u706b\u71308\uff0c1\u4e2a\u6df7\u5408\u6bb5\uff1b\u7834\u75321\u5c42\u3001\u70b9\u71c31\u5c42\uff0c\u6309\u5bf9\u5e94\u4f24\u5bb3\u7c7b\u578b\u5206\u522b\u5224\u65ad\u514d\u75ab\u3002"
+  determinationCost: 3
+  stages:
+  - target: 0
+    hitCount: 1
+    damageComponents:
+    - damageType: 2
+      damage: 10
+    - damageType: 3
+      damage: 8
+  statusEffects:
+  - applyToSelf: 0
+    status: 5
+    stacks: 1
+    requiredDamageType: 2
+  - applyToSelf: 0
+    status: 8
+    stacks: 1
+    requiredDamageType: 3
+  ignoreResistance: 0
+  extraBreakOnWeakness: 0
+  extraBreakDamageType: 0
+  brokenTargetMultiplier: 1

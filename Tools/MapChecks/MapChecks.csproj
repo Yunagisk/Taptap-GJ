@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Assets/Scripts/Core/GameState.cs" Link="GameState.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Status/StatusId.cs" Link="StatusId.cs" />
     <Compile Include="../../Assets/Scripts/Core/WorldResourceRules.cs" Link="WorldResourceRules.cs" />
     <Compile Include="../../Assets/Scripts/Wilderness/WildernessEventRules.cs" Link="WildernessEventRules.cs" />
     <Compile Include="../../Assets/Scripts/Wilderness/MapWildernessRules.cs" Link="MapWildernessRules.cs" />

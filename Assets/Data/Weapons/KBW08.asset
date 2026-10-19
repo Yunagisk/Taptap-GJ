@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: "\u94FE\u67B7"
   weaponId: flail
-  attack: 5
+  damageComponents:
+  - damageType: 2
+    damage: 5
   attackCount: 2
-  damageType: 0
-  skill: {fileID: 0}
+  skill: {fileID: 11400000, guid: 1239645ef6ee44da8a9342764250bb64, type: 2}
   price: 8

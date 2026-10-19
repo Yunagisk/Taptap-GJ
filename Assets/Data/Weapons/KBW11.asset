@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: "\u7130\u820C"
   weaponId: flame_tongue
-  damageComponents: []
+  damageComponents:
+  - damageType: 0
+    damage: 7
+  - damageType: 3
+    damage: 5
   attackCount: 1
-  skill: {fileID: 0}
+  skill: {fileID: 11400000, guid: 75b2a9f87b5e4c8cb8e8db746acc99e9, type: 2}
   price: 12
-  attack: 0
-  damageType: 0

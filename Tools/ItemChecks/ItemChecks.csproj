@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Core/GameState.cs" />
+    <Compile Include="../../Assets/Scripts/Core/WorldResourceRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/VillageEventRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/MainStoryRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/EquipmentRules.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Weapons/WeaponTable.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Items/ItemDef.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Items/ItemRules.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Status/StatusId.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Status/StatusRules.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Status/StatusSet.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Data/MapLayout.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Logic/MapLayoutValidator.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Logic/MapProgression.cs" />
+    <Compile Include="../../Assets/Scripts/Wilderness/WildernessEventRules.cs" />
+    <Compile Include="../../Assets/Scripts/Wilderness/MapWildernessRules.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+</Project>

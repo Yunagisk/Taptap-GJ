@@ -43,8 +43,8 @@ public class MapWhiteboxView : MonoBehaviour
     {
         controller = GetComponent<WorldMapController>();
         if (controller.Progression == null) return;
-        if (font != null && font.sourceFontFile != null)
-            runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
+        if (font != null)
+            runtimeFont = SharedUIFont.Get(font);
         Build();
         controller.StateChanged += Refresh;
         selectedNodeId = controller.Progression.State.currentNodeId;
@@ -55,13 +55,6 @@ public class MapWhiteboxView : MonoBehaviour
     {
         if (controller != null) controller.StateChanged -= Refresh;
         if (canvas != null) Destroy(canvas.gameObject);
-        if (runtimeFont != null)
-        {
-            foreach (var texture in runtimeFont.atlasTextures)
-                if (texture != null) Destroy(texture);
-            Destroy(runtimeFont.material);
-            Destroy(runtimeFont);
-        }
     }
 
     void LateUpdate()

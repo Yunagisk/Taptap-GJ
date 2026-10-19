@@ -21,8 +21,8 @@ public class BattleResultUI : MonoBehaviour
     private void Awake()
     {
         battleFlow = GetComponent<BattleFlowController>();
-        if (font != null && font.sourceFontFile != null)
-            runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
+        if (font != null)
+            runtimeFont = SharedUIFont.Get(font);
         BuildUI();
     }
 
@@ -227,10 +227,5 @@ public class BattleResultUI : MonoBehaviour
     private void OnDestroy()
     {
         if (overlay != null) Destroy(overlay);
-        if (runtimeFont == null) return;
-        foreach (var texture in runtimeFont.atlasTextures)
-            if (texture != null) Destroy(texture);
-        Destroy(runtimeFont.material);
-        Destroy(runtimeFont);
     }
 }

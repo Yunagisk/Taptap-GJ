@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: "\u706B\u628A"
   weaponId: torch
-  attack: 0
+  damageComponents:
+  - damageType: 3
+    damage: 10
   attackCount: 1
-  damageType: 0
-  skill: {fileID: 0}
+  skill: {fileID: 11400000, guid: b2e582011b5d4693ad243b615d4df565, type: 2}
   price: 4

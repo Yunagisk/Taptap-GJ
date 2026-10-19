@@ -49,9 +49,9 @@ public class GameFlowController : MonoBehaviour
         Set(loadingOverlay, false);
         if (isMainMenu)
         {
-            if (font != null && font.sourceFontFile != null)
+            if (font != null)
             {
-                runtimeFont = TMP_FontAsset.CreateFontAsset(font.sourceFontFile);
+                runtimeFont = SharedUIFont.Get(font);
                 foreach (var text in canvas.GetComponentsInChildren<TMP_Text>(true)) text.font = runtimeFont;
             }
             Set(mainPage, true);
@@ -297,12 +297,4 @@ public class GameFlowController : MonoBehaviour
         if (obj != null) obj.SetActive(visible);
     }
 
-    void OnDestroy()
-    {
-        if (runtimeFont == null) return;
-        foreach (var texture in runtimeFont.atlasTextures)
-            if (texture != null) Destroy(texture);
-        Destroy(runtimeFont.material);
-        Destroy(runtimeFont);
-    }
 }

@@ -1,0 +1,327 @@
+{
+  "schemaVersion": 1,
+  "name": "OneHandThrustContinuous",
+  "duration": 0.75,
+  "rootMotion": false,
+  "canvas": {
+    "width": 2048,
+    "height": 2048
+  },
+  "pixelsPerUnit": 100,
+  "bodyPivotUnity": {
+    "x": 0.5078125,
+    "y": 0.140625
+  },
+  "weapon": {
+    "file": "WeaponSword.png",
+    "pivotPixelsTopLeft": {
+      "x": 1073,
+      "y": 1505
+    }
+  },
+  "interpolation": "continuous body/arm rig; independent weapon follows the palm grip; pose keys retained for legacy fallback",
+  "hitEvents": [
+    {
+      "time": 0.26,
+      "id": "primary",
+      "damageSegments": 1
+    }
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "time": 0.0,
+      "duration": 0.057778,
+      "stage": "ready",
+      "body": "Body_00.png",
+      "sourceSheet": "sheet",
+      "sourceCell": 0,
+      "handPixelsTopLeft": {
+        "x": 997,
+        "y": 1033
+      },
+      "weaponPositionUnity": {
+        "x": -0.43,
+        "y": 7.27
+      },
+      "weaponRotationZ": -18,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        266.0,
+        351
+      ],
+      "sourceScale": 3.8
+    },
+    {
+      "frame": 1,
+      "time": 0.057778,
+      "duration": 0.057778,
+      "stage": "anticipation",
+      "body": "Body_01.png",
+      "sourceSheet": "fix",
+      "sourceCell": 0,
+      "handPixelsTopLeft": {
+        "x": 876.2,
+        "y": 1055.0
+      },
+      "weaponPositionUnity": {
+        "x": -1.638,
+        "y": 7.05
+      },
+      "weaponRotationZ": -60,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        574.0,
+        681
+      ],
+      "sourceScale": 1.9
+    },
+    {
+      "frame": 2,
+      "time": 0.115556,
+      "duration": 0.046222,
+      "stage": "anticipation_deep",
+      "body": "Body_02.png",
+      "sourceSheet": "fix",
+      "sourceCell": 1,
+      "handPixelsTopLeft": {
+        "x": 997.0,
+        "y": 1119.6
+      },
+      "weaponPositionUnity": {
+        "x": -0.43,
+        "y": 6.404
+      },
+      "weaponRotationZ": -78,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        572.5,
+        681
+      ],
+      "sourceScale": 1.9
+    },
+    {
+      "frame": 3,
+      "time": 0.161778,
+      "duration": 0.040444,
+      "stage": "release",
+      "body": "Body_03.png",
+      "sourceSheet": "sheet",
+      "sourceCell": 4,
+      "handPixelsTopLeft": {
+        "x": 1165.0,
+        "y": 1015.0
+      },
+      "weaponPositionUnity": {
+        "x": 1.25,
+        "y": 7.45
+      },
+      "weaponRotationZ": -90,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        272.0,
+        341
+      ],
+      "sourceScale": 3.8
+    },
+    {
+      "frame": 4,
+      "time": 0.202222,
+      "duration": 0.057778,
+      "stage": "acceleration",
+      "body": "Body_04.png",
+      "sourceSheet": "sheet",
+      "sourceCell": 3,
+      "handPixelsTopLeft": {
+        "x": 1167.2,
+        "y": 1034.0
+      },
+      "weaponPositionUnity": {
+        "x": 1.272,
+        "y": 7.26
+      },
+      "weaponRotationZ": -90,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        270.5,
+        351
+      ],
+      "sourceScale": 3.8
+    },
+    {
+      "frame": 5,
+      "time": 0.26,
+      "duration": 0.053455,
+      "stage": "impact",
+      "body": "Body_05.png",
+      "sourceSheet": "sheet",
+      "sourceCell": 5,
+      "handPixelsTopLeft": {
+        "x": 1338.2,
+        "y": 965.6
+      },
+      "weaponPositionUnity": {
+        "x": 2.982,
+        "y": 7.944
+      },
+      "weaponRotationZ": -90,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        270.5,
+        341
+      ],
+      "sourceScale": 3.8
+    },
+    {
+      "frame": 6,
+      "time": 0.313455,
+      "duration": 0.080181,
+      "stage": "follow_through",
+      "body": "Body_06.png",
+      "sourceSheet": "sheet",
+      "sourceCell": 6,
+      "handPixelsTopLeft": {
+        "x": 1312.0,
+        "y": 958.0
+      },
+      "weaponPositionUnity": {
+        "x": 2.72,
+        "y": 8.02
+      },
+      "weaponRotationZ": -90,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        268.5,
+        341
+      ],
+      "sourceScale": 3.8
+    },
+    {
+      "frame": 7,
+      "time": 0.393636,
+      "duration": 0.071273,
+      "stage": "recoil",
+      "body": "Body_07.png",
+      "sourceSheet": "sheet",
+      "sourceCell": 7,
+      "handPixelsTopLeft": {
+        "x": 1182.8,
+        "y": 981.0
+      },
+      "weaponPositionUnity": {
+        "x": 1.428,
+        "y": 7.79
+      },
+      "weaponRotationZ": -75,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        268.5,
+        340
+      ],
+      "sourceScale": 3.8
+    },
+    {
+      "frame": 8,
+      "time": 0.464909,
+      "duration": 0.080182,
+      "stage": "recover",
+      "body": "Body_08.png",
+      "sourceSheet": "sheet",
+      "sourceCell": 8,
+      "handPixelsTopLeft": {
+        "x": 956.6,
+        "y": 1053.2
+      },
+      "weaponPositionUnity": {
+        "x": -0.834,
+        "y": 7.068
+      },
+      "weaponRotationZ": -55,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        269.0,
+        340
+      ],
+      "sourceScale": 3.8
+    },
+    {
+      "frame": 9,
+      "time": 0.545091,
+      "duration": 0.089091,
+      "stage": "recover",
+      "body": "Body_09.png",
+      "sourceSheet": "fix",
+      "sourceCell": 2,
+      "handPixelsTopLeft": {
+        "x": 988.4,
+        "y": 1017.0
+      },
+      "weaponPositionUnity": {
+        "x": -0.516,
+        "y": 7.43
+      },
+      "weaponRotationZ": -45,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        563.0,
+        681
+      ],
+      "sourceScale": 1.9
+    },
+    {
+      "frame": 10,
+      "time": 0.634182,
+      "duration": 0.062363,
+      "stage": "settle",
+      "body": "Body_10.png",
+      "sourceSheet": "sheet",
+      "sourceCell": 10,
+      "handPixelsTopLeft": {
+        "x": 943.0,
+        "y": 1030.4
+      },
+      "weaponPositionUnity": {
+        "x": -0.97,
+        "y": 7.296
+      },
+      "weaponRotationZ": -40,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        270.5,
+        340
+      ],
+      "sourceScale": 3.8
+    },
+    {
+      "frame": 11,
+      "time": 0.696545,
+      "duration": 0.053455,
+      "stage": "ready",
+      "body": "Body_11.png",
+      "sourceSheet": "sheet",
+      "sourceCell": 0,
+      "handPixelsTopLeft": {
+        "x": 997,
+        "y": 1033
+      },
+      "weaponPositionUnity": {
+        "x": -0.43,
+        "y": 7.27
+      },
+      "weaponRotationZ": -18,
+      "weaponScale": 0.55,
+      "sourceFoot": [
+        266.0,
+        351
+      ],
+      "sourceScale": 3.8
+    }
+  ],
+  "notes": [
+    "Stationary 0.75-second sword thrust. Primary damage is applied once at 0.26 s in PlayerAttackAction.",
+    "Continuous rig: anticipation 0.00-0.16, accelerating release 0.16-0.26, impact hold 0.26-0.31, recovery through 0.64, cloth settles by 0.75.",
+    "The grip is inside the closed palm (997,1033). The authored palm axis is 72 degrees in top-left canvas coordinates; fist rotation aligns it with the hilt. Ready weapon angle is 72 degrees above the horizon.",
+    "Character and weapon remain separate. The fist occludes the handle. Actor root and feet stay stationary.",
+    "Legacy 12-body-pose fallback keys are retimed to the same hit and duration. Production uses the continuous rig drawing."
+  ]
+}

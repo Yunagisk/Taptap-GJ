@@ -7,6 +7,7 @@ public class ItemStack
 {
     public string itemId;
     public int count;
+    public ItemStack() { }
     public ItemStack(string id, int n)
     {
         itemId = id;
@@ -24,6 +25,8 @@ public class PlayerState
     public int maxResolve = 3;               // 决心上限
     public int lanternCharges = 2;           // 提灯次数
     public int maxLanternCharges = 2;        // 提灯上限
+    public float healingMultiplier = 1f;
+    public List<StatusSnapshot> ordinaryStatuses = new List<StatusSnapshot>();
     public string currentWeaponId = "sword"; // 当前武器ID
     public int nextDirectHitReductionPercent;
     public int nextAttackBonusPercent;
@@ -47,6 +50,8 @@ public class ShopState
 {
     public bool stocked;
     public List<string> availableWeaponIds = new List<string>();
+    public int itemStockDay = -1;
+    public List<ItemStack> itemStock = new List<ItemStack>();
 }
 
 //世界状态

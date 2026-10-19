@@ -39,6 +39,14 @@ public class PlayerAttackAction : IBattleAction
         float damageMultiplier = 1f + bonusPercent / 100f;
         if (runPlayer != null && bonusPercent > 0) runPlayer.nextAttackBonusPercent = 0;
 
+        bool AttackerAlive() => player != null && !player.IsDead;
+        bool TargetAlive() => target != null && !target.IsDead;
+        void ApplyHit()
+        {
+            if (!AttackerAlive() || !TargetAlive()) return;
+            DamageSystem.DealDamage(new PlayerAttackInfo(player, target, components, damageMultiplier));
+        }
+
         for (int i = 0; i < attackCount; i++)
         {
             if (player == null || player.IsDead)
@@ -47,18 +55,7 @@ public class PlayerAttackAction : IBattleAction
             if (target == null || target.IsDead)
                 break;
 
-            PlayerAttackInfo info = new PlayerAttackInfo(
-                player,
-                target,
-                components,
-                damageMultiplier);
-
-            DamageSystem.DealDamage(info);
-
-            if (target == null || target.IsDead)
-                break;
-
-            yield return new WaitForSeconds(0.3f);
+            yield return PlayerAttackPlayback.Play(player, weapon, target, TargetAlive, ApplyHit);
         }
 
         if (player != null && !player.IsDead)
@@ -68,4 +65,3 @@ public class PlayerAttackAction : IBattleAction
     }
 
 }
-                                                

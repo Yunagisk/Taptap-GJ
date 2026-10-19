@@ -12,6 +12,13 @@ public class EnemyTargetSelector : MonoBehaviour
     [SerializeField] private GameObject targetIndicator;
 
     private bool isCanSelected = true;
+    bool externalIndicator;
+
+    public void UseExternalIndicator()
+    {
+        externalIndicator = true;
+        if (targetIndicator != null) targetIndicator.SetActive(false);
+    }
 
 
     private void OnEnable()
@@ -43,12 +50,14 @@ public class EnemyTargetSelector : MonoBehaviour
 
         if (targetIndicator != null)
         {
-            targetIndicator.SetActive(isCanSelected);
+            targetIndicator.SetActive(isCanSelected && !externalIndicator);
         }
     }
 
     private void OnMouseDown()
     {
+        if (UnityEngine.EventSystems.EventSystem.current != null &&
+            UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
         if (!isCanSelected)
         {
             return;

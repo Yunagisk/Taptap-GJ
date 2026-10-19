@@ -119,6 +119,7 @@ public sealed class InventoryParchmentView : MonoBehaviour
         Vector2 size = sheet.rectTransform.rect.size;
         float margin = Mathf.Min(size.x, size.y) * .075f;
         content.localScale = Vector3.one * Mathf.Max(.01f,
-            Mathf.Min((size.x - margin * 2) / 960f, (size.y - margin * 2) / 640f));
+            Mathf.Min((size.x - margin * 2) / Mathf.Max(1, content.rect.width),
+                (size.y - margin * 2) / Mathf.Max(1, content.rect.height)));
     }
 }

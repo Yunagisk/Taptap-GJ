@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: "\u9570\u5200"
   weaponId: sickle
-  attack: 6
+  damageComponents:
+  - damageType: 1
+    damage: 6
   attackCount: 2
-  damageType: 1
-  skill: {fileID: 0}
+  skill: {fileID: 11400000, guid: 7bb730523f1a42d998c61df23e9ac584, type: 2}
   price: 8

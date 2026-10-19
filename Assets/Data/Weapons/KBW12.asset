@@ -14,8 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: "\u5929\u706B"
   weaponId: heaven_fire
-  attack: 0
+  damageComponents:
+  - damageType: 2
+    damage: 7
+  - damageType: 3
+    damage: 5
   attackCount: 1
-  damageType: 0
-  skill: {fileID: 0}
+  skill: {fileID: 11400000, guid: 6ced6751d1dc4c429293f8b7faa17451, type: 2}
   price: 12

@@ -14,6 +14,7 @@ public class EnemyAttackAction
 
         int attackCount = attackData.AttackCount;
         float hitInterval = attackData.HitInterval;
+        var animation = enemy.GetComponent<EnemySpriteAnimation>();
 
         Debug.Log($"{enemy.name} 使用 {attackData.AttackName}");
 
@@ -26,19 +27,27 @@ public class EnemyAttackAction
             if (enemy.IsDead || player.IsDead)
                 yield break;
 
-            EnemyAttackInfo info = attackData.CreateAttackInfo(enemy,player,i);
+            int hitIndex = i;
+            bool connected = false;
+            void ApplyHit()
+            {
+                if (enemy == null || player == null || enemy.IsDead || player.IsDead) return;
+                connected = true;
+                EnemyAttackInfo info = attackData.CreateAttackInfo(enemy,player,hitIndex);
+                int actualDamage = DamageSystem.DealDamage(info);
+                if (enemy != null && player != null && !enemy.IsDead && !player.IsDead)
+                    attackData.OnHit(enemy,player,hitIndex,actualDamage);
+            }
+            if (animation != null && animation.CanPlayAttack)
+                yield return animation.PlayAttack(player, () => enemy != null && !enemy.IsDead,
+                    () => player != null && !player.IsDead, ApplyHit);
+            else
+                ApplyHit();
 
-            int actualDamage = DamageSystem.DealDamage(info);
+            // A canceled wind-up must not apply the attack's status rider.
+            if (!connected) yield break;
 
-            // 当前只对仍然存活的双方执行命中后效果。
-            if (enemy == null || player == null)
-                yield break;
-
-            if (enemy.IsDead || player.IsDead)
-                yield break;
-
-            attackData.OnHit(enemy,player,i,actualDamage);  //目前 OnHit() 按每次命中触发。以后若某种效果需要“整次招式只触发一次”，应放在循环结束后的独立处理位置。
-
+            // 命中后等待动画恢复，再决定是否继续下一段。
             if (enemy == null || player == null)
                 yield break;
 
