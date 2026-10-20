@@ -14,6 +14,12 @@ public class WorldMapController : MonoBehaviour
     public MapSceneTransition entryTransitionPrefab;
     public VillageEntryConfirmationUI villageEntryConfirmation;
     public MapWildernessEventUI wildernessEventUI;
+    public MapCampUI campUIPrefab;
+    MapCampUI campUI;
+    GameState campRun;
+    string campRequestId;
+    public MapCampUI CampUI => campUI;
+    public bool IsCampOpen => campUI != null && campUI.IsOpen;
     public WildernessEventCatalog WildernessCatalog { get; private set; }
     public bool IsWildernessEventOpen => wildernessEventUI != null && wildernessEventUI.IsOpen;
     GameState wildernessRun;
@@ -22,6 +28,12 @@ public class WorldMapController : MonoBehaviour
     string pendingVillageNodeId;
     string pendingVillageOriginId;
     GameState pendingVillageRun;
+    MapTravelPlan pendingTravel;
+    GameState pendingTravelRun;
+    MapFastTravelUI fastTravelUI;
+    public MapTravelPlan PendingTravel => pendingTravel;
+    public MapFastTravelUI FastTravelUI => fastTravelUI;
+    public bool IsFastTravelConfirmationOpen => pendingTravel != null;
 
     public bool IsVillageEntryConfirmationOpen => !string.IsNullOrEmpty(pendingVillageNodeId);
 
@@ -44,6 +56,15 @@ public class WorldMapController : MonoBehaviour
     public string Notice { get; private set; }
     public bool IsEnteringNode { get; private set; }
     public bool IsWaitingToEnter => IsEnteringNode && !entryDispatched;
+    public GuideMapController Guide { get; private set; }
+    public bool GuideAllowsNode(string nodeId) => VillageIntroRules.CanMoveTo(GameRoot.I != null ? GameRoot.I.state : null,
+        Progression != null ? Progression.Layout : null, nodeId) && (Guide == null || !Guide.IsOpen);
+    public void RefreshGuide() { StateChanged?.Invoke(); }
+    public void EnterPreparedGuideBattle(MapNodeRequest request)
+    {
+        if (request != null && Progression?.GetPendingRequest()?.requestId == request.requestId
+            && VillageIntroRules.IsTutorialBattle(GameRoot.I.state, request.nodeId)) EnterBattle(request);
+    }
 
     void Awake()
     {
@@ -64,8 +85,9 @@ public class WorldMapController : MonoBehaviour
 
     void Start()
     {
+        Guide = GuideMapController.Attach(this);
         var pending = Progression?.GetPendingRequest();
-        if (pending != null && (pending.kind == MapNodeKind.Battle || pending.kind == MapNodeKind.Event))
+        if (pending != null && (pending.kind == MapNodeKind.Battle || pending.kind == MapNodeKind.Event || pending.kind == MapNodeKind.Camp))
             BeginEntry(pending);
     }
 
@@ -101,7 +123,21 @@ public class WorldMapController : MonoBehaviour
 
     void MoveToNode(string nodeId, bool villageConfirmed)
     {
-        if (IsChangingScene || Progression == null || IsVillageEntryConfirmationOpen || IsWildernessEventOpen) return;
+        if (!isActiveAndEnabled || IsChangingScene || Progression == null || IsVillageEntryConfirmationOpen || IsWildernessEventOpen || IsCampOpen
+            || IsFastTravelConfirmationOpen) return;
+        var mapView = GetComponent<WorldMapSceneView>();
+        if (mapView != null && mapView.IsRevealing) return;
+        if (!GuideAllowsNode(nodeId))
+        {
+            Notice = MainStoryRules.GoalText(GameRoot.I.state);
+            StateChanged?.Invoke();
+            return;
+        }
+        if (Progression.TryPlanFastTravel(nodeId, out var travel))
+        {
+            RequestFastTravel(travel);
+            return;
+        }
         if (entryTransitionPrefab == null)
         {
             Notice = "节点进入转场尚未配置。";
@@ -110,6 +146,13 @@ public class WorldMapController : MonoBehaviour
             return;
         }
         var destination = Progression.GetNode(nodeId);
+        if (destination != null && destination.kind == MapNodeKind.Camp
+            && !Progression.State.clearedNodes.Contains(nodeId) && !EnsureCampUI())
+        {
+            Notice = "火堆休息界面尚未就绪。";
+            StateChanged?.Invoke();
+            return;
+        }
         if (destination != null && destination.kind == MapNodeKind.Event
             && !Progression.State.clearedNodes.Contains(nodeId)
             && (!HasWildernessContext() || wildernessEventUI == null || !wildernessEventUI.CanShow()))
@@ -168,6 +211,62 @@ public class WorldMapController : MonoBehaviour
         BeginEntry(request, node.kind == MapNodeKind.Village);
     }
 
+    void RequestFastTravel(MapTravelPlan plan)
+    {
+        var run = GameRoot.I != null ? GameRoot.I.state : null;
+        var view = GetComponent<WorldMapSceneView>();
+        if (run == null || run.player.hp <= 0 || run.map != Progression.State || run.world != Progression.World
+            || view == null || view.canvas == null || view.viewport == null) return;
+        if (fastTravelUI == null) fastTravelUI = MapFastTravelUI.Create(this, view);
+        pendingTravel = plan;
+        pendingTravelRun = run;
+        if (fastTravelUI.Show(plan)) { StateChanged?.Invoke(); return; }
+        ClearFastTravel(true);
+        Notice = "暂时无法预览这条路线。";
+        StateChanged?.Invoke();
+    }
+
+    public void ConfirmFastTravel()
+    {
+        if (pendingTravel == null || IsChangingScene) return;
+        var quote = pendingTravel;
+        var run = GameRoot.I != null ? GameRoot.I.state : null;
+        bool valid = isActiveAndEnabled && fastTravelUI != null && fastTravelUI.IsOpen
+            && run != null && run == pendingTravelRun && run.player.hp > 0
+            && run.map == Progression.State && run.world == Progression.World
+            && !IsVillageEntryConfirmationOpen && !IsWildernessEventOpen && !IsCampOpen;
+        // Clear first so reentrant clicks and state-change callbacks cannot pay twice.
+        pendingTravel = null;
+        pendingTravelRun = null;
+        if (!valid || !Progression.TryFastTravel(quote))
+        {
+            ClearFastTravel(true);
+            Notice = "当前位置或路线已变化，请重新选择目的地。";
+            StateChanged?.Invoke();
+            return;
+        }
+        ClearFastTravel(false);
+        Notice = "已抵达" + Progression.GetNode(quote.DestinationId).displayName
+            + " · 耗时 " + quote.TimeCost + " 单位 · " + WorldResourceRules.TimeLabel(Progression.World);
+        if (Progression.LastSpawnedBossId != null)
+            Notice += " · " + Progression.GetNode(Progression.LastSpawnedBossId).displayName + "已出现";
+        StateChanged?.Invoke();
+    }
+
+    public void CancelFastTravel()
+    {
+        if (pendingTravel == null) return;
+        ClearFastTravel(true);
+        if (isActiveAndEnabled) StateChanged?.Invoke();
+    }
+
+    void ClearFastTravel(bool restoreView)
+    {
+        pendingTravel = null;
+        pendingTravelRun = null;
+        if (fastTravelUI != null) fastTravelUI.Hide(restoreView);
+    }
+
 
     void BeginEntry(MapNodeRequest request, bool village = false)
     {
@@ -207,12 +306,49 @@ public class WorldMapController : MonoBehaviour
         NodeEntered?.Invoke(request);
         switch (request.kind)
         {
-            case MapNodeKind.Battle: onBattleEntered.Invoke(request); return EnterBattle(request);
+            case MapNodeKind.Battle:
+                if (Guide != null && Guide.PresentEncounter(request)) return null;
+                onBattleEntered.Invoke(request); return EnterBattle(request);
             case MapNodeKind.Event: onEventEntered.Invoke(request); OpenWildernessEvent(request); break;
-            case MapNodeKind.Camp: onCampEntered.Invoke(request); break;
+            case MapNodeKind.Camp: onCampEntered.Invoke(request); OpenCamp(request); break;
             case MapNodeKind.Boss: onBossEntered.Invoke(request); break;
         }
         return null;
+    }
+
+    bool EnsureCampUI()
+    {
+        if (campUI != null) return campUI.CanShow();
+        if (campUIPrefab == null) return false;
+        var view = GetComponent<WorldMapSceneView>();
+        var canvas = view != null && view.canvas != null ? view.canvas : GetComponentInParent<Canvas>(true);
+        if (canvas == null || !canvas.isActiveAndEnabled) return false;
+        campUI = Instantiate(campUIPrefab, canvas.transform, false);
+        campUI.name = "MapCampPanel";
+        campUI.Bind(this);
+        return campUI.CanShow();
+    }
+
+    void OpenCamp(MapNodeRequest request)
+    {
+        var run = GameRoot.I != null ? GameRoot.I.state : null;
+        if (request == null || request.kind != MapNodeKind.Camp || run == null
+            || run.map != Progression.State || run.world != Progression.World
+            || Progression.GetPendingRequest()?.requestId != request.requestId || !EnsureCampUI()) return;
+        campRun = run;
+        campRequestId = request.requestId;
+        campUI.Show();
+    }
+
+    public void RestAtCamp()
+    {
+        var run = GameRoot.I != null ? GameRoot.I.state : null;
+        var pending = Progression?.GetPendingRequest();
+        if (!isActiveAndEnabled || IsChangingScene || !IsCampOpen || !campUI.CanRest || run == null || run != campRun
+            || run.map != Progression.State || run.world != Progression.World || run.player.hp <= 0
+            || pending == null || pending.kind != MapNodeKind.Camp || pending.requestId != campRequestId
+            || pending.nodeId != Progression.State.currentNodeId) return;
+        CompleteNode(campRequestId, true);
     }
 
     void InitializeWilderness()
@@ -373,14 +509,27 @@ public class WorldMapController : MonoBehaviour
 
     void OnDisable()
     {
+        CancelFastTravel();
         CancelVillageEntry();
+        if (campUI != null) campUI.Hide();
+        campRun = null;
+        campRequestId = null;
+    }
+
+    void OnEnable()
+    {
+        var pending = Progression?.GetPendingRequest();
+        if (pending != null && pending.kind == MapNodeKind.Camp) BeginEntry(pending);
     }
 
     // External battle/event screens return the requestId they received on entry.
-    public void CompleteNode(string requestId)
+    public void CompleteNode(string requestId) => CompleteNode(requestId, false);
+
+    void CompleteNode(string requestId, bool restingAtCamp)
     {
         if (Progression == null || IsWaitingToEnter) return;
         var completed = Progression.GetPendingRequest();
+        if (completed != null && completed.kind == MapNodeKind.Camp && !restingAtCamp) return;
         var before = MapRevealTransition.Capture(Progression);
         if (!Progression.TryCompleteNode(requestId)) return;
         MainStoryRules.OnNodeCompleted(GameRoot.I.state, completed);
@@ -390,6 +539,9 @@ public class WorldMapController : MonoBehaviour
         {
             int recovered = WorldResourceRules.RecoverAtCamp(GameRoot.I.state.player);
             Notice += recovered > 0 ? " · 营地休息恢复 " + recovered + " 点生命" : " · 生命已满";
+            campRun = null;
+            campRequestId = null;
+            if (campUI != null) campUI.Hide();
         }
         StateChanged?.Invoke();
         if (Progression.IsComplete) onMapCompleted.Invoke();

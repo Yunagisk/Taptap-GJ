@@ -32,6 +32,7 @@ public static class MapSceneBuilder
         if (!AssetDatabase.CopyAsset("Assets/Scenes/SampleScene.unity", ScenePath))
             throw new System.InvalidOperationException("Could not copy SampleScene.");
         var scene = EditorSceneManager.OpenScene(ScenePath);
+        if (Camera.main != null) Camera.main.backgroundColor = WorldMapViewport.PaperColor;
         var canvas = Object.FindObjectOfType<Canvas>();
         var allRects = canvas.GetComponentsInChildren<RectTransform>(true);
         RectTransform Find(string name) => allRects.First(rect => rect.name == name);
@@ -92,6 +93,13 @@ public static class MapSceneBuilder
                 : definition.kind == MapNodeKind.Boss ? new Vector2(112, 64)
                 : ((RectTransform)nodePrefab.transform).sizeDelta;
             Center((RectTransform)obj.transform, new Vector2(definition.x, definition.y), size);
+            if (layout.regions.Exists(region => region.bossNodeId == definition.id && region.bossKey == "sloth"))
+            {
+                ((RectTransform)obj.transform).sizeDelta = Vector2.one * (128 * Mathf.Sqrt(3));
+                node.button.image.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprite/UI/MapArt2K/SlothBossNode.png");
+                node.button.image.type = UnityEngine.UI.Image.Type.Simple;
+                node.button.image.preserveAspect = true;
+            }
             nodeObjects.Add(definition.id, node);
         }
         foreach (var definition in layout.nodes)
@@ -123,10 +131,9 @@ public static class MapSceneBuilder
         view.timeText = Configure(time.GetComponent<TMP_Text>(), new Vector2(-500, 480), new Vector2(310, 45));
         TopLeft(hp, new Vector2(35, -60));
         TopLeft(time, new Vector2(280, -60));
-        view.sinText = Text("Txt_Sin", hud, view.font, "罪恶 40 / 100", new Vector2(-100, 480), new Vector2(300, 45));
-        view.bossCountText = Text("Txt_BossCount", hud, view.font, "原罪 0 / 3", new Vector2(220, 480), new Vector2(220, 45));
-        view.noticeText = Configure(Find("Txt_Stage").GetComponent<TMP_Text>(), new Vector2(0, 420), new Vector2(400, 45));
-        view.noticeText.text = "懒惰已出现";
+        view.sinText = view.bossCountText = view.noticeText = null;
+        var stage = allRects.FirstOrDefault(rect => rect.name == "Txt_Stage");
+        if (stage != null) Object.DestroyImmediate(stage.gameObject);
         Center(Find("Btn_Inventory"), new Vector2(825, 480), new Vector2(130, 55));
         TopRight(Find("Btn_Inventory"), new Vector2(-35, -60));
 
@@ -149,15 +156,15 @@ public static class MapSceneBuilder
         outline.effectColor = new Color32(90, 96, 86, 255);
         outline.effectDistance = new Vector2(2, -2);
         view.nodePanel = panel.gameObject;
-        view.nodeTitle = Text("NodeTitle", panel.transform, view.font, "节点", new Vector2(0, 90), new Vector2(300, 45));
+        view.nodeTitle = Text("NodeTitle", panel.transform, view.font, "探索", new Vector2(0, 90), new Vector2(300, 45));
         view.nodeTitle.fontSize = 24;
-        view.nodeDescription = Text("NodeDescription", panel.transform, view.font, "处理中", new Vector2(0, 20), new Vector2(300, 85));
+        view.nodeDescription = Text("NodeDescription", panel.transform, view.font, "", new Vector2(0, 20), new Vector2(300, 85));
         var action = Image("CompleteNode", panel.transform, new Color32(54, 86, 66, 255));
         Center(action.rectTransform, new Vector2(0, -90), new Vector2(290, 55));
         action.raycastTarget = true;
         view.completeButton = action.gameObject.AddComponent<Button>();
         view.completeButton.targetGraphic = action;
-        var actionLabel = Text("Label", action.transform, view.font, "完成节点", Vector2.zero, new Vector2(290, 55));
+        var actionLabel = Text("Label", action.transform, view.font, "继续探索", Vector2.zero, new Vector2(290, 55));
         actionLabel.alignment = TextAlignmentOptions.Center;
         actionLabel.color = Color.white;
         panel.gameObject.SetActive(false);

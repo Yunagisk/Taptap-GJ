@@ -14,6 +14,14 @@ public sealed class MapTimeDialView : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetSession() { lastWorld = null; lastVisibleTime = 0; }
 
+    // A village blackout can present the same dial before the map becomes visible again.
+    public static void RememberPresentedTime(WorldState presentedWorld)
+    {
+        if (presentedWorld == null) return;
+        lastWorld = presentedWorld;
+        lastVisibleTime = Math.Max(0, presentedWorld.time);
+    }
+
     void OnEnable() => world = null;
 
     void Update()

@@ -116,6 +116,7 @@ MonoBehaviour:
   deathAshMaterial: {{fileID: 2100000, guid: {ash_guid}, type: 2}}
   deathAshSeconds: 1
   attackContactFrame: {m['hit']}
+  attackLungeDistance: {0.16 if m['profile'] == 1 else 0.06}
   attackContactPoint: {{x: 0, y: 0}}
 ''', encoding='utf-8')
     m['set_guid'] = meta(asset, 'NativeFormatImporter')

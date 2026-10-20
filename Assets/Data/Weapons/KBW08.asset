@@ -16,7 +16,7 @@ MonoBehaviour:
   weaponId: flail
   damageComponents:
   - damageType: 2
-    damage: 5
+    damage: 4
   attackCount: 2
   skill: {fileID: 11400000, guid: 1239645ef6ee44da8a9342764250bb64, type: 2}
   price: 8

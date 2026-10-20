@@ -53,11 +53,11 @@ public sealed class BreakGauge
         if (Threshold <= 0)
             return "";
 
-        string text = "破防" + Progress + "/" + Threshold;
+        string text = "破防 " + Progress + "/" + Threshold;
         if (IsProtected(round))
-            text += " 保护";
+            text = "破防保护中";
         if (SkipPending)
-            text += " 跳过";
+            text += " · 跳过下次行动";
         return text;
     }
 }

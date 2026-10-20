@@ -16,7 +16,7 @@
     <Compile Include="../../Assets/Scripts/Battle/Data/SkillData.cs" />
     <Compile Include="../../Assets/Scripts/Battle/Damage/*.cs" />
     <Compile Include="../../Assets/Scripts/Battle/Status/*.cs" />
-    <Compile Include="../../Assets/Scripts/Battle/Flow/*.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Flow/*.cs" Exclude="../../Assets/Scripts/Battle/Flow/SmallMonsterEncounter*.cs;../../Assets/Scripts/Battle/Flow/GuideBattleController.cs" />
     <Compile Include="../../Assets/Scripts/Inventory/Weapons/WeaponData.cs" />
     <Compile Include="RuntimeStubs.cs" />
     <Compile Include="Program.cs" />

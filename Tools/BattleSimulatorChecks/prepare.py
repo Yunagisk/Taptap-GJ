@@ -16,9 +16,10 @@ for relative in ['Assets/Scripts', 'Assets/Sprite', 'Assets/Data', 'Assets/Anima
     shutil.copytree(source, target, dirs_exist_ok=True)
     if Path(str(source) + '.meta').exists():
         shutil.copy2(Path(str(source) + '.meta'), Path(str(target) + '.meta'))
-for scene in ['CombatScene', 'TestScene']:
+for scene in ['CombatScene', 'TestScene', 'BattleSimulator']:
     for suffix in ['.unity', '.unity.meta']:
         shutil.copy2(ROOT / f'Assets/Scenes/{scene}{suffix}', PROJECT / f'Assets/Scenes/{scene}{suffix}')
 shutil.copy2(ROOT / 'Tools/BattleSimulatorChecks/UnityValidation.cs', PROJECT / 'Assets/Editor/BattleSimulatorValidation.cs')
 shutil.copy2(ROOT / 'Tools/EnemyAnimationChecks/HurtAshValidation.cs', PROJECT / 'Assets/Editor/EnemyHurtAshValidation.cs')
+shutil.copy2(ROOT / 'Tools/EnemyAnimationChecks/AttackMotionValidation.cs', PROJECT / 'Assets/Editor/EnemyAttackMotionValidation.cs')
 print('Prepared simulator in the existing isolated Unity project.')

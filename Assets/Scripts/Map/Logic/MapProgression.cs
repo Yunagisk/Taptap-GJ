@@ -1,6 +1,25 @@
 using System;
 using System.Collections.Generic;
 
+// A read-only quote. Confirming requires the same origin, time and shortest route.
+public sealed class MapTravelPlan
+{
+    public IReadOnlyList<string> NodeIds { get; }
+    public string OriginId => NodeIds[0];
+    public string DestinationId => NodeIds[NodeIds.Count - 1];
+    public int TimeCost => NodeIds.Count - 1;
+    public int DepartureTime { get; }
+    public int ArrivalTime => DepartureTime + TimeCost;
+    internal MapTravelPlan(List<string> path, int departure)
+    { NodeIds = Array.AsReadOnly(path.ToArray()); DepartureTime = departure; }
+    public bool Matches(MapTravelPlan other)
+    {
+        if (other == null || DepartureTime != other.DepartureTime || NodeIds.Count != other.NodeIds.Count) return false;
+        for (int i = 0; i < NodeIds.Count; i++) if (NodeIds[i] != other.NodeIds[i]) return false;
+        return true;
+    }
+}
+
 // Owns progression data; views and external encounters cannot complete a stale visit.
 public sealed class MapProgression
 {
@@ -145,6 +164,63 @@ public sealed class MapProgression
             State.pendingNodeId = destinationId;
             State.pendingRequestId = State.randomSeed.ToString() + ":" + State.requestSequence + ":" + destinationId;
             request = GetPendingRequest();
+        }
+        return true;
+    }
+
+    public bool CanFastTravel(string destinationId) => TryPlanFastTravel(destinationId, out _);
+
+    public bool TryPlanFastTravel(string destinationId, out MapTravelPlan plan)
+    {
+        plan = null;
+        string origin = State.currentNodeId;
+        if (GetNode(origin) == null || origin == destinationId || !State.visitedNodes.Contains(origin)
+            || !string.IsNullOrEmpty(State.pendingRequestId) || !string.IsNullOrEmpty(State.pendingNodeId)
+            || !(State.clearedNodes.Contains(origin) || State.revivedAtCheckpoint)
+            || !CanTraverseKnownNode(destinationId)) return false;
+        // Every road costs one unit, so breadth-first search minimizes time.
+        // GetNeighbors also includes legitimate, already-repaired shortcuts.
+        var previous = new Dictionary<string, string> { { origin, null } };
+        var queue = new Queue<string>();
+        queue.Enqueue(origin);
+        while (queue.Count > 0 && !previous.ContainsKey(destinationId))
+        {
+            string current = queue.Dequeue();
+            foreach (string next in GetNeighbors(current))
+            {
+                if (previous.ContainsKey(next) || !CanTraverseKnownNode(next) || !IsRoadVisible(current, next)) continue;
+                previous.Add(next, current);
+                queue.Enqueue(next);
+            }
+        }
+        if (!previous.ContainsKey(destinationId)) return false;
+        var path = new List<string>();
+        for (string id = destinationId; id != null; id = previous[id]) path.Add(id);
+        path.Reverse();
+        if (World.time < 0 || (long)World.time + path.Count - 1 > int.MaxValue) return false;
+        plan = new MapTravelPlan(path, World.time);
+        return true;
+    }
+
+    bool CanTraverseKnownNode(string id) => GetNode(id) != null && IsVisible(id)
+        && State.visitedNodes.Contains(id) && State.clearedNodes.Contains(id);
+
+    public bool TryFastTravel(MapTravelPlan quote)
+    {
+        // Revalidate the entire quote before spending anything. In particular,
+        // stale confirmations cannot consume time or complete pending encounters.
+        if (quote == null || quote.OriginId != State.currentNodeId
+            || !TryPlanFastTravel(quote.DestinationId, out var current) || !quote.Matches(current)) return false;
+        LastSpawnedBossId = null;
+        State.revivedAtCheckpoint = false;
+        for (int i = 1; i < quote.NodeIds.Count; i++)
+        {
+            State.currentNodeId = quote.NodeIds[i];
+            if (State.wildernessEvents != null) State.wildernessEvents.currentNodeId = State.currentNodeId;
+            // Set location before advancing time, exactly as ordinary walking:
+            // dawn checkpoints record the node actually reached at that step.
+            string boss = WorldResourceRules.SpendTime(Layout, State, World, 1, false);
+            if (boss != null) LastSpawnedBossId = boss;
         }
         return true;
     }

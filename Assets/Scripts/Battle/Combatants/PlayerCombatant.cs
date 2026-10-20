@@ -13,6 +13,8 @@ public class PlayerCombatant : Combatant
 
     void Awake()
     {
+        if (GetComponent<PlayerDefenseEffects>() == null)
+            gameObject.AddComponent<PlayerDefenseEffects>();
         OnHpChanged += SyncRunHealth;
         OnDeterminationChanged += SyncRunDetermination;
         OnMarksChanged += SyncRunStatuses;
@@ -127,6 +129,7 @@ public class PlayerCombatant : Combatant
     private float defenseRate = 0.5f;
 
     public bool IsDefending { get; private set; }
+    public float DefenseDamageRate => defenseRate;
 
     public event Action<Combatant, bool> OnDefenseChanged;
 
@@ -158,7 +161,7 @@ public class PlayerCombatant : Combatant
 
     // ================= 决心系统 =================
     [Header("决心值")]
-    private const int StandaloneMaxDetermination = 4;
+    private const int StandaloneMaxDetermination = StatusRules.DefaultMaxResolve;
     private int maxDetermination = StandaloneMaxDetermination;
     [SerializeField] private int currentDetermination = 0;
 

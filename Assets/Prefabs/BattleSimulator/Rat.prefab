@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1021455918909742721}
   - component: {fileID: 8782490147297894011}
   - component: {fileID: 598877516824892851}
+  - component: {fileID: 9971001027}
   m_Layer: 0
   m_Name: Rat
   m_TagString: Untagged
@@ -172,13 +173,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e636f26f1d66244c80cec728813d3e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 120
+  maxHp: 36
   BattleRound: 1
   priority: 12
   attackDatas:
   - {fileID: 11400000, guid: af60a5f057d63a1489a07691f00c1c02, type: 2}
   isBoss: 0
   breakThreshold: 2
+  definition: {fileID: 11400000, guid: 75c4cfab18325155a59c39931d8b1aa8, type: 2}
 --- !u!114 &598877516824892851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,3 +197,20 @@ MonoBehaviour:
   appearance: {fileID: 714769972062502947}
   visualScale: {x: 1, y: 1, z: 1}
   visualOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &9971001027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7100736756440978092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f77f89370b0694f40af7c0ccd9049bcc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  damageRules:
+  - damageType: 0
+    damageReaction: 0
+  - damageType: 2
+    damageReaction: 0

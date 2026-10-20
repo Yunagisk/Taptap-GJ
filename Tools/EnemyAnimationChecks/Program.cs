@@ -43,6 +43,23 @@ static class Program
         }
         var invalid = new EnemyAttackAnimationClock(0, 0, 100);
         Check(invalid.At(-1).DeliverHit && invalid.Duration == 1f, "invalid metadata remains finite");
+        foreach (float hit in new[] { 9f / 18, 9f / 21, 12f / 27, 18f / 36 })
+        {
+            bool bounded = true, forward = true, back = true, gentle = true;
+            float previous = EnemyAttackMotion.Advance(0, hit);
+            for (int tick = 1; tick <= 300; tick++)
+            {
+                float t = tick / 300f, p = EnemyAttackMotion.Advance(t, hit);
+                bounded &= p >= -.00001f && p <= 1.00001f;
+                forward &= t > hit || p >= previous - .00001f;
+                back &= t <= hit + .004f || p <= previous + .00001f;
+                gentle &= Math.Abs(p - previous) < .03f;
+                previous = p;
+            }
+            Check(bounded && forward && back && gentle, "monster attack has one bounded, continuous advance and return");
+            Check(Math.Abs(EnemyAttackMotion.Advance(hit, hit) - 1) < .00001f
+                && EnemyAttackMotion.Advance(.96f, hit) == 0, "contact peaks once and settles before idle");
+        }
         bool startsUnchanged = true, movesDown = true, staysContinuous = true, endsStill = true, feetGrounded = true;
         for (int x = 0; x <= 10; x++) for (int y = 0; y <= 10; y++)
         {

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2022034368}
   - component: {fileID: 2022034367}
   - component: {fileID: 917520010}
+  - component: {fileID: 9971001027}
   m_Layer: 0
   m_Name: Wraith
   m_TagString: Untagged
@@ -33,11 +34,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e636f26f1d66244c80cec728813d3e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 50
+  maxHp: 44
   priority: 12
   attackDatas:
   - {fileID: 11400000, guid: af60a5f057d63a1489a07691f00c1c02, type: 2}
   isBoss: 0
+  definition: {fileID: 11400000, guid: 72178bbe80c95a35bb8c6511ca4c1e16, type: 2}
+  breakThreshold: 2
 --- !u!50 &2022034368
 Rigidbody2D:
   serializedVersion: 4
@@ -193,3 +196,20 @@ MonoBehaviour:
   appearance: {fileID: 2022034370}
   visualScale: {x: 1, y: 1, z: 1}
   visualOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &9971001027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2022034366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f77f89370b0694f40af7c0ccd9049bcc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  damageRules:
+  - damageType: 2
+    damageReaction: 2
+  - damageType: 3
+    damageReaction: 0

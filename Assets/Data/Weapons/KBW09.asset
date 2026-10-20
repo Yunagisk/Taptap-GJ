@@ -16,7 +16,7 @@ MonoBehaviour:
   weaponId: torch
   damageComponents:
   - damageType: 3
-    damage: 10
+    damage: 8
   attackCount: 1
   skill: {fileID: 11400000, guid: b2e582011b5d4693ad243b615d4df565, type: 2}
   price: 4

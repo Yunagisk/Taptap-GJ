@@ -34,8 +34,8 @@ public static class BattleHudTools
         Require(wheel.icons.Length == 4 && wheel.selectionFrames.Length == 4 && wheel.caption != null, "Wheel bindings are incomplete.");
         foreach (var weapon in WeaponTable.All)
             Require(wheel.weaponArt.Count(x => x.id == weapon.id && x.sprite != null) == 1, "Missing/duplicate wheel artwork: " + weapon.id);
-        Require(wheel.icons.All(x => x != null && x.preserveAspect && !x.raycastTarget), "Wheel icons must preserve aspect and not block drag.");
-        Require(wheel.GetComponent<Graphic>().raycastTarget, "Wheel drag surface missing.");
+        Require(wheel.icons.All(x => x != null && x.preserveAspect && !x.raycastTarget), "Wheel icons must preserve aspect and not block its arrow buttons.");
+        Require(!wheel.GetComponent<Graphic>().raycastTarget, "Wheel surface should not receive drag input.");
         Require(view.GetComponent<Canvas>().sortingOrder < 100, "HUD must remain below result overlay.");
         foreach (var label in asset.GetComponentsInChildren<TMP_Text>(true))
             Require(label.font != null && label.fontSharedMaterial != null, "Font/material missing on " + label.name);

@@ -84,7 +84,7 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 1600, y: 900}
+  m_ReferenceResolution: {x: 2133.3333, y: 1200}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -122,6 +122,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   playerPortrait: {fileID: 1022}
+  actorOutlineMaterial: {fileID: 2100000, guid: 454305dff8e14983b0aa4610616f9844, type: 2}
   playerHealth: {fileID: 1034}
   healthText: {fileID: 1038}
   statusText: {fileID: 1062}
@@ -231,8 +232,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.168627, g: 0.141176, b: 0.117647, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1010
@@ -298,8 +299,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1014
@@ -366,8 +367,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 0
   highlighted: 0
 --- !u!114 &1018
@@ -532,8 +533,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -656,8 +657,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.117647, g: 0.098039, b: 0.082353, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 1.8
   highlighted: 0
 --- !u!1 &1031
@@ -718,7 +719,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.22, b: 0.2, a: 1}
+  m_Color: {r: 0.466667, g: 0.309804, b: 0.223529, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -809,8 +810,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4209439478
-  m_fontColor: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -943,8 +944,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1065,8 +1066,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.93, g: 0.73, b: 0.21, a: 1}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.219608, g: 0.184314, b: 0.145098, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1047
@@ -1131,8 +1132,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.93, g: 0.73, b: 0.21, a: 1}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.219608, g: 0.184314, b: 0.145098, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1051
@@ -1197,8 +1198,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.219608, g: 0.184314, b: 0.145098, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1055
@@ -1263,8 +1264,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.219608, g: 0.184314, b: 0.145098, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1059
@@ -1341,8 +1342,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4287999676
+  m_fontColor: {r: 0.737255, g: 0.682353, b: 0.584314, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1471,8 +1472,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.168627, g: 0.141176, b: 0.117647, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 1
   highlighted: 0
 --- !u!1 &1067
@@ -1549,8 +1550,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1672,7 +1673,7 @@ MonoBehaviour:
   m_Maskable: 1
   shape: 3
   fill: {r: 0, g: 0, b: 0, a: 0}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1075
@@ -1738,8 +1739,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1079
@@ -1806,8 +1807,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 0
   highlighted: 0
 --- !u!114 &1083
@@ -1961,8 +1962,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1092
@@ -2029,8 +2030,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 0
   highlighted: 0
 --- !u!114 &1096
@@ -2184,8 +2185,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1105
@@ -2252,8 +2253,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 0
   highlighted: 0
 --- !u!114 &1109
@@ -2407,8 +2408,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1118
@@ -2475,8 +2476,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 0
   highlighted: 0
 --- !u!114 &1122
@@ -2630,8 +2631,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1131
@@ -2698,8 +2699,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 0
   highlighted: 0
 --- !u!114 &1135
@@ -2864,8 +2865,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4287999676
+  m_fontColor: {r: 0.737255, g: 0.682353, b: 0.584314, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3034,8 +3035,8 @@ MonoBehaviour:
   m_RaycastTarget: 1
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.168627, g: 0.141176, b: 0.117647, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!114 &1150
@@ -3170,8 +3171,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1155
@@ -3238,8 +3239,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.560784, g: 0.486275, b: 0.376471, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 0
   highlighted: 0
 --- !u!114 &1159
@@ -3404,8 +3405,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3528,8 +3529,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.117647, g: 0.098039, b: 0.082353, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 1.8
   highlighted: 0
 --- !u!1 &1172
@@ -3590,7 +3591,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23, g: 0.22, b: 0.2, a: 1}
+  m_Color: {r: 0.466667, g: 0.309804, b: 0.223529, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3681,8 +3682,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4209439478
-  m_fontColor: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3773,11 +3774,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1147}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -9, y: -15}
-  m_SizeDelta: {x: 105, y: 25}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 132, y: -82}
+  m_SizeDelta: {x: 92, y: 28}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &1182
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3806,7 +3807,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u5df2\u77e5\u5f31\u70b9"
+  m_text: "怪物弱点"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a473706d66b325b4ebe64f5afc020c5a, type: 2}
   m_sharedMaterial: {fileID: 3747263677742437001, guid: a473706d66b325b4ebe64f5afc020c5a, type: 2}
@@ -3815,8 +3816,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4287999676
+  m_fontColor: {r: 0.737255, g: 0.682353, b: 0.584314, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3907,11 +3908,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1147}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 53, y: -16}
-  m_SizeDelta: {x: 80, y: 28}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 230, y: -82}
+  m_SizeDelta: {x: 120, y: 28}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &1186
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3949,8 +3950,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4287999676
+  m_fontColor: {r: 0.737255, g: 0.682353, b: 0.584314, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -4044,8 +4045,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 184, y: -82}
-  m_SizeDelta: {x: 32, y: 32}
+  m_AnchoredPosition: {x: 240, y: -82}
+  m_SizeDelta: {x: 28, y: 28}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1190
 CanvasRenderer:
@@ -4072,8 +4073,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.647059, g: 0.572549, b: 0.447059, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 1
   highlighted: 0
 --- !u!1 &1192
@@ -4186,8 +4187,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 223, y: -82}
-  m_SizeDelta: {x: 32, y: 32}
+  m_AnchoredPosition: {x: 274, y: -82}
+  m_SizeDelta: {x: 28, y: 28}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1198
 CanvasRenderer:
@@ -4214,8 +4215,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.647059, g: 0.572549, b: 0.447059, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 1
   highlighted: 0
 --- !u!1 &1200
@@ -4328,8 +4329,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 262, y: -82}
-  m_SizeDelta: {x: 32, y: 32}
+  m_AnchoredPosition: {x: 308, y: -82}
+  m_SizeDelta: {x: 28, y: 28}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1206
 CanvasRenderer:
@@ -4356,8 +4357,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.647059, g: 0.572549, b: 0.447059, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 1
   highlighted: 0
 --- !u!1 &1208
@@ -4470,8 +4471,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 301, y: -82}
-  m_SizeDelta: {x: 32, y: 32}
+  m_AnchoredPosition: {x: 342, y: -82}
+  m_SizeDelta: {x: 28, y: 28}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1214
 CanvasRenderer:
@@ -4498,8 +4499,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.647059, g: 0.572549, b: 0.447059, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 1
   highlighted: 0
 --- !u!1 &1216
@@ -4651,8 +4652,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4287999676
+  m_fontColor: {r: 0.737255, g: 0.682353, b: 0.584314, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -4813,8 +4814,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.141176, g: 0.117647, b: 0.098039, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 1.5
   highlighted: 0
 --- !u!1 &1235
@@ -4891,8 +4892,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5013,8 +5014,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 4
-  fill: {r: 0.93, g: 0.73, b: 0.21, a: 1}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.882353, g: 0.698039, b: 0.254902, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1243
@@ -5091,8 +5092,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4209439478
-  m_fontColor: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5218,8 +5219,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.12549, g: 0.105882, b: 0.090196, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 1.7
   highlighted: 0
 --- !u!1 &1251
@@ -5286,8 +5287,8 @@ MonoBehaviour:
   m_RaycastTarget: 1
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.231373, g: 0.192157, b: 0.152941, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!114 &1255
@@ -5408,8 +5409,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5532,8 +5533,8 @@ MonoBehaviour:
   m_RaycastTarget: 1
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.231373, g: 0.192157, b: 0.152941, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!114 &1264
@@ -5654,8 +5655,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5778,8 +5779,8 @@ MonoBehaviour:
   m_RaycastTarget: 1
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.231373, g: 0.192157, b: 0.152941, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!114 &1273
@@ -5900,8 +5901,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -6024,8 +6025,8 @@ MonoBehaviour:
   m_RaycastTarget: 1
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.231373, g: 0.192157, b: 0.152941, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!114 &1282
@@ -6146,8 +6147,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -6277,11 +6278,11 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.164706, g: 0.137255, b: 0.113725, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 1
   highlighted: 0
 --- !u!114 &1335
@@ -6332,7 +6333,6 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: c23851f3f12d4ff49805c387aa9a8741, type: 3}
   - id: heaven_fire
     sprite: {fileID: 21300000, guid: eb8b4eda86cf45a3b7b4329cf4c1d86c, type: 3}
-  pixelsPerStep: 92
 --- !u!1 &1291
 GameObject:
   m_ObjectHideFlags: 0
@@ -6396,7 +6396,7 @@ MonoBehaviour:
   m_Maskable: 1
   shape: 2
   fill: {r: 0, g: 0, b: 0, a: 0}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 1.5
   highlighted: 0
 --- !u!1 &1295
@@ -6461,7 +6461,7 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 4
-  fill: {r: 0.93, g: 0.73, b: 0.21, a: 1}
+  fill: {r: 0.882353, g: 0.698039, b: 0.254902, a: 0.98}
   ink: {r: 0.93, g: 0.73, b: 0.21, a: 1}
   stroke: 1
   highlighted: 0
@@ -6527,8 +6527,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.98, g: 0.95, b: 0.78, a: 0.7}
-  ink: {r: 0.93, g: 0.73, b: 0.21, a: 1}
+  fill: {r: 0.6, g: 0.494118, b: 0.305882, a: 0.95}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1303
@@ -6668,8 +6668,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.98, g: 0.95, b: 0.78, a: 0.7}
-  ink: {r: 0.93, g: 0.73, b: 0.21, a: 1}
+  fill: {r: 0.6, g: 0.494118, b: 0.305882, a: 0.95}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1311
@@ -6809,8 +6809,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.98, g: 0.95, b: 0.78, a: 0.7}
-  ink: {r: 0.93, g: 0.73, b: 0.21, a: 1}
+  fill: {r: 0.6, g: 0.494118, b: 0.305882, a: 0.95}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1319
@@ -6950,8 +6950,8 @@ MonoBehaviour:
   m_RaycastTarget: 0
   m_Maskable: 1
   shape: 1
-  fill: {r: 0.98, g: 0.95, b: 0.78, a: 0.7}
-  ink: {r: 0.93, g: 0.73, b: 0.21, a: 1}
+  fill: {r: 0.6, g: 0.494118, b: 0.305882, a: 0.95}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1327
@@ -7103,8 +7103,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -7180,7 +7180,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1337
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7228,7 +7228,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u9009\u62e9\u884c\u52a8 \u00b7 \u6309\u4f4f\u8f6e\u76d8\u5de6\u53f3\u62d6\u52a8\uff0c\u677e\u624b\u5207\u6362\u6b66\u5668"
+  m_text: ""
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a473706d66b325b4ebe64f5afc020c5a, type: 2}
   m_sharedMaterial: {fileID: 3747263677742437001, guid: a473706d66b325b4ebe64f5afc020c5a, type: 2}
@@ -7237,8 +7237,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4209439478
-  m_fontColor: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -7330,10 +7330,10 @@ RectTransform:
   - {fileID: 1345}
   m_Father: {fileID: 1002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1600, y: 900}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1342
 CanvasRenderer:
@@ -7360,7 +7360,7 @@ MonoBehaviour:
   m_RaycastTarget: 1
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.02, g: 0.025, b: 0.04, a: 0.65}
+  fill: {r: 0.047059, g: 0.035294, b: 0.027451, a: 0.75}
   ink: {r: 0, g: 0, b: 0, a: 0}
   stroke: 0
   highlighted: 0
@@ -7429,8 +7429,8 @@ MonoBehaviour:
   m_RaycastTarget: 1
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.168627, g: 0.141176, b: 0.117647, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!1 &1348
@@ -7507,8 +7507,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -7641,8 +7641,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -7765,8 +7765,8 @@ MonoBehaviour:
   m_RaycastTarget: 1
   m_Maskable: 1
   shape: 0
-  fill: {r: 0.965, g: 0.95, b: 0.9, a: 0.98}
-  ink: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+  fill: {r: 0.231373, g: 0.192157, b: 0.152941, a: 0.98}
+  ink: {r: 0.560784, g: 0.478431, b: 0.360784, a: 1}
   stroke: 2
   highlighted: 0
 --- !u!114 &1360
@@ -7887,8 +7887,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4290565859
+  m_fontColor: {r: 0.890196, g: 0.839216, b: 0.737255, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -8021,8 +8021,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279506712
-  m_fontColor: {r: 0.095, g: 0.09, b: 0.08, a: 1}
+    rgba: 4287999676
+  m_fontColor: {r: 0.737255, g: 0.682353, b: 0.584314, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

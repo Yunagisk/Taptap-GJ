@@ -2,6 +2,7 @@ using System;
 
 public static class StatusRules
 {
+    public const int DefaultMaxResolve = 3;
     public const int DefaultCap = 3;
     public const int ConfuseCap = 2;
 

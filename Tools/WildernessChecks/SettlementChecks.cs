@@ -28,8 +28,8 @@ internal static partial class Program
                     Check(resources.player.nextCampRecoveryBonusPercent == branch.Camp, label + " camp recovery effect");
                     Check(Save(node.rolls) == rollsBefore, label + " selecting never rerolls saved outcomes");
                     Check(level.history.Count == 1 && level.history[0] == result.message, label + " one durable receipt");
-                    if (branch.Reward != "") Check(result.message.Contains(branch.Reward) && result.message.Contains("文字"), label + " item text visible");
-                    if (branch.Hit != 0 || branch.Attack != 0) Check(result.message.Contains("15%") && result.message.Contains("文字"), label + " combat text visible");
+                    if (branch.Reward != "") Check(!result.message.Contains(branch.Reward), label + " ungranted item is not advertised");
+                    if (branch.Hit != 0 || branch.Attack != 0) Check(!result.message.Contains("15%"), label + " inactive combat bonus is not advertised");
                     Check(result.encounterPending == branch.Encounter && node.encounterPending == branch.Encounter,
                         label + " hidden battle only from stored branch");
                     string settled = Snapshot(level, resources);
@@ -37,7 +37,9 @@ internal static partial class Program
                         && Snapshot(level, resources) == settled, label + " double click has no effects");
                     if (branch.Encounter)
                     {
-                        Check(!string.IsNullOrEmpty(node.enemyId) && result.message.Contains("×1"), label + " exactly one fixed enemy");
+                        Check(!string.IsNullOrEmpty(node.enemyId)
+                            && result.message.Contains(catalog.enemyVariants.Find(enemy => enemy.id == node.enemyId).name),
+                            label + " encounter retains its fixed enemy");
                         WildernessEventRules.Leave(level);
                         Check(Snapshot(level, resources) == settled, label + " pending encounter cannot be dismissed");
                         var victoryLevel = Copy(level); var victoryResources = Copy(resources);

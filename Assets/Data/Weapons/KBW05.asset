@@ -16,7 +16,7 @@ MonoBehaviour:
   weaponId: axe
   damageComponents:
   - damageType: 1
-    damage: 14
+    damage: 11
   attackCount: 1
   skill: {fileID: 11400000, guid: 69bdc8e5b3074047b1be2f00074aaf84, type: 2}
   price: 4

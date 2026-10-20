@@ -32,6 +32,7 @@ public class WorldMapSceneView : MonoBehaviour
     [Range(0.1f, 1)] public float completionPortion = 0.9f;
     [Range(0, 0.4f)] public float roadRevealStartPortion = 0.12f;
     [Range(0.45f, 0.9f)] public float roadRevealPortion = 0.72f;
+    [Min(0)] public float bossCloseupHold = .65f;
 
     public bool IsRevealing { get; private set; }
 
@@ -48,6 +49,10 @@ public class WorldMapSceneView : MonoBehaviour
     bool waitingForRevealPaths;
     MapSceneNode completingNode;
     string framedNodeId;
+    enum BossShot { None, Approach, Reveal, Hold, Return }
+    BossShot bossShot;
+    MapSceneNode introducingBoss;
+    float bossShotStartedAt;
 
     sealed class RoadAnimation
     {
@@ -96,9 +101,37 @@ public class WorldMapSceneView : MonoBehaviour
                 if (entry.road != null && !entry.road.IsGeometryReady) return;
             // Route planning is done before the animation clock starts. Slow scene
             // initialization must not skip the beginning of the flowing reveal.
+            if (introducingBoss == null) FrameDiscovery();
+            if (introducingBoss != null)
+            {
+                if (viewport == null || !viewport.BeginBossCloseup(
+                    MapUITransform.Bounds((RectTransform)introducingBoss.transform, mapContent))) return;
+                bossShot = BossShot.Approach;
+                bossShotStartedAt = Time.unscaledTime;
+                GameRoot.I.mapBossIntroductions.MarkShown(controller.Progression.State, introducingBoss.nodeId);
+            }
             revealStartedAt = Time.unscaledTime;
             waitingForRevealPaths = false;
-            FrameDiscovery();
+        }
+        if (bossShot == BossShot.Approach)
+        {
+            if (Time.unscaledTime - bossShotStartedAt < WorldMapViewport.BossFocusDuration) return;
+            bossShot = BossShot.Reveal;
+            revealStartedAt = Time.unscaledTime;
+        }
+        if (bossShot == BossShot.Hold)
+        {
+            if (Time.unscaledTime - bossShotStartedAt < bossCloseupHold) return;
+            viewport.EndBossCloseup();
+            bossShot = BossShot.Return;
+            bossShotStartedAt = Time.unscaledTime;
+            return;
+        }
+        if (bossShot == BossShot.Return)
+        {
+            if (viewport.IsBossCloseup) return;
+            FinishReveal();
+            return;
         }
         float elapsed = Time.unscaledTime - revealStartedAt;
         float completionProgress = MapRevealMath.CompletionProgress(elapsed, revealDuration, completionPortion);
@@ -112,11 +145,21 @@ public class WorldMapSceneView : MonoBehaviour
         {
             if (entry.node == null || nodeProgress <= 0) continue;
             Vector3 direction = Vector3.right;
-            if (entry.arrival.road != null) entry.arrival.road.TryGetArrivalDirection(entry.node.nodeId, out direction);
+            if (entry.arrival != null && entry.arrival.road != null)
+                entry.arrival.road.TryGetArrivalDirection(entry.node.nodeId, out direction);
             entry.node.SetRevealProgress(nodeProgress, direction);
         }
         bool completionOnly = revealingRoads.Count == 0 && revealingNodes.Count == 0;
-        if (elapsed >= revealDuration || (completionOnly && completionProgress >= 1)) FinishReveal();
+        if (elapsed >= revealDuration || (completionOnly && completionProgress >= 1))
+        {
+            if (bossShot == BossShot.Reveal)
+            {
+                FinishRevealArtwork();
+                bossShot = BossShot.Hold;
+                bossShotStartedAt = Time.unscaledTime;
+            }
+            else FinishReveal();
+        }
     }
 
     void BeginReveal(MapRevealTransition transition)
@@ -132,7 +175,6 @@ public class WorldMapSceneView : MonoBehaviour
         {
             if (!nodeById.TryGetValue(id, out var node)) continue;
             var arrival = revealingRoads.Find(entry => entry.targetId == id);
-            if (arrival == null) continue;
             node.PrepareReveal();
             revealingNodes.Add(new NodeAnimation { node = node, arrival = arrival });
         }
@@ -142,7 +184,7 @@ public class WorldMapSceneView : MonoBehaviour
         waitingForRevealPaths = true;
     }
 
-    void FinishReveal()
+    void FinishRevealArtwork()
     {
         if (completingNode != null) completingNode.SetCompletionProgress(1);
         completingNode = null;
@@ -150,12 +192,37 @@ public class WorldMapSceneView : MonoBehaviour
             if (entry.road != null) entry.road.SetRevealProgress(1, entry.originId);
         foreach (var entry in revealingNodes)
             if (entry.node != null) entry.node.CompleteReveal();
-        if (nodes != null)
-            foreach (var node in nodes) if (node != null) node.SetRevealInputBlocked(false);
         revealingRoads.Clear();
         revealingNodes.Clear();
+    }
+
+    void FinishReveal()
+    {
+        FinishRevealArtwork();
+        if (viewport != null) viewport.EndBossCloseup(true);
+        introducingBoss = null;
+        bossShot = BossShot.None;
+        if (nodes != null)
+            foreach (var node in nodes) if (node != null) node.SetRevealInputBlocked(false);
         IsRevealing = false;
         waitingForRevealPaths = false;
+    }
+
+    void PrepareBossIntroduction(MapProgression map)
+    {
+        if (VillageIntroRules.IsRestricted(GameRoot.I.state)) return;
+        if (introducingBoss != null) return;
+        var definition = GameRoot.I.mapBossIntroductions.NextSloth(map);
+        if (definition == null || !nodeById.TryGetValue(definition.id, out var boss)) return;
+        introducingBoss = boss;
+        if (!revealingNodes.Exists(entry => entry.node == boss))
+        {
+            boss.PrepareReveal();
+            revealingNodes.Add(new NodeAnimation { node = boss });
+        }
+        IsRevealing = true;
+        waitingForRevealPaths = true;
+        foreach (var node in nodes) node.SetRevealInputBlocked(true);
     }
 
     void OnDisable() => FinishReveal();
@@ -219,14 +286,16 @@ public class WorldMapSceneView : MonoBehaviour
             framedNodeId = map.State.currentNodeId;
         }
         if (transition != null) BeginReveal(transition);
+        PrepareBossIntroduction(map);
         var player = GameRoot.I.state.player;
         if (hpText != null) hpText.text = player.hp + " / " + player.maxHp;
         if (timeText != null) timeText.text = MapTimeDialMotion.FormatLabel(map.World.time);
         if (sinText != null) sinText.text = "罪恶 " + map.World.sin + " / " + map.Layout.sinThreshold;
         if (bossCountText != null) bossCountText.text = "原罪 " + map.State.defeatedBossNodes.Count + " / 3";
-        noticeText.text = controller.Notice;
+        if (noticeText != null) noticeText.text = controller.Notice;
         var request = map.GetPendingRequest();
         bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle
+            && request.kind != MapNodeKind.Camp
             && !(request.kind == MapNodeKind.Event && controller.WildernessCatalog != null)
             && !controller.IsWaitingToEnter;
         displayedRequestId = showPlaceholder ? request.requestId : null;
@@ -234,8 +303,7 @@ public class WorldMapSceneView : MonoBehaviour
         if (!showPlaceholder) return;
         var definition = map.GetNode(request.nodeId);
         nodeTitle.text = definition.displayName;
-        string[] kinds = { "村庄", "普通战", "问号事件", "火堆", "原罪首领" };
-        nodeDescription.text = kinds[(int)request.kind] + "\n处理中";
+        nodeDescription.text = "你抵达了" + definition.displayName + "。";
         completeButton.interactable = useWhiteboxCompletion && !controller.IsEnteringNode;
     }
 

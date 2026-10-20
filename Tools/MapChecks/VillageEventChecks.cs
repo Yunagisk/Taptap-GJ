@@ -141,8 +141,8 @@ public static class VillageEventChecks
                         name + " records each item reward only as text");
                     if (item.Length > 0)
                         Check(state.world.villageEvents.rewardTexts[0].Contains(item)
-                            && result.message.Contains(item) && result.message.Contains("文字"),
-                            name + " reports its temporary text reward");
+                            && !result.message.Contains(item),
+                            name + " retains legacy reward data without promising an ungranted item");
                     string after = Snapshot(state);
                     Check(!VillageEventRules.TryChoose(state, layout, occurrence.id, index).success
                         && Snapshot(state) == after, name + " duplicate click changes no state");

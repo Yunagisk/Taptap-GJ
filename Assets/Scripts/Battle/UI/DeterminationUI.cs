@@ -37,6 +37,7 @@ public class DeterminationUI : MonoBehaviour
     {
         for (int i = 0; i < icons.Length; i++)
         {
+            icons[i].gameObject.SetActive(i < player.MaxDetermination);
             icons[i].sprite = i < current
                 ? filledSprite
                 : emptySprite;

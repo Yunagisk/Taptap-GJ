@@ -16,7 +16,7 @@ MonoBehaviour:
   weaponId: sword
   damageComponents:
   - damageType: 0
-    damage: 12
+    damage: 10
   attackCount: 1
   skill: {fileID: 11400000, guid: e5aef87ef03a4458ab10e25ab91066c8, type: 2}
   price: 4

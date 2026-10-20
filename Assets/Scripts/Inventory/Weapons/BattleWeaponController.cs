@@ -11,7 +11,8 @@ public class BattleWeaponController : MonoBehaviour
     private int currentIndex = -1;
 
     public int CurrentIndex => currentIndex;
-    public bool CanSwitchWeapon => battleFlow != null && battleFlow.CurrentState == BattleState.PlayerTurn;
+    public bool CanSwitchWeapon => battleFlow != null && battleFlow.CurrentState == BattleState.PlayerTurn
+        && battleFlow.GuideAllowsAction("switch");
 
     private void Awake()
     {

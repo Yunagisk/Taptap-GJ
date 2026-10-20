@@ -2,41 +2,54 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public sealed class BattleWeaponWheel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
-    IBeginDragHandler, IDragHandler, IEndDragHandler, ICancelHandler
+public sealed class BattleWeaponWheel : MonoBehaviour
 {
     [Serializable] public struct Art { public string id; public Sprite sprite; }
     public Image[] icons;
     public BattleHudGraphic[] selectionFrames;
     public TMP_Text caption;
     public Art[] weaponArt;
-    [Min(1)] public float pixelsPerStep = 92;
+    public Button previousWeapon, nextWeapon;
     readonly List<int> slots = new List<int>(4);
     readonly List<int> nextSlots = new List<int>(4);
     readonly List<KeyValuePair<int, float>> drawOrder = new List<KeyValuePair<int, float>>(4);
-    readonly BattleWeaponWheelGesture gesture = new BattleWeaponWheelGesture();
     PlayerWeaponLoadout loadout;
     BattleWeaponController controller;
-    float cursor, nextRefresh;
-    int pointer = int.MinValue;
+    float cursor, targetCursor, nextRefresh;
+    int lastSelected = -1;
     bool locked;
-    public bool IsDragging => gesture.Dragging;
 
     public void Bind(PlayerWeaponLoadout weapons, BattleWeaponController switching, BattleFlowController battle)
-    { loadout = weapons; controller = switching; RefreshSlots(); }
-    public void SetLocked(bool value) { locked = value; if (value) CancelDrag(); }
+    {
+        loadout = weapons; controller = switching;
+        if (previousWeapon == null) previousWeapon = CreateStepButton("PreviousWeapon", -127, -90);
+        if (nextWeapon == null) nextWeapon = CreateStepButton("NextWeapon", 127, 90);
+        previousWeapon.onClick.RemoveListener(PreviousWeapon);
+        nextWeapon.onClick.RemoveListener(NextWeapon);
+        previousWeapon.onClick.AddListener(PreviousWeapon);
+        nextWeapon.onClick.AddListener(NextWeapon);
+        // The wheel itself is presentation; only its arrow buttons receive input.
+        var surface = GetComponent<Graphic>();
+        if (surface != null) surface.raycastTarget = false;
+        RefreshSlots();
+        RefreshButtons();
+    }
+    public void SetLocked(bool value) { locked = value; RefreshButtons(); }
     bool CanSwitch => !locked && controller != null && controller.CanSwitchWeapon;
     void Update()
     {
-        if (gesture.Dragging && !CanSwitch) CancelDrag();
         if (Time.unscaledTime >= nextRefresh)
         { nextRefresh = Time.unscaledTime + .1f; RefreshSlots(); }
         int selected = slots.IndexOf(controller != null ? controller.CurrentIndex : -1);
-        float target = gesture.Dragging ? gesture.Cursor : BattleWeaponWheelMath.NearestCursor(cursor, Mathf.Max(0, selected), slots.Count);
-        cursor = gesture.Dragging ? target : Mathf.Lerp(cursor, target, 1 - Mathf.Exp(-18 * Time.unscaledDeltaTime));
+        if (selected != lastSelected)
+        {
+            targetCursor = BattleWeaponWheelMath.NearestCursor(cursor, Mathf.Max(0, selected), slots.Count);
+            lastSelected = selected;
+        }
+        cursor = Mathf.Lerp(cursor, targetCursor, 1 - Mathf.Exp(-18 * Time.unscaledDeltaTime));
+        RefreshButtons();
         Present();
     }
     void RefreshSlots()
@@ -46,7 +59,12 @@ public sealed class BattleWeaponWheel : MonoBehaviour, IPointerDownHandler, IPoi
         for (int i = 0; weapons != null && i < weapons.Length && i < 4; i++) if (weapons[i] != null) nextSlots.Add(i);
         bool changed = nextSlots.Count != slots.Count;
         for (int i = 0; i < nextSlots.Count && !changed; i++) changed = nextSlots[i] != slots[i];
-        if (changed) { CancelDrag(); slots.Clear(); slots.AddRange(nextSlots); cursor = Mathf.Max(0, slots.IndexOf(controller != null ? controller.CurrentIndex : -1)); }
+        if (changed)
+        {
+            slots.Clear(); slots.AddRange(nextSlots);
+            lastSelected = slots.IndexOf(controller != null ? controller.CurrentIndex : -1);
+            cursor = targetCursor = Mathf.Max(0, lastSelected);
+        }
         for (int i = 0; icons != null && i < icons.Length; i++)
         {
             bool visible = i < slots.Count;
@@ -61,7 +79,7 @@ public sealed class BattleWeaponWheel : MonoBehaviour, IPointerDownHandler, IPoi
     { if (weaponArt != null) foreach (var art in weaponArt) if (art.id == id) return art.sprite; return null; }
     void Present()
     {
-        int centered = BattleWeaponWheelMath.CenteredIndex(cursor, slots.Count);
+        int centered = slots.IndexOf(controller != null ? controller.CurrentIndex : -1);
         // Draw back icons first; front icons stay on top even while crossing.
         drawOrder.Clear();
         for (int i = 0; icons != null && i < slots.Count && i < icons.Length; i++)
@@ -90,31 +108,62 @@ public sealed class BattleWeaponWheel : MonoBehaviour, IPointerDownHandler, IPoi
             caption.text = centered >= 0 && weapons != null ? WeaponTable.NameOf(weapons[slots[centered]].WeaponId) : "未装备武器";
         }
     }
-    float LocalX(PointerEventData data)
+    public void PreviousWeapon() => Step(-1);
+    public void NextWeapon() => Step(1);
+
+    void Step(int direction)
     {
-        RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)transform, data.position, data.pressEventCamera, out var point);
-        return point.x;
-    }
-    public void OnPointerDown(PointerEventData data)
-    {
-        if (data.button != PointerEventData.InputButton.Left || !CanSwitch || gesture.Dragging) return;
-        RefreshSlots(); pointer = data.pointerId;
-        gesture.Begin(LocalX(data), Mathf.Max(0, slots.IndexOf(controller.CurrentIndex)), slots.Count);
-    }
-    public void OnBeginDrag(PointerEventData data) { }
-    public void OnDrag(PointerEventData data)
-    { if (data.pointerId == pointer && CanSwitch) gesture.Drag(LocalX(data), pixelsPerStep); }
-    public void OnPointerUp(PointerEventData data)
-    { if (data.pointerId == pointer) { gesture.Drag(LocalX(data), pixelsPerStep); Commit(); } }
-    public void OnEndDrag(PointerEventData data) { if (data.pointerId == pointer) Commit(); }
-    void Commit()
-    {
-        int index = gesture.Release(CanSwitch, slots.Count); pointer = int.MinValue;
-        if (index >= 0) controller.SwitchWeapon(slots[index]);
         RefreshSlots();
+        if (!CanSwitch || slots.Count < 2) return;
+        int selected = slots.IndexOf(controller.CurrentIndex);
+        int index = selected < 0 ? (direction > 0 ? 0 : slots.Count - 1)
+            : BattleWeaponWheelMath.Wrap(selected + direction, slots.Count);
+        controller.SwitchWeapon(slots[index]);
+        // Retain the requested direction even when two weapons are opposite.
+        if (controller.CurrentIndex == slots[index])
+        {
+            targetCursor = selected < 0 ? index : BattleWeaponWheelMath.NearestCursor(targetCursor, selected, slots.Count) + direction;
+            lastSelected = index;
+        }
+        Present();
     }
-    public void CancelDrag() { gesture.Cancel(); pointer = int.MinValue; }
-    public void OnCancel(BaseEventData data) => CancelDrag();
-    void OnApplicationFocus(bool focused) { if (!focused) CancelDrag(); }
-    void OnDisable() => CancelDrag();
+
+    void RefreshButtons()
+    {
+        bool enabled = CanSwitch && slots.Count > 1;
+        if (previousWeapon != null) previousWeapon.interactable = enabled;
+        if (nextWeapon != null) nextWeapon.interactable = enabled;
+    }
+
+    Button CreateStepButton(string name, float x, float rotation)
+    {
+        var root = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(BattleHudGraphic), typeof(Button));
+        root.layer = gameObject.layer;
+        root.transform.SetParent(transform, false);
+        var rect = (RectTransform)root.transform;
+        rect.anchoredPosition = new Vector2(x, 64);
+        rect.sizeDelta = new Vector2(38, 34);
+        var frame = root.GetComponent<BattleHudGraphic>();
+        frame.stroke = 1.5f;
+        var button = root.GetComponent<Button>();
+        button.targetGraphic = frame;
+        button.navigation = new Navigation { mode = Navigation.Mode.None };
+        var colors = button.colors;
+        colors.highlightedColor = new Color32(255, 225, 143, 255);
+        colors.pressedColor = new Color32(214, 179, 92, 255);
+        colors.disabledColor = new Color32(160, 155, 144, 145);
+        button.colors = colors;
+        var arrow = new GameObject("Arrow", typeof(RectTransform), typeof(CanvasRenderer), typeof(BattleHudGraphic));
+        arrow.layer = gameObject.layer;
+        arrow.transform.SetParent(root.transform, false);
+        var arrowRect = (RectTransform)arrow.transform;
+        arrowRect.sizeDelta = new Vector2(14, 17);
+        arrowRect.localRotation = Quaternion.Euler(0, 0, rotation);
+        var graphic = arrow.GetComponent<BattleHudGraphic>();
+        graphic.shape = BattleHudGraphic.Shape.Arrow;
+        graphic.fill = graphic.ink;
+        graphic.stroke = 0;
+        graphic.raycastTarget = false;
+        return button;
+    }
 }

@@ -203,7 +203,7 @@ public sealed class MapPlayerInkHud : MonoBehaviour, IPointerEnterHandler, IPoin
         for (int i = 0; resolveFills != null && i < resolveFills.Length; i++)
             if (resolveFills[i] != null) resolveFills[i].enabled = i < current;
         for (int i = 0; resolvePips != null && i < resolvePips.Length; i++)
-            if (resolvePips[i] != null) resolvePips[i].alpha = 1;
+            if (resolvePips[i] != null) resolvePips[i].gameObject.SetActive(i < maximum);
 
         RefreshWeapons(state.inventory != null ? state.inventory.equippedWeaponIds : null);
     }

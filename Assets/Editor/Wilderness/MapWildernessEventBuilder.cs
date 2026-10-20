@@ -171,11 +171,9 @@ public static class MapWildernessEventBuilder
             ui.choiceLabels[i].fontSizeMin = 21;
         }
         ui.resultScroll = MakeResults(window.transform, font, out ui.resultText);
-        Label("TextEffectsHint", window.transform, font, "攻击、受击与道具效果以文字记录。", 21, Muted,
-            new Vector2(48, 608), new Vector2(1004, 32));
-        ui.victoryButton = MakeButton("EncounterVictory", window.transform, font, "模拟胜利",
+        ui.victoryButton = MakeButton("EncounterVictory", window.transform, font, "驱赶小怪",
             new Vector2(48, 658), new Vector2(270, 58), new Color32(201, 192, 156, 255), 26);
-        ui.defeatButton = MakeButton("EncounterDefeat", window.transform, font, "模拟失败",
+        ui.defeatButton = MakeButton("EncounterDefeat", window.transform, font, "绕路离开",
             new Vector2(340, 658), new Vector2(270, 58), new Color32(222, 194, 177, 255), 26);
         ui.closeButton = MakeButton("CloseEvent", window.transform, font, "离开此处",
             new Vector2(802, 658), new Vector2(250, 58), new Color32(192, 165, 124, 255), 27);

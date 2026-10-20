@@ -16,7 +16,7 @@ MonoBehaviour:
   weaponId: dual_swords
   damageComponents:
   - damageType: 0
-    damage: 5
+    damage: 4
   attackCount: 2
   skill: {fileID: 11400000, guid: ecce78522ee0405b8644fb4efed6d094, type: 2}
   price: 8

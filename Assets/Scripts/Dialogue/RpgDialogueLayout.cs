@@ -66,6 +66,7 @@ public sealed class RpgDialogueLayout : MonoBehaviour
         stage.sizeDelta = Reference;
 
         if (ui.avatarImage == null) ui.avatarImage = Rect("Avatar", stage).gameObject.AddComponent<Image>();
+        CharacterPortraitStyle.Apply(ui.avatarImage, ui.avatarImage.sprite);
         ui.avatarImage.transform.SetParent(stage, false);
         Place(ui.avatarImage.rectTransform, 65, 55, 470, 665);
         ui.avatarImage.preserveAspect = true;

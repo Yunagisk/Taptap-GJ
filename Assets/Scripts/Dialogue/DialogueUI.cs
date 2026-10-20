@@ -69,12 +69,7 @@ public class DialogueUI : MonoBehaviour, IPointerClickHandler
         ClearChoice();
         if (visibleRoot != null) visibleRoot.SetActive(true);
         if (speakerText != null) speakerText.text = node.speaker ?? "";
-        if (avatarImage != null)
-        {
-            avatarImage.sprite = node.avatar;
-            // Tint only the UI: preserve the source alpha and reset on every speaker change.
-            avatarImage.color = node.IsProtagonist ? Color.white : Color.black;
-        }
+        CharacterPortraitStyle.Apply(avatarImage, node.avatar, node.IsProtagonist);
         layout.Present(node);
         CurrentPage = 1;
         if (contentText != null)

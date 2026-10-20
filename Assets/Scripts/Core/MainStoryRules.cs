@@ -25,14 +25,16 @@ public static class MainStoryRules
                     if (existing == null)
                     {
                         state.story.tutorialNodeId = null;
+                        MapNodeDefinition first = null;
                         foreach (string neighborId in village.neighbors)
                         {
                             var neighbor = layout.nodes.Find(node => node != null && node.id == neighborId
                                 && node.kind == MapNodeKind.Battle);
                             if (neighbor == null) continue;
-                            state.story.tutorialNodeId = neighbor.id;
-                            break;
+                            // Legacy runs keep the first neighbor; guide runs leave through the east gate.
+                            if (first == null || state.story.useVillageIntroduction && neighbor.x > first.x) first = neighbor;
                         }
+                        state.story.tutorialNodeId = first != null ? first.id : null;
                     }
                 }
             }
@@ -77,6 +79,21 @@ public static class MainStoryRules
                 if (stage != MainStoryStage.SlothDefeated) return false;
                 stage = MainStoryStage.CommissionTurnedIn;
                 break;
+            case StoryDialogueEffect.GuideEquipmentReady:
+                if (!VillageIntroRules.NeedsBlacksmith(state) || !state.inventory.weapons.Contains("sword")
+                    || string.IsNullOrEmpty(state.story.guideSecondWeaponId)
+                    || !state.inventory.weapons.Contains(state.story.guideSecondWeaponId)) return false;
+                state.story.guideEquipmentReady = true;
+                break;
+            case StoryDialogueEffect.GuideOutsideReady:
+                if (!VillageIntroRules.IsRestricted(state) || !state.story.guideEquipmentReady
+                    || stage != MainStoryStage.CommissionAccepted) return false;
+                state.story.guideOutsideReady = true;
+                break;
+            case StoryDialogueEffect.GuideComplete:
+                if (!VillageIntroRules.NeedsReport(state)) return false;
+                state.story.guideCompleted = true;
+                break;
             default:
                 return false;
         }
@@ -108,11 +125,17 @@ public static class MainStoryRules
 
     public static string GoalText(GameState state)
     {
+        if (VillageIntroRules.IsPending(state)) return "与村民交谈，确认自己的身份。";
+        if (VillageIntroRules.IsAwaitingMayor(state)) return "前往村长家，与哈罗德交谈。";
+        if (VillageIntroRules.NeedsBlacksmith(state)) return "前往西城区铁匠铺，向加斯帕领取武器。";
+        if (VillageIntroRules.NeedsReport(state)) return "返回埃尔南多，向哈罗德复命。";
+        if (VillageIntroRules.IsRestricted(state) && state.story.guideEquipmentReady)
+            return "前往东城门外，清剿旧磨坊附近的怪物。";
         switch (state != null && state.story != null ? state.story.stage : MainStoryStage.ArrivedVillage)
         {
             case MainStoryStage.ArrivedVillage: return "前往酒馆，与村民交谈，了解村庄。";
             case MainStoryStage.VillageIntroductionComplete: return "前往酒馆，与村长交谈，接受清剿委托。";
-            case MainStoryStage.CommissionAccepted: return "前往教学战斗节点，完成首次清剿。";
+            case MainStoryStage.CommissionAccepted: return "前往村外的战场，完成首次清剿。";
             case MainStoryStage.TutorialCompleted: return "探索地图，击败懒惰。";
             case MainStoryStage.SlothDefeated: return "返回村庄酒馆，向村长交付委托。";
             case MainStoryStage.CommissionTurnedIn: return "委托已交付，继续探索下一原罪。";

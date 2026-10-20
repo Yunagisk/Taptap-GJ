@@ -450,8 +450,6 @@ public static class WildernessEventRules
         if (outcome.sinDelta != 0) parts.Add("事件罪恶 " + Signed(outcome.sinDelta));
         if (healed > 0) parts.Add("恢复 " + healed + " 生命");
         else if (outcome.healAmount > 0) parts.Add("生命已满");
-        if (HasText(outcome.rewardText)) parts.Add("道具记录（文字占位）：" + outcome.rewardText);
-        if (HasText(outcome.effectText)) parts.Add("效果记录（文字占位）：" + outcome.effectText);
         if (outcome.campRecoveryBonusPercent > 0)
             parts.Add("下次营地恢复 +" + outcome.campRecoveryBonusPercent + "%（同类只保留最高值）");
         if (outcome.repairBridge)
@@ -463,7 +461,7 @@ public static class WildernessEventRules
         {
             node.encounterPending = true;
             node.enemyId = enemy.id;
-            parts.Add("普通遭遇：" + enemy.name + " ×1；额外耗时 1 单位，战斗暂用文字结算");
+            parts.Add("一只" + enemy.name + "挡住了去路。你可以驱赶它，或绕路离开。\n本次探索额外耗时 1 单位。");
         }
         else parts.Add("事件已结束");
         parts.Add("当前时间 " + resources.world.time + "，罪恶 " + resources.world.sin
@@ -489,8 +487,8 @@ public static class WildernessEventRules
         node.encounterPending = false;
         if (victory) resources.world.sinRemnant++;
         string message = victory
-            ? "普通遭遇胜利：已击退 1 只小怪，罪骸 +1。战斗伤害、攻击和道具均为文字占位；罪恶不因击杀减少。"
-            : "普通遭遇失败（文字占位）：没有获得罪骸。";
+            ? "你赶走了小怪，拾取了它落下的罪骸。罪骸 +1。"
+            : "你绕过小怪，继续前行。";
         level.history.Add(message);
         return new WildernessChoiceResult { success = true, message = message };
     }

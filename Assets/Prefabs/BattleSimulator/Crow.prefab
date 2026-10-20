@@ -173,7 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e636f26f1d66244c80cec728813d3e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHp: 120
+  maxHp: 36
   BattleRound: 1
   priority: 12
   attackDatas:
@@ -182,6 +182,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f8c201ff3cd9e114ead34266ed72b034, type: 2}
   isBoss: 0
   breakThreshold: 2
+  definition: {fileID: 11400000, guid: fda1d71a15bb58f2ae2e4819e287523d, type: 2}
 --- !u!114 &8328894217032988302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,8 +196,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageRules:
-  - damageType: 0
-    damageReaction: 2
   - damageType: 1
     damageReaction: 0
 --- !u!114 &4994832679141076015

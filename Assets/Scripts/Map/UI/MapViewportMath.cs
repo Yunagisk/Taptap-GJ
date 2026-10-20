@@ -29,4 +29,8 @@ public static class MapViewportMath
 
     public static Vector2 ZoomAt(Vector2 center, Vector2 pointer, float oldScale, float newScale) =>
         center + pointer / Mathf.Max(0.001f, oldScale) - pointer / Mathf.Max(0.001f, newScale);
+
+    public static float TravelScale(Rect route, Vector2 viewport, float horizontalPadding, float topPadding, float bottomPadding) =>
+        Mathf.Max(.001f, Mathf.Min(Mathf.Max(1, viewport.x - horizontalPadding * 2) / Mathf.Max(1, route.width),
+            Mathf.Max(1, viewport.y - topPadding - bottomPadding) / Mathf.Max(1, route.height)));
 }

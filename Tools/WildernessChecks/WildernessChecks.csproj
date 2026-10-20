@@ -6,10 +6,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Assets/Scripts/Core/GameState.cs" Link="Production/GameState.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Damage/PlayerDamageType.cs" Link="Production/PlayerDamageType.cs" />
     <Compile Include="../../Assets/Scripts/Battle/Status/StatusId.cs" Link="Production/StatusId.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Status/StatusRules.cs" Link="Production/StatusRules.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Status/StatusSet.cs" Link="Production/StatusSet.cs" />
     <Compile Include="../../Assets/Scripts/Core/WorldResourceRules.cs" Link="Production/WorldResourceRules.cs" />
     <Compile Include="../../Assets/Scripts/Core/VillageEventRules.cs" Link="Production/VillageEventRules.cs" />
     <Compile Include="../../Assets/Scripts/Core/MainStoryRules.cs" Link="Production/MainStoryRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/VillageIntroRules.cs" Link="Production/VillageIntroRules.cs" />
     <Compile Include="../../Assets/Scripts/Core/EquipmentRules.cs" Link="Production/EquipmentRules.cs" />
     <Compile Include="../../Assets/Scripts/Inventory/Weapons/WeaponTable.cs" Link="Production/WeaponTable.cs" />
     <Compile Include="../../Assets/Scripts/Map/Data/MapLayout.cs" Link="Production/MapLayout.cs" />

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 917530002}
   - component: {fileID: 7716374522343626014}
   - component: {fileID: 8604096529946982691}
+  - component: {fileID: 9971001027}
   m_Layer: 0
   m_Name: Sloth
   m_TagString: Untagged
@@ -127,10 +128,11 @@ MonoBehaviour:
   attackDatas:
   - {fileID: 11400000, guid: a7566a37c1f75e4449b10191ca08efff, type: 2}
   - {fileID: 11400000, guid: a54458a6544fb7643a88a4eb7136aefd, type: 2}
-  - {fileID: 11400000, guid: db9c48ea63c3e124883280ef871c09e5, type: 2}
+  - {fileID: 11400000, guid: 082e09889d5954229b3e0fe042162574, type: 2}
   - {fileID: 11400000, guid: 68149b2ca9dd53442b25ae3181b34a00, type: 2}
   isBoss: 1
-  breakThreshold: 2
+  breakThreshold: 3
+  displayName: 懒惰
 --- !u!61 &8604096529946982691
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -192,3 +194,20 @@ MonoBehaviour:
   appearance: {fileID: 210276560750786730}
   visualScale: {x: 0.42275211127670137, y: 0.42275211127670137, z: 1}
   visualOffset: {x: 0.0028514654744166423, y: 0.08563835072031711, z: 0}
+--- !u!114 &9971001027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859371728394112153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f77f89370b0694f40af7c0ccd9049bcc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  damageRules:
+  - damageType: 0
+    damageReaction: 0
+  - damageType: 3
+    damageReaction: 0

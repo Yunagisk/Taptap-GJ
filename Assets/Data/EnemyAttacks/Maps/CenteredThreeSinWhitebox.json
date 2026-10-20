@@ -10,21 +10,21 @@
   "regions": [
     {
       "id": 1,
-      "displayName": "懒惰区域",
+      "displayName": "暮林",
       "bossNodeId": "r1_boss",
       "bossKey": "sloth",
       "startsSpawned": true
     },
     {
       "id": 2,
-      "displayName": "原罪区域二",
+      "displayName": "枯原",
       "bossNodeId": "r2_boss",
       "bossKey": "placeholder_2",
       "startsSpawned": false
     },
     {
       "id": 3,
-      "displayName": "原罪区域三",
+      "displayName": "荒冢",
       "bossNodeId": "r3_boss",
       "bossKey": "placeholder_3",
       "startsSpawned": false
@@ -46,7 +46,7 @@
     },
     {
       "id": "r1_a",
-      "displayName": "普通战 1",
+      "displayName": "暮林入口",
       "kind": 1,
       "region": 1,
       "x": -180,
@@ -61,7 +61,7 @@
     },
     {
       "id": "r1_b",
-      "displayName": "普通战 2",
+      "displayName": "暮林岔路",
       "kind": 1,
       "region": 1,
       "x": -380,
@@ -75,7 +75,7 @@
     },
     {
       "id": "r1_c",
-      "displayName": "普通战 3",
+      "displayName": "暮林深处",
       "kind": 1,
       "region": 1,
       "x": -540,
@@ -89,7 +89,7 @@
     },
     {
       "id": "r1_camp",
-      "displayName": "火堆",
+      "displayName": "暮林营火",
       "kind": 3,
       "region": 1,
       "x": -660,
@@ -112,7 +112,7 @@
     },
     {
       "id": "r1_x",
-      "displayName": "普通战 4",
+      "displayName": "暮林旧道",
       "kind": 1,
       "region": 1,
       "x": -160,
@@ -125,7 +125,7 @@
     },
     {
       "id": "r1_y",
-      "displayName": "？",
+      "displayName": "暮林隐径",
       "kind": 2,
       "region": 1,
       "x": -360,
@@ -138,7 +138,7 @@
     },
     {
       "id": "r1_z",
-      "displayName": "普通战 5",
+      "displayName": "暮林遗迹",
       "kind": 1,
       "region": 1,
       "x": -440,
@@ -151,7 +151,7 @@
     },
     {
       "id": "r1_w",
-      "displayName": "？",
+      "displayName": "暮林偏径",
       "kind": 2,
       "region": 1,
       "x": -580,
@@ -163,7 +163,7 @@
     },
     {
       "id": "r2_a",
-      "displayName": "普通战 1",
+      "displayName": "枯原入口",
       "kind": 1,
       "region": 2,
       "x": 180,
@@ -178,7 +178,7 @@
     },
     {
       "id": "r2_b",
-      "displayName": "普通战 2",
+      "displayName": "枯原岔路",
       "kind": 1,
       "region": 2,
       "x": 380,
@@ -192,7 +192,7 @@
     },
     {
       "id": "r2_c",
-      "displayName": "普通战 3",
+      "displayName": "枯原深处",
       "kind": 1,
       "region": 2,
       "x": 540,
@@ -206,7 +206,7 @@
     },
     {
       "id": "r2_camp",
-      "displayName": "火堆",
+      "displayName": "枯原营火",
       "kind": 3,
       "region": 2,
       "x": 660,
@@ -218,7 +218,7 @@
     },
     {
       "id": "r2_boss",
-      "displayName": "原罪 2",
+      "displayName": "枯原祭坛",
       "kind": 4,
       "region": 2,
       "x": 850,
@@ -229,7 +229,7 @@
     },
     {
       "id": "r2_x",
-      "displayName": "普通战 4",
+      "displayName": "枯原旧道",
       "kind": 1,
       "region": 2,
       "x": 160,
@@ -242,7 +242,7 @@
     },
     {
       "id": "r2_y",
-      "displayName": "？",
+      "displayName": "枯原隐径",
       "kind": 2,
       "region": 2,
       "x": 360,
@@ -255,7 +255,7 @@
     },
     {
       "id": "r2_z",
-      "displayName": "普通战 5",
+      "displayName": "枯原遗迹",
       "kind": 1,
       "region": 2,
       "x": 440,
@@ -268,7 +268,7 @@
     },
     {
       "id": "r2_w",
-      "displayName": "？",
+      "displayName": "枯原偏径",
       "kind": 2,
       "region": 2,
       "x": 580,
@@ -280,7 +280,7 @@
     },
     {
       "id": "r3_a",
-      "displayName": "普通战 1",
+      "displayName": "荒冢入口",
       "kind": 1,
       "region": 3,
       "x": 0,
@@ -294,7 +294,7 @@
     },
     {
       "id": "r3_b",
-      "displayName": "普通战 2",
+      "displayName": "荒冢岔路",
       "kind": 1,
       "region": 3,
       "x": -180,
@@ -308,7 +308,7 @@
     },
     {
       "id": "r3_c",
-      "displayName": "普通战 3",
+      "displayName": "荒冢深处",
       "kind": 1,
       "region": 3,
       "x": -160,
@@ -322,7 +322,7 @@
     },
     {
       "id": "r3_camp",
-      "displayName": "火堆",
+      "displayName": "荒冢营火",
       "kind": 3,
       "region": 3,
       "x": -120,
@@ -334,7 +334,7 @@
     },
     {
       "id": "r3_boss",
-      "displayName": "原罪 3",
+      "displayName": "荒冢祭坛",
       "kind": 4,
       "region": 3,
       "x": 70,
@@ -345,7 +345,7 @@
     },
     {
       "id": "r3_x",
-      "displayName": "普通战 4",
+      "displayName": "荒冢旧道",
       "kind": 1,
       "region": 3,
       "x": 200,
@@ -359,7 +359,7 @@
     },
     {
       "id": "r3_y",
-      "displayName": "？",
+      "displayName": "荒冢隐径",
       "kind": 2,
       "region": 3,
       "x": 360,
@@ -372,7 +372,7 @@
     },
     {
       "id": "r3_z",
-      "displayName": "普通战 5",
+      "displayName": "荒冢遗迹",
       "kind": 1,
       "region": 3,
       "x": 210,
@@ -385,7 +385,7 @@
     },
     {
       "id": "r3_w",
-      "displayName": "？",
+      "displayName": "荒冢偏径",
       "kind": 2,
       "region": 3,
       "x": 400,

@@ -24,6 +24,8 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
     [SerializeField] PlayerOneHandWeaponSet oneHandWeapons;
     [SerializeField] Vector3 visualOffset = new Vector3(3.8f, -7.5f, 0f);
     [SerializeField, Min(.01f)] float visualScale = 1.18f;
+    // Alpha bounds of the registered ready drawing, in its 100 px/unit rig.
+    [SerializeField] Rect bodyVisualRect = new Rect(-7.56f, -.08f, 8.36f, 12.72f);
 
     PlayerAttackMotion motion;
     PlayerAttackMotion swingMotion;
@@ -42,6 +44,14 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
     float idleClock;
     bool initialized, valid, fallbackWasEnabled, playing;
     int playbackVersion;
+
+    // Mesh bounds include the transparent canvas; use the painted body for effects.
+    public bool TryGetBodyVisual(out SpriteRenderer appearance, out Bounds localBounds)
+    {
+        appearance = body;
+        localBounds = new Bounds(bodyVisualRect.center, bodyVisualRect.size);
+        return valid && visualRoot != null && visualRoot.gameObject.activeInHierarchy && body != null;
+    }
 
     void Awake() => Initialize();
 

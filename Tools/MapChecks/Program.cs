@@ -51,6 +51,27 @@ static class Program
         return true;
     }
 
+    static void CheckBossIntroductions()
+    {
+        var map = NewMap();
+        var memory = new MapBossIntroductionState();
+        var boss = memory.NextSloth(map);
+        Check(boss != null && boss.kind == MapNodeKind.Boss, "initially spawned Sloth receives an introduction");
+        string before = JsonSerializer.Serialize(map.State, Json);
+        memory.MarkShown(map.State, boss.id);
+        Check(memory.NextSloth(map) == null && memory.HasShown(map.State, boss.id), "repeated refreshes do not replay the boss introduction");
+        Check(JsonSerializer.Serialize(map.State, Json) == before, "boss introduction never changes progression, time or sin");
+        var reopened = new MapProgression(map.Layout, map.State, map.World, 12345);
+        Check(memory.NextSloth(reopened) == null, "returning from another scene retains introduction memory");
+        var fresh = NewMap();
+        Check(memory.NextSloth(fresh) != null, "a new run can introduce Sloth again");
+        fresh.State.revealedNodes.Remove(boss.id);
+        Check(memory.NextSloth(fresh) == null, "unrevealed bosses never trigger a camera introduction");
+        fresh.State.revealedNodes.Add(boss.id);
+        fresh.State.clearedNodes.Add(boss.id);
+        Check(memory.NextSloth(fresh) == null, "a defeated boss is not introduced");
+    }
+
     static void CheckMapReveals()
     {
         var map = NewMap();
@@ -173,10 +194,23 @@ static class Program
         var later = MapRevealTransition.AfterCompletion(map, laterBefore, next.id);
         Check(later != null && !later.roads.Exists(road => MapRevealTransition.RoadKey(road.fromId, road.toId) == key),
             "already repaired road is not rediscovered by later completions");
+        foreach (var node in layout.nodes)
+            if (!state.map.visitedNodes.Contains(node.id)) state.map.visitedNodes.Add(node.id);
+        state.map.currentNodeId = bridge.bridgeFrom;
+        Check(map.TryPlanFastTravel(bridge.bridgeTo, out var shortcut) && shortcut.TimeCost == 1,
+            "fast travel uses an actually repaired shortcut as a one-unit shortest route");
+        Check(map.TryFastTravel(shortcut) && state.map.wildernessEvents.currentNodeId == bridge.bridgeTo,
+            "fast travel keeps wilderness position synchronized after the repaired shortcut");
     }
 
     static void Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "--guide-only")
+        {
+            GuideQuestChecks.Run(Layout, Check);
+            Console.WriteLine("PASS: " + checks + " guide quest progression, reward and migration checks.");
+            return;
+        }
         if (args.Length > 0) layoutPath = Path.GetFullPath(args[0]);
         CheckMorningRevival();
         CheckVillageReentry();
@@ -186,7 +220,10 @@ static class Program
         CheckShop();
         CheckWeaponPrices();
         VillageEventChecks.Run(Layout, Check);
+        FastTravelChecks.Run(Layout, Check);
+        GuideQuestChecks.Run(Layout, Check);
         CheckMapReveals();
+        CheckBossIntroductions();
         CheckRepairedRoadReveals();
         var map = NewMap();
         foreach (string weapon in NewRunFactory.StartingWeapons)

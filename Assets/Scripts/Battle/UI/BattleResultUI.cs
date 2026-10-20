@@ -77,6 +77,8 @@ public class BattleResultUI : MonoBehaviour
         returnButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(victory ? 0 : -150, -110);
         message.text = victory ? "\u6218\u6597\u5df2\u7ed3\u675f\uff0c\u8fd4\u56de\u5927\u5730\u56fe\u7ee7\u7eed\u63a2\u7d22\u3002"
             : "\u53ef\u9009\u62e9\u5728\u5b58\u6863\u70b9\u590d\u6d3b\uff0c\u6216\u91cd\u5f00\u6e38\u620f\u3002";
+        if (victory && battleFlow.Guide != null)
+            message.text = "至少这条路上的麻烦已经解决了。\n返回埃尔南多，向哈罗德复命。";
         if (!victory && canRevive)
         {
             var layout = root.battleMapTemplate.Load();
@@ -132,6 +134,8 @@ public class BattleResultUI : MonoBehaviour
                     if (!map.TryReviveAtCheckpoint(root.battleRequestId))
                         throw new InvalidOperationException("Cannot revive at the checkpoint.");
                     root.state.player.hp = root.state.player.maxHp;
+                    if (VillageIntroRules.IsTutorialBattle(root.state, pending.nodeId))
+                        root.state.player.lanternCharges = root.state.player.maxLanternCharges;
                 }
             }
             returning = true;
@@ -202,17 +206,17 @@ public class BattleResultUI : MonoBehaviour
         canvas.sortingOrder = 100;
         var scaler = overlay.GetComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
+        scaler.referenceResolution = new Vector2(2560, 1440);
         scaler.matchWidthOrHeight = 0.5f;
         var shade = Panel("Shade", overlay.transform, new Color(0, 0, 0, 0.72f));
         shade.rectTransform.anchorMin = Vector2.zero;
         shade.rectTransform.anchorMax = Vector2.one;
         shade.rectTransform.offsetMin = shade.rectTransform.offsetMax = Vector2.zero;
-        var card = Panel("ResultPanel", shade.transform, new Color32(35, 40, 48, 255));
+        var card = Panel("ResultPanel", shade.transform, new Color32(39, 32, 26, 255));
         card.rectTransform.sizeDelta = new Vector2(640, 380);
         title = Label("Title", card.transform, "", 48, new Vector2(0, 105), new Vector2(580, 80));
         message = Label("Message", card.transform, "", 24, new Vector2(0, 15), new Vector2(580, 90));
-        var buttonImage = Panel("ReturnButton", card.transform, new Color32(69, 104, 88, 255));
+        var buttonImage = Panel("ReturnButton", card.transform, new Color32(101, 81, 52, 255));
         buttonImage.rectTransform.anchoredPosition = new Vector2(0, -110);
         buttonImage.rectTransform.sizeDelta = new Vector2(280, 64);
         returnButton = buttonImage.gameObject.AddComponent<Button>();
@@ -248,7 +252,7 @@ public class BattleResultUI : MonoBehaviour
         label.font = runtimeFont != null ? runtimeFont : font;
         label.text = text;
         label.fontSize = size;
-        label.color = Color.white;
+        label.color = new Color32(227, 214, 188, 255);
         label.alignment = TextAlignmentOptions.Center;
         label.raycastTarget = false;
         label.rectTransform.anchoredPosition = position;

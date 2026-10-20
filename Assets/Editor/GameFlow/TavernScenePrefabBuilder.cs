@@ -265,7 +265,7 @@ public static class TavernScenePrefabBuilder
         story.questText = Label("CurrentGoal", window, "当前目标\n与酒馆里的村民交谈。",
             new Vector2(46, -790), new Vector2(710, 48), 19);
         story.questText.alignment = TextAlignmentOptions.TopLeft;
-        browser.rewardHistoryText = Label("RewardHistory", window, "道具奖励暂以文字记录",
+        browser.rewardHistoryText = Label("RewardHistory", window, "",
             new Vector2(782, -790), new Vector2(294, 48), 16, MutedInk);
         browser.rewardHistoryText.alignment = TextAlignmentOptions.TopLeft;
         story.eventListRoot = window.gameObject;
@@ -395,7 +395,7 @@ public static class TavernScenePrefabBuilder
         var rect = Rect(name, parent);
         Place(rect, position, size);
         var image = rect.gameObject.AddComponent<Image>();
-        image.sprite = sprite;
+        CharacterPortraitStyle.Apply(image, sprite);
         image.preserveAspect = true;
         image.raycastTarget = false;
         return image;

@@ -28,6 +28,9 @@ public static class InnScenePrefabBuilder
     [MenuItem("Tools/Game Flow/Build Inn Prefab")]
     public static void Build()
     {
+        var servicePanel = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+        if (servicePanel != null && servicePanel.GetComponent<VillageInnUI>() != null)
+        { VillageServicesBuilder.Build(); return; }
         RequireCleanEditor();
         var setup = EditorSceneManager.GetSceneManagerSetup();
         try
@@ -105,6 +108,9 @@ public static class InnScenePrefabBuilder
     [MenuItem("Tools/Game Flow/Validate Inn Prefab")]
     public static void Validate()
     {
+        var servicePanel = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+        if (servicePanel != null && servicePanel.GetComponent<VillageInnUI>() != null)
+        { VillageServicesBuilder.Validate(); return; }
         RequireCleanEditor();
         var setup = EditorSceneManager.GetSceneManagerSetup();
         try
