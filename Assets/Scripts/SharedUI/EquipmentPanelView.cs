@@ -79,6 +79,7 @@ public class EquipmentPanelView : MonoBehaviour
 
     public void Open()
     {
+        if (inventoryLayout != null) inventoryLayout.CloseWeaponPicker(true);
         gameObject.SetActive(true);
         if (parchment != null) parchment.Open();
         else if (panelToggler != null) panelToggler.Show();
@@ -89,6 +90,7 @@ public class EquipmentPanelView : MonoBehaviour
 
     public void Close()
     {
+        if (inventoryLayout != null) inventoryLayout.CloseWeaponPicker(true);
         if (parchment != null) parchment.Close();
         else if (panelToggler != null) panelToggler.Hide();
         else SetVisibility(false);
@@ -118,13 +120,14 @@ public class EquipmentPanelView : MonoBehaviour
     }
 
     public void SetWeaponSelection(string id) { selectedOwnedWeaponId = id; }
+    public void SetSlotSelection(int slot) { selectedSlot = Mathf.Clamp(slot, 0, EquipmentRules.SlotCount - 1); }
 
     public void EquipSelected()
     {
         var state = GameRoot.I != null ? GameRoot.I.state : null;
         bool ok = !string.IsNullOrEmpty(selectedOwnedWeaponId) && state != null
-            && EquipmentRules.TryEquip(state, selectedSlot, selectedOwnedWeaponId);
-        Say(ok ? "已装备到槽 " + (selectedSlot + 1) + "。" : "请先选择已拥有的武器。");
+            && (inventoryLayout != null ? inventoryLayout.EquipSelected(state) : EquipmentRules.TryEquip(state, selectedSlot, selectedOwnedWeaponId));
+        Say(ok ? "已装备：" + NameOf(selectedOwnedWeaponId) : "请先选择该类已拥有的武器。");
         Refresh();
     }
 
@@ -132,7 +135,7 @@ public class EquipmentPanelView : MonoBehaviour
     {
         var state = GameRoot.I != null ? GameRoot.I.state : null;
         bool ok = state != null && EquipmentRules.TryEquip(state, selectedSlot, null);
-        Say(ok ? "已卸下槽 " + (selectedSlot + 1) + " 的武器。" : "无法卸下该槽位。");
+        Say(ok ? "已卸下武器。" : "无法卸下该武器。");
         Refresh();
     }
 

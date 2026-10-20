@@ -4,7 +4,7 @@ using UnityEngine.UI;
 // Small uneven ink strokes over the paper; decorative graphics never receive input.
 public sealed class InventoryInkGraphic : MaskableGraphic
 {
-    public enum Shape { Frame, Rule, Diamond, VerticalRule, OrnateFrame }
+    public enum Shape { Frame, Rule, Diamond, VerticalRule, OrnateFrame, Dot }
     public Shape shape;
     public float stroke = 1.3f;
     public int seed = 17;
@@ -12,6 +12,19 @@ public sealed class InventoryInkGraphic : MaskableGraphic
     {
         mesh.Clear();
         Rect r = rectTransform.rect;
+        if (shape == Shape.Dot)
+        {
+            Add(r.center);
+            const int segments = 32;
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * Mathf.PI * 2 / segments;
+                float radius = Mathf.Min(r.width, r.height) * .46f * (1 + .035f * Mathf.Sin(i * 2.3f + seed));
+                Add(r.center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius);
+                if (i > 0) mesh.AddTriangle(0, i, i + 1);
+            }
+            return;
+        }
         if (shape == Shape.OrnateFrame)
         {
             if (r.width > 0 && r.height > 0) OrnateFrame();

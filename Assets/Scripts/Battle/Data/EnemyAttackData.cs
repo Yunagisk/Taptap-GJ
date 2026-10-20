@@ -31,6 +31,9 @@ public class EnemyAttackData : ScriptableObject
     public int Damage => Mathf.Max(0, damage);
     public int AttackCount => Mathf.Max(1, attackCount);
     public float HitInterval => Mathf.Max(0f, hitInterval);
+    // Ordinary damage has no type badge. Show the actual rider separately.
+    public virtual string IntentEffectText => applyStatus && statusStacks > 0
+        ? StatusRules.DisplayName(statusOnHit) + " × " + statusStacks : string.Empty;
 
     //将 SO 中的配置转换成定义的 EnemyAttackInfo
 

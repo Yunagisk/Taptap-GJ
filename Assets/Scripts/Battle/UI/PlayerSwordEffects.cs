@@ -26,6 +26,7 @@ public sealed class PlayerSwordEffects : MonoBehaviour
     float poseTime, trailStart, trailEnd, impactStarted = -100f, impactRadius;
     Vector3 impactPoint, impactDirection;
     bool attacking, torch;
+    Vector2 trailHeel = new Vector2(0f, 1.5f), trailTip = new Vector2(-.21f, 9.96f);
     float lastTrailSample = -1f;
 
     public void ConfigureWeapon(bool isTorch)
@@ -34,6 +35,7 @@ public sealed class PlayerSwordEffects : MonoBehaviour
         Cancel();
         torch = isTorch;
     }
+    public void ConfigureTrail(Vector2 heel, Vector2 tip) { trailHeel = heel; trailTip = tip; }
 
     public void Initialize(SpriteRenderer weapon, SpriteRenderer appearance)
     {
@@ -111,10 +113,8 @@ public sealed class PlayerSwordEffects : MonoBehaviour
                 sampleCount--;
             }
             samples[sampleCount++] = new BladeSample {
-                heel = transform.InverseTransformPoint(blade.TransformPoint(torch
-                    ? new Vector3(0f, 4.9f, 0f) : new Vector3(0f, 1.5f, 0f))),
-                tip = transform.InverseTransformPoint(blade.TransformPoint(torch
-                    ? new Vector3(.3f, 8.2f, 0f) : new Vector3(-.21f, 9.96f, 0f))),
+                heel = transform.InverseTransformPoint(blade.TransformPoint(trailHeel)),
+                tip = transform.InverseTransformPoint(blade.TransformPoint(trailTip)),
                 time = Time.time
             };
         }

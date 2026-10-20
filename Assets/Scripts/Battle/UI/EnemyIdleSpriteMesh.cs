@@ -1,8 +1,7 @@
 using UnityEngine;
 
-// Idle keeps a single registered drawing so feather outlines and feet cannot pop.
-// Attack and hurt still use the authored SpriteRenderer sequences.
-public sealed class EnemyIdleSpriteMesh : MonoBehaviour
+// A registered drawing can breathe, strike and recoil without changing ink or palette.
+public sealed class EnemyIdleSpriteMesh : MonoBehaviour, IEnemySpritePose
 {
     const int Grid = 32;
     Mesh mesh;
@@ -12,9 +11,19 @@ public sealed class EnemyIdleSpriteMesh : MonoBehaviour
     Vector3[] vertices;
     MaterialPropertyBlock properties;
     int lastTick = -1;
+    Vector3[] transition;
     public int LastTick => lastTick;
+    public Renderer Appearance => appearance;
 
-    public void Initialize(Sprite drawing, SpriteRenderer renderer)
+    public Vector3 Point(Vector2 uv)
+    {
+        float x = Mathf.Clamp01(uv.x) * Grid, y = (1 - Mathf.Clamp01(uv.y)) * Grid;
+        int left = Mathf.Min(Grid - 1, Mathf.FloorToInt(x)), top = Mathf.Min(Grid - 1, Mathf.FloorToInt(y));
+        return Vector3.Lerp(Vector3.Lerp(vertices[top * (Grid + 1) + left], vertices[top * (Grid + 1) + left + 1], x - left),
+            Vector3.Lerp(vertices[(top + 1) * (Grid + 1) + left], vertices[(top + 1) * (Grid + 1) + left + 1], x - left), y - top);
+    }
+
+    public void Initialize(Sprite drawing, SpriteRenderer renderer, EnemySpriteAnimationSet set = null)
     {
         sprite = drawing;
         source = renderer;
@@ -46,7 +55,8 @@ public sealed class EnemyIdleSpriteMesh : MonoBehaviour
         appearance.sharedMaterial = source.sharedMaterial;
         appearance.sortingLayerID = source.sortingLayerID;
         appearance.sortingOrder = source.sortingOrder;
-        Apply(0f, 3.2f);
+        if (set != null && set.UsesArtworkMotion) ApplyArtwork(set, EnemyArtworkPose.Idle, 0, 1);
+        else Apply(0f, 3.2f);
         Show(false);
     }
 
@@ -56,17 +66,44 @@ public sealed class EnemyIdleSpriteMesh : MonoBehaviour
         source.enabled = !visible;
     }
 
+    public void BeginPose() { transition = (Vector3[])vertices.Clone(); lastTick = -1; }
+
+    public Vector3 ArtworkPoint(EnemySpriteAnimationSet set, EnemyArtworkPose pose, Vector2 point, float time)
+    {
+        var sample = EnemyArtworkMotion.Sample(set.artworkProfile, pose, point.x, point.y, time,
+            set.idleCycleSeconds, set.attackContactFrame / (float)set.AttackFrameCount);
+        var bounds = set.artworkBounds;
+        return Local(new Vector2(Mathf.LerpUnclamped(bounds.x, bounds.z, sample.x),
+            Mathf.LerpUnclamped(bounds.y, bounds.w, sample.y)));
+    }
+
+    Vector3 Local(Vector2 point) => new Vector3(
+        (point.x * sprite.rect.width - sprite.pivot.x) / sprite.pixelsPerUnit * (source.flipX ? -1 : 1),
+        (point.y * sprite.rect.height - sprite.pivot.y) / sprite.pixelsPerUnit * (source.flipY ? -1 : 1), 0);
+
+    public void ApplyArtwork(EnemySpriteAnimationSet set, EnemyArtworkPose pose, float seconds, float duration)
+    {
+        EnsureProperties();
+        int tick = Mathf.FloorToInt(Mathf.Max(0f, seconds) * set.framesPerSecond + .0001f);
+        if (tick == lastTick) return;
+        float quantized = tick / (float)set.framesPerSecond;
+        float time = pose == EnemyArtworkPose.Idle ? quantized : Mathf.Clamp01(quantized / duration);
+        float blend = Mathf.SmoothStep(0, 1, seconds / (pose == EnemyArtworkPose.Hurt ? .065f : .12f));
+        var b = set.artworkBounds;
+        for (int y = 0; y <= Grid; y++) for (int x = 0; x <= Grid; x++)
+        {
+            int i = y * (Grid + 1) + x;
+            Vector2 point = new Vector2((x / (float)Grid - b.x) / (b.z - b.x),
+                (1f - y / (float)Grid - b.y) / (b.w - b.y));
+            Vector3 target = ArtworkPoint(set, pose, point, time);
+            vertices[i] = transition != null ? Vector3.Lerp(transition[i], target, blend) : target;
+        }
+        mesh.SetVertices(vertices); mesh.RecalculateBounds(); lastTick = tick;
+    }
+
     public void Apply(float seconds, float cycleSeconds)
     {
-        if (properties == null)
-        {
-            properties = new MaterialPropertyBlock();
-            properties.SetTexture("_MainTex", sprite.texture);
-            properties.SetColor("_Color", source.color);
-            properties.SetColor("_RendererColor", Color.white);
-            properties.SetVector("_Flip", new Vector4(1f, 1f, 1f, 1f));
-            appearance.SetPropertyBlock(properties);
-        }
+        EnsureProperties();
         int tick = Mathf.FloorToInt(Mathf.Max(0f, seconds) * 30f + .00001f);
         if (tick == lastTick) return;
         for (int y = 0; y <= Grid; y++) for (int x = 0; x <= Grid; x++)
@@ -79,6 +116,19 @@ public sealed class EnemyIdleSpriteMesh : MonoBehaviour
         mesh.SetVertices(vertices);
         mesh.RecalculateBounds();
         lastTick = tick;
+    }
+
+    void EnsureProperties()
+    {
+        if (properties == null)
+        {
+            properties = new MaterialPropertyBlock();
+            properties.SetTexture("_MainTex", sprite.texture);
+            properties.SetColor("_Color", source.color);
+            properties.SetColor("_RendererColor", Color.white);
+            properties.SetVector("_Flip", new Vector4(1f, 1f, 1f, 1f));
+            appearance.SetPropertyBlock(properties);
+        }
     }
 
     void OnDestroy() { if (mesh != null) Destroy(mesh); }

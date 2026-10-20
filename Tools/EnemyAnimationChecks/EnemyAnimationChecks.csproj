@@ -6,6 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Assets/Scripts/Battle/UI/EnemyAttackAnimationClock.cs" Link="EnemyAttackAnimationClock.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/UI/EnemyDeathMotion.cs" Link="EnemyDeathMotion.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/UI/EnemyArtworkMotion.cs" Link="EnemyArtworkMotion.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
 </Project>

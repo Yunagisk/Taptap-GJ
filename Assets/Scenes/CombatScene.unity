@@ -4153,6 +4153,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 560492d2218251f46befcd2f9b8a63bb, type: 3}
   - {fileID: 21300000, guid: dc8dcb0a14e714541a31a9b734825544, type: 3}
   - {fileID: 21300000, guid: 10e18800574b19b43b5caab764e63d0b, type: 3}
+  - {fileID: 21300000, guid: 8f936203167c4df6a8135513cec8f6e3, type: 3}
   - {fileID: 21300000, guid: a4d663bf3a31ca24d9bc1a145f3f9913, type: 3}
   - {fileID: 21300000, guid: 6c4c6a6d05097994aa6bca509d748883, type: 3}
   - {fileID: 21300000, guid: b24aebb08da5b0441baf4291ddde554c, type: 3}
@@ -4185,6 +4186,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 2320c7e385ea3b14f8f33ebbcc395cea, type: 3}
   - {fileID: 21300000, guid: 21ca451123141754196df80e0ad18745, type: 3}
   - {fileID: 21300000, guid: 3623fe28e89947a468a943349bfed2ea, type: 3}
+  - {fileID: 21300000, guid: 6ded260123f1422d8f2495e77fdf0852, type: 3}
+  - {fileID: 21300000, guid: 5b438af0525448d1bd37d933d4ce8d5e, type: 3}
   - {fileID: 21300000, guid: 5228654b8de94d244b314e844762b51a, type: 3}
   - {fileID: 21300000, guid: 4922f16dbf07f9f47933de348e038d3f, type: 3}
   - {fileID: 21300000, guid: 8d14fba9b13ded642925d44bb0c9d9ae, type: 3}
@@ -4213,6 +4216,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0dbc5e32b129480999bf203003d0f206, type: 3}
   - {fileID: 21300000, guid: 26fcca1c163342ebb8f228d95adc4613, type: 3}
   - {fileID: 21300000, guid: 2754e8f1cd4f4f17ab5941015dd9fa7c, type: 3}
+  - {fileID: 21300000, guid: 00ed7dad9ace40398b1f0e4e5a0e5d8c, type: 3}
   - {fileID: 21300000, guid: 1ac92ff31a734d0596976ffff5ba2f68, type: 3}
   - {fileID: 21300000, guid: 0d36bd75dcfe4f0c8e7511d4bbfb0482, type: 3}
   - {fileID: 21300000, guid: 205dec6826844e8d91c6f6c08b7ff726, type: 3}
@@ -4245,6 +4249,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 96fd7e327ae8450ebf2210af9042d99f, type: 3}
   - {fileID: 21300000, guid: 7fa9ca1979bd42c98102bac4a93ad6fa, type: 3}
   - {fileID: 21300000, guid: b6fc32e1bc3b4e809b90d04e5ff8907b, type: 3}
+  - {fileID: 21300000, guid: 6ef840a00fd64187bad2611f79f1c6b6, type: 3}
+  - {fileID: 21300000, guid: 5806305a05ee45879ba72e7a18f682ce, type: 3}
   - {fileID: 21300000, guid: fd7522b8e85c42c8911956f78ba443e1, type: 3}
   - {fileID: 21300000, guid: a0cc1aee689c475380adede50e5b7ae9, type: 3}
   - {fileID: 21300000, guid: 5aebabcd92cc49828fcdbbae09018b14, type: 3}
@@ -4261,6 +4267,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 209d812b5946b40408175fb10096b5b8, type: 3}
   visualOffset: {x: 3.8, y: -7.5, z: 0}
   visualScale: 1.18
+  heavyAnimations: {fileID: 11400000, guid: 6db310bb902a461d90eae3c2766495dc, type: 2}
+  poleAnimations: {fileID: 11400000, guid: c60a5af8091a47f0b265c69d28c4fca3, type: 2}
+  oneHandWeapons: {fileID: 11400000, guid: c96f800936165c32b8c74618db47a67b, type: 2}
 --- !u!114 &1104987346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6656,7 +6665,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: fe4191f31cbb0c64794e64e53cbc2e57, type: 3}
-  m_Color: {r: 0.7057624, g: 0.8867924, b: 0.6567283, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

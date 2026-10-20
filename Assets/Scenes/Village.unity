@@ -5353,6 +5353,7 @@ GameObject:
   - component: {fileID: 4401}
   - component: {fileID: 4402}
   - component: {fileID: 4403}
+  - component: {fileID: 4404}
   m_Layer: 5
   m_Name: "\u5E55\u5E03"
   m_TagString: Untagged
@@ -5407,7 +5408,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a91c4e70b2d84f6e8c1a5b3d7e9f0246, type: 3}
+  m_Sprite: {fileID: 21300000, guid: dc0918b7de004d46991a401f8f019a31, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -5417,6 +5418,29 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ba2d15b4af34d6fa121883a98b1e945, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  morningBackground: {fileID: 21300000, guid: dc0918b7de004d46991a401f8f019a31, type: 3}
+  afternoonBackground: {fileID: 21300000, guid: 9d3764ea8fa9442197d19a76633de402, type: 3}
+  nightBackground: {fileID: 21300000, guid: 7de9b519fd664dc085fae2f68bdccac4, type: 3}
+  crossfadeSeconds: 1.25
+  previewPeriod: -1
+  chimneySmoke: 1
+  driftingFog: 1
+  windowLights: 1
+  fallingLeaves: 1
+  flyingBirds: 1
+  effectStrength: 1
 --- !u!1 &4410
 GameObject:
   m_ObjectHideFlags: 0

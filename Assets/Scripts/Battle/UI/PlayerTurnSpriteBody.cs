@@ -23,11 +23,16 @@ public sealed class PlayerTurnSpriteBody : MonoBehaviour
     PlayerTurnSpriteMotion.Frame lastFrame;
     PlayerThrustRig.Pose cachedPose;
     bool lastWasIdle;
+    float lastAdvance;
     public bool IsReady { get; private set; }
     public float LastTime { get; private set; }
     public float LastFrameTime { get; private set; }
     public int LastFrameIndex { get; private set; }
     public string LastView { get; private set; }
+    public float LastWeaponLength => lastFrame == null ? 1f : lastFrame.ProjectedWeaponLength;
+    public bool LastWeaponReturning => lastFrame != null && lastFrame.weaponReturning;
+    public float LastWeaponYaw => lastFrame == null ? 0f : lastFrame.weaponYaw;
+    public float LastWeaponPitch => lastFrame == null ? 0f : lastFrame.weaponPitch;
     public int SampleRate => data == null ? 0 : data.fps;
     public float Duration(bool swing) => (swing ? data.swing : data.thrust).duration;
     public float HitTime(bool swing) => (swing ? data.swing : data.thrust).hit;
@@ -82,13 +87,13 @@ public sealed class PlayerTurnSpriteBody : MonoBehaviour
         return true;
     }
 
-    public PlayerThrustRig.Pose Apply(float seconds, bool swing, float duration, float hit, float idleSeconds)
+    public PlayerThrustRig.Pose Apply(float seconds, bool swing, float duration, float hit, float idleSeconds, float advancePixels = 0f)
     {
         var clip = swing ? data.swing : data.thrust;
         float time = clip.Retimed(seconds, duration, hit);
         LastFrameIndex = clip.FrameIndex(time);
         LastTime = seconds;
-        return ApplyFrame(clip.frames[LastFrameIndex], idleSeconds, false);
+        return ApplyFrame(clip.frames[LastFrameIndex], idleSeconds, false, advancePixels);
     }
 
     public PlayerThrustRig.Pose ApplyIdle(float seconds)
@@ -97,9 +102,9 @@ public sealed class PlayerTurnSpriteBody : MonoBehaviour
         return ApplyFrame(data.thrust.frames[0], seconds, true);
     }
 
-    PlayerThrustRig.Pose ApplyFrame(PlayerTurnSpriteMotion.Frame frame, float idleSeconds, bool idle)
+    PlayerThrustRig.Pose ApplyFrame(PlayerTurnSpriteMotion.Frame frame, float idleSeconds, bool idle, float advancePixels = 0f)
     {
-        if (!idle && !lastWasIdle && ReferenceEquals(frame, lastFrame)) return cachedPose;
+        if (!idle && !lastWasIdle && ReferenceEquals(frame, lastFrame) && advancePixels == lastAdvance) return cachedPose;
         lastWasIdle = idle; lastFrame = frame;
         int tick = Mathf.FloorToInt(idleSeconds * 30f + .00001f);
         if (currentSprite != frame.sprite)
@@ -118,18 +123,21 @@ public sealed class PlayerTurnSpriteBody : MonoBehaviour
             handRenderer.SetPropertyBlock(handProperties);
             currentSprite = frame.sprite;
         }
-        if (tick != lastBreathTick || frame.idleWeight != lastWeight)
+        if (tick != lastBreathTick || frame.idleWeight != lastWeight || advancePixels != lastAdvance)
         {
             for (int i = 0; i < rest.Length; i++)
             {
                 var p = PlayerTurnSpriteMotion.Breathe(rest[i], idleSeconds, frame.idleWeight);
+                p.x += advancePixels * PlayerPoleThrust.Weight(p.x, p.y);
                 vertices[i] = new Vector3((p.x - 1040f) / 100f, (1760f - p.y) / 100f, 0f);
             }
             mesh.SetVertices(vertices);
             lastBreathTick = tick; lastWeight = frame.idleWeight;
+            lastAdvance = advancePixels;
         }
         LastFrameTime = frame.time; LastView = frame.view;
         var grip = PlayerTurnSpriteMotion.Breathe(frame.grip, idleSeconds, frame.idleWeight);
+        grip.x += advancePixels * PlayerPoleThrust.Weight(grip.x, grip.y);
         cachedPose = new PlayerThrustRig.Pose { grip = new PlayerThrustRig.Point(grip.x, grip.y), weaponAngle = frame.angle };
         return cachedPose;
     }

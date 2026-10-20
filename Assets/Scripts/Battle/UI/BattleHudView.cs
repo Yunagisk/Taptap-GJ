@@ -170,7 +170,7 @@ public sealed class BattleHudView : MonoBehaviour
     public static Sprite PortraitOf(Combatant actor)
     {
         var animation = actor != null ? actor.GetComponent<EnemySpriteAnimation>() : null;
-        if (animation != null && animation.Portrait != null) return animation.Portrait;
+        if (animation != null && animation.HudPortrait != null) return animation.HudPortrait;
         var renderer = actor != null ? actor.GetComponentInChildren<SpriteRenderer>() : null;
         return renderer != null ? renderer.sprite : null;
     }

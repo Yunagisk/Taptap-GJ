@@ -10,6 +10,7 @@ public sealed class InventoryLayoutView : MonoBehaviour
 {
     [Serializable] public struct WeaponArt { public string id; public Sprite sprite; }
     [Serializable] public struct ItemInfo { public string id, displayName; [TextArea] public string description; public Sprite icon; }
+    [Serializable] public struct CategorySlot { public InventoryEntryView card; public InventoryInkGraphic newDot; }
     public EquipmentPanelView owner;
     public Image portrait, healthFill;
     public TMP_Text healthReadout, resolveReadout, currency, currentWeapon;
@@ -22,7 +23,13 @@ public sealed class InventoryLayoutView : MonoBehaviour
     public WeaponArt[] weaponArt;
     public ItemInfo[] itemInfo;
     public Button useItemButton;
+    public CategorySlot[] categorySlots;
+    public RectTransform weaponPicker;
+    public CanvasGroup pickerVisibility;
+    public TMP_Text pickerTitle;
+    public Button closePickerButton;
     public string SelectedItemId => selectedItem;
+    public bool IsWeaponPickerOpen => openCategory >= 0;
 
     readonly List<InventoryDisplayRules.WeaponEntry> weapons = new List<InventoryDisplayRules.WeaponEntry>();
     readonly List<InventoryDisplayRules.ItemEntry> items = new List<InventoryDisplayRules.ItemEntry>();
@@ -30,10 +37,21 @@ public sealed class InventoryLayoutView : MonoBehaviour
     readonly StringBuilder signature = new StringBuilder();
     TMP_FontAsset runtimeFont;
     string weaponSignature, itemSignature, selectedItem;
+    readonly List<InventoryDisplayRules.WeaponEntry> choices = new List<InventoryDisplayRules.WeaponEntry>();
+    int openCategory = -1;
+    float pickerPhase;
+    Vector2 pickerPosition;
 
     public void Bind(EquipmentPanelView panel, TMP_FontAsset font)
     {
         owner=panel;runtimeFont=font;
+        for (int i = 0; categorySlots != null && i < categorySlots.Length; i++)
+        {
+            int category = i;
+            categorySlots[i].card.button.onClick.AddListener(() => ToggleWeaponPicker(category));
+        }
+        if (closePickerButton != null) closePickerButton.onClick.AddListener(() => CloseWeaponPicker());
+        CloseWeaponPicker(true);
         if (useItemButton == null && itemDetails != null)
         {
             useItemButton = ItemUi.Button(itemDetails.transform.parent, font, "UseSelectedItem",
@@ -61,13 +79,17 @@ public sealed class InventoryLayoutView : MonoBehaviour
         if(currentWeapon!=null)currentWeapon.text=string.IsNullOrEmpty(player.currentWeaponId)?"未装备武器":Name(player.currentWeaponId);
 
         InventoryDisplayRules.Weapons(state.inventory.weapons,Damage,weapons);
+        InventoryEquipmentRules.Normalize(state, CategoryOf);
         if(!weapons.Exists(entry=>entry.id==owner.SelectedWeaponId))
         {
             string first=weapons.Exists(entry=>entry.id==player.currentWeaponId)?player.currentWeaponId:weapons.Count>0?weapons[0].id:null;
+            if (openCategory >= 0) first = state.inventory.equippedWeaponIds[openCategory];
             owner.SetWeaponSelection(first);
         }
+        if (!string.IsNullOrEmpty(owner.SelectedWeaponId)) owner.SetSlotSelection(CategoryOf(owner.SelectedWeaponId));
+        if (openCategory >= 0) InventoryEquipmentRules.Acknowledge(state.inventory, openCategory, CategoryOf);
         UpdateWeaponRows(state);
-        UpdateSlots(state);
+        UpdateCategorySlots(state);
         UpdateWeaponDetails(state);
 
         InventoryDisplayRules.Items(state.inventory.items,items);
@@ -90,49 +112,148 @@ public sealed class InventoryLayoutView : MonoBehaviour
         return null;
     }
 
+    int CategoryOf(string id)
+    {
+        foreach (var entry in weapons) if (entry.id == id) return entry.column;
+        return (int)MapHudWeaponDisplay.PrimaryDamage(Damage(id));
+    }
+
+    public bool EquipSelected(GameState state)
+    {
+        string id = owner.SelectedWeaponId;
+        return InventoryEquipmentRules.TryEquip(state, owner.SelectedSlot, id, CategoryOf);
+    }
+
+    void ToggleWeaponPicker(int column)
+    {
+        if (owner == null || !owner.IsOpen || (owner.parchment != null && !owner.parchment.CanInteract)) return;
+        if (column == openCategory) { CloseWeaponPicker(); owner.Refresh(); return; }
+        var state = GameRoot.I != null ? GameRoot.I.state : null;
+        if (state == null || weaponPicker == null) return;
+        openCategory = column;
+        InventoryEquipmentRules.Acknowledge(state.inventory, column, CategoryOf);
+        owner.SetWeaponSelection(state.inventory.equippedWeaponIds[column]);
+        pickerTitle.text = InventoryDisplayRules.DamageNames[column] + "武器";
+        PositionWeaponPicker(column);
+        weaponPicker.gameObject.SetActive(true);
+        weaponPicker.SetAsLastSibling();
+        owner.SelectSlot(column);
+        if (weaponScroll != null) { weaponScroll.StopMovement(); weaponScroll.verticalNormalizedPosition = 1; }
+    }
+
+    void PositionWeaponPicker(int column)
+    {
+        var parent = (RectTransform)weaponPicker.parent;
+        var card = (RectTransform)categorySlots[column].card.transform;
+        Vector3 topRight = parent.InverseTransformPoint(card.TransformPoint(new Vector3(card.rect.xMax, card.rect.yMax)));
+        float x = topRight.x - parent.rect.xMin + 14;
+        float y = topRight.y - parent.rect.yMax + 28;
+        pickerPosition = new Vector2(Mathf.Clamp(x, 16, parent.rect.width - weaponPicker.rect.width - 16),
+            Mathf.Clamp(y, -parent.rect.height + weaponPicker.rect.height + 16, -16));
+    }
+
+    public void CloseWeaponPicker(bool immediate = false)
+    {
+        openCategory = -1;
+        if (pickerVisibility != null) pickerVisibility.blocksRaycasts = pickerVisibility.interactable = false;
+        if (!immediate) return;
+        pickerPhase = 0;
+        if (pickerVisibility != null) pickerVisibility.alpha = 0;
+        if (weaponPicker != null) weaponPicker.gameObject.SetActive(false);
+    }
+
+    void Update()
+    {
+        if (weaponPicker == null) return;
+        if (owner == null || !owner.IsOpen) { CloseWeaponPicker(true); return; }
+        if (IsWeaponPickerOpen && Input.GetMouseButtonDown(0))
+        {
+            var canvas = weaponPicker.GetComponentInParent<Canvas>();
+            var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+            bool inside = RectTransformUtility.RectangleContainsScreenPoint(weaponPicker, Input.mousePosition, camera);
+            for (int i = 0; !inside && categorySlots != null && i < categorySlots.Length; i++)
+                inside = RectTransformUtility.RectangleContainsScreenPoint((RectTransform)categorySlots[i].card.transform, Input.mousePosition, camera);
+            if (!inside) { CloseWeaponPicker(); owner.Refresh(); }
+        }
+        pickerPhase = Mathf.MoveTowards(pickerPhase, IsWeaponPickerOpen ? 1 : 0, Time.unscaledDeltaTime / .18f);
+        float ease = Mathf.SmoothStep(0, 1, pickerPhase);
+        weaponPicker.anchoredPosition = pickerPosition + Vector2.right * (1 - ease) * 14;
+        if (pickerVisibility != null)
+        {
+            pickerVisibility.alpha = ease;
+            pickerVisibility.blocksRaycasts = IsWeaponPickerOpen;
+            pickerVisibility.interactable = IsWeaponPickerOpen && ease > .8f;
+        }
+        if (pickerPhase <= 0 && weaponPicker.gameObject.activeSelf) weaponPicker.gameObject.SetActive(false);
+    }
+
+    void OnDisable() => CloseWeaponPicker(true);
+
+    void EquipChoice(string id)
+    {
+        var state = GameRoot.I != null ? GameRoot.I.state : null;
+        int column = openCategory;
+        if (!InventoryEquipmentRules.TryEquip(state, column, id, CategoryOf)) return;
+        owner.SetWeaponSelection(id);
+        CloseWeaponPicker();
+        owner.SelectSlot(column);
+    }
+
     void UpdateWeaponRows(GameState state)
     {
-        signature.Clear();foreach(var entry in weapons)signature.Append(entry.id).Append(':').Append(entry.column).Append('|');
+        if (openCategory < 0) return;
+        choices.Clear();
+        foreach (var entry in weapons) if (entry.column == openCategory) choices.Add(entry);
+        signature.Clear();signature.Append(openCategory).Append('|');
+        foreach(var entry in choices)signature.Append(entry.id).Append('|');
         string next=signature.ToString();
         if(next!=weaponSignature)
         {
-            Clear(weaponRows);int[] counts=new int[4];
-            foreach(var entry in weapons)
+            Clear(weaponRows);
+            for (int i = 0; i < choices.Count; i++)
             {
+                var entry = choices[i];
                 if(weaponTemplate==null || weaponContent==null)break;
                 var row=Create(weaponTemplate,weaponContent);row.name="Weapon_"+entry.id;
                 var rect=(RectTransform)row.transform;
-                rect.anchoredPosition=new Vector2(entry.column*196+6,-counts[entry.column]++*224-4);
-                rect.sizeDelta=new Vector2(184,212);
-                string id=entry.id;row.button.onClick.AddListener(()=>owner.SelectOwnedWeapon(id));
+                rect.anchoredPosition=new Vector2(0,-i*114);
+                rect.sizeDelta=new Vector2(328,106);
+                string id=entry.id;row.button.onClick.AddListener(()=>EquipChoice(id));
                 Sprite sprite=Art(id);
                 row.icon.sprite=sprite;row.icon.enabled=sprite!=null;
                 row.fallback.gameObject.SetActive(sprite==null);row.fallback.text=Name(id);
                 row.title.text=Name(id);
                 weaponRows.Add(row);
             }
-            int maximum=0;foreach(int count in counts)maximum=Mathf.Max(maximum,count);
-            if(weaponContent!=null)weaponContent.sizeDelta=new Vector2(784,Mathf.Max(224,maximum*224));
+            if(weaponContent!=null)weaponContent.sizeDelta=new Vector2(328,Mathf.Max(326,choices.Count*114));
             weaponSignature=next;
         }
         for(int i=0;i<weaponRows.Count;i++)
         {
-            string id=weapons[i].id;int slot=state.inventory.equippedWeaponIds.IndexOf(id);
-            weaponRows[i].annotation.text=id==state.player.currentWeaponId?"当前 · 已装备":slot>=0?"已装备 · "+(slot+1):"";
-            weaponRows[i].Select(id==owner.SelectedWeaponId);
+            string id=choices[i].id;int slot=state.inventory.equippedWeaponIds.IndexOf(id);
+            weaponRows[i].annotation.text=id==state.player.currentWeaponId?"当前 · 已装备":slot>=0?"已装备":"点击装备";
+            weaponRows[i].Select(slot>=0);
         }
-        if(emptyWeapons!=null)emptyWeapons.gameObject.SetActive(weapons.Count==0);
+        if(emptyWeapons!=null)emptyWeapons.gameObject.SetActive(choices.Count==0);
     }
 
-    void UpdateSlots(GameState state)
+    void UpdateCategorySlots(GameState state)
     {
-        for(int i=0;owner.slotButtons!=null && i<owner.slotButtons.Length;i++)
+        for(int i=0;categorySlots!=null && i<categorySlots.Length;i++)
         {
             string id=i<state.inventory.equippedWeaponIds.Count?state.inventory.equippedWeaponIds[i]:null;
-            if(owner.slotLabels!=null && i<owner.slotLabels.Length && owner.slotLabels[i]!=null)
-                owner.slotLabels[i].text=(i+1)+" · "+(string.IsNullOrEmpty(id)?"空槽":Name(id));
-            var image=owner.slotButtons[i]!=null?owner.slotButtons[i].targetGraphic as Image:null;
-            if(image!=null)image.color=new Color(0,0,0,i==owner.SelectedSlot ? .12f : .025f);
+            var card = categorySlots[i].card;
+            Sprite sprite = string.IsNullOrEmpty(id) ? null : Art(id);
+            card.icon.sprite = sprite; card.icon.enabled = sprite != null;
+            card.fallback.gameObject.SetActive(sprite == null);
+            card.fallback.text = string.IsNullOrEmpty(id) ? "＋" : Name(id);
+            card.title.text = string.IsNullOrEmpty(id) ? "未装备" : Name(id);
+            card.annotation.text = string.IsNullOrEmpty(id) ? "点击选择" : id == state.player.currentWeaponId ? "当前武器" : "点击更换";
+            bool selected = i == openCategory || (!string.IsNullOrEmpty(id) && id == owner.SelectedWeaponId);
+            card.Select(selected);
+            if (!selected && card.border != null) card.border.color = new Color(.12f, .08f, .04f, .44f);
+            if (categorySlots[i].newDot != null)
+                categorySlots[i].newDot.gameObject.SetActive(InventoryEquipmentRules.HasUnread(state.inventory, i, CategoryOf));
         }
     }
 
@@ -140,11 +261,11 @@ public sealed class InventoryLayoutView : MonoBehaviour
     {
         string id=owner.SelectedWeaponId;
         bool owned=!string.IsNullOrEmpty(id),equipped=owned&&state.inventory.equippedWeaponIds.Contains(id);
-        if(owner.equipButton!=null)owner.equipButton.interactable=owned;
+        if(owner.equipButton!=null)owner.equipButton.interactable=owned && !equipped;
         if(owner.unequipButton!=null)owner.unequipButton.interactable=!string.IsNullOrEmpty(state.inventory.equippedWeaponIds[owner.SelectedSlot]);
         if(owner.selectWeaponButton!=null)owner.selectWeaponButton.interactable=equipped&&id!=state.player.currentWeaponId;
         if(weaponDetails==null)return;
-        if(!owned){weaponDetails.text="选择持有武器，查看伤害类型与技能。";return;}
+        if(!owned){weaponDetails.text="点击上方属性框，选择要装备的武器。";return;}
         var data=owner.weaponLibrary!=null?owner.weaponLibrary.Find(id):null;
         var damage=Damage(id);var line=new StringBuilder(Name(id));line.Append("   ·   ");
         if(damage==null || damage.Count==0)line.Append("—");

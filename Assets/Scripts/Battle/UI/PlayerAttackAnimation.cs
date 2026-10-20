@@ -19,15 +19,24 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
     [SerializeField] TextAsset turnMotionJson;
     [SerializeField] Sprite[] turnFrames;
     [SerializeField] Sprite[] turnHandFrames;
+    [SerializeField] PlayerHeavyAnimationSet heavyAnimations;
+    [SerializeField] PlayerHeavyAnimationSet poleAnimations;
+    [SerializeField] PlayerOneHandWeaponSet oneHandWeapons;
     [SerializeField] Vector3 visualOffset = new Vector3(3.8f, -7.5f, 0f);
     [SerializeField, Min(.01f)] float visualScale = 1.18f;
 
     PlayerAttackMotion motion;
     PlayerAttackMotion swingMotion;
     Transform visualRoot;
-    SpriteRenderer body, weapon;
+    SpriteRenderer body, weapon, heavyShaft;
     PlayerThrustMesh skin;
     PlayerTurnSpriteBody turnBody;
+    PlayerTurnSpriteBody heavyBody;
+    PlayerTurnSpriteBody poleBody;
+    PlayerHeavyEffects heavyEffects;
+    PlayerHeavyFlameMesh heavyFlames;
+    Transform heavyRoot;
+    Transform poleRoot;
     PlayerSwordEffects effects;
     PlayerTorchMesh torchMesh;
     float idleClock;
@@ -40,7 +49,7 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
     {
         if (!valid || player == null || !Supports(player.CurrentWeapon) || player.IsDead) return;
         idleClock += Time.deltaTime;
-        if (!playing && (skin != null || turnBody != null)) ApplyIdle();
+        if (!playing && (skin != null || turnBody != null || heavyBody != null || poleBody != null)) ApplyIdle();
     }
 
     void OnEnable()
@@ -56,6 +65,7 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
         playbackVersion++;
         playing = false;
         if (effects != null) effects.Cancel();
+        if (heavyEffects != null) heavyEffects.Cancel();
         RestoreFallback();
     }
 
@@ -127,6 +137,42 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
         }
         effects = visualRoot.gameObject.AddComponent<PlayerSwordEffects>();
         effects.Initialize(weapon, body);
+        if (heavyAnimations != null || oneHandWeapons != null)
+        {
+            var flameRoot = new GameObject("WeaponFlames");
+            flameRoot.transform.SetParent(weapon.transform, false);
+            heavyFlames = flameRoot.AddComponent<PlayerHeavyFlameMesh>();
+            heavyFlames.Initialize(weapon);
+        }
+        if (heavyAnimations != null)
+        {
+            heavyRoot = new GameObject("TwoHandHeavy30FPS").transform;
+            heavyRoot.SetParent(visualRoot, false);
+            var candidate = heavyRoot.gameObject.AddComponent<PlayerTurnSpriteBody>();
+            if (candidate.Initialize(heavyAnimations.bodyFrames, heavyAnimations.handFrames, heavyAnimations.motion, body))
+            {
+                heavyBody = candidate;
+                heavyShaft = CreateLayer("HeavyWeaponShaft", 3);
+                heavyShaft.enabled = false;
+            }
+            else Destroy(heavyRoot.gameObject);
+            heavyRoot.gameObject.SetActive(false);
+        }
+        if (poleAnimations != null)
+        {
+            poleRoot = new GameObject("TwoHandPole30FPS").transform;
+            poleRoot.SetParent(visualRoot, false);
+            var candidate = poleRoot.gameObject.AddComponent<PlayerTurnSpriteBody>();
+            if (candidate.Initialize(poleAnimations.bodyFrames, poleAnimations.handFrames, poleAnimations.motion, body))
+                poleBody = candidate;
+            else Destroy(poleRoot.gameObject);
+            poleRoot.gameObject.SetActive(false);
+        }
+        if (heavyBody != null || poleBody != null)
+        {
+            heavyEffects = visualRoot.gameObject.AddComponent<PlayerHeavyEffects>();
+            heavyEffects.Initialize(weapon, body);
+        }
         visualRoot.gameObject.SetActive(false);
     }
 
@@ -148,20 +194,34 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
     public bool Supports(WeaponData equippedWeapon)
     {
         return isActiveAndEnabled && valid && equippedWeapon != null
-            && (equippedWeapon.WeaponId == "sword"
+            && ((poleBody != null && poleAnimations.Find(equippedWeapon.WeaponId) != null)
+                || (heavyBody != null && heavyAnimations.Find(equippedWeapon.WeaponId) != null) || equippedWeapon.WeaponId == "sword"
+                || (oneHandWeapons != null && oneHandWeapons.Find(equippedWeapon.WeaponId) != null && turnBody != null
+                    && (!oneHandWeapons.Find(equippedWeapon.WeaponId).swing || swingMotion != null))
                 || (equippedWeapon.WeaponId == "torch" && swingMotion != null && torchMesh != null && (skin != null || turnBody != null)));
     }
 
-    bool IsSwing => player != null && player.CurrentWeapon != null && player.CurrentWeapon.WeaponId == "torch";
+    PlayerOneHandWeaponSet.Weapon OneHandWeapon => oneHandWeapons != null && player != null && player.CurrentWeapon != null
+        ? oneHandWeapons.Find(player.CurrentWeapon.WeaponId) : null;
+    bool IsTorch => player != null && player.CurrentWeapon != null && player.CurrentWeapon.WeaponId == "torch";
+    bool IsSwing => IsTorch || (OneHandWeapon != null && OneHandWeapon.swing);
+    PlayerHeavyAnimationSet.Weapon PoleWeapon => poleBody != null && player != null && player.CurrentWeapon != null
+        ? poleAnimations.Find(player.CurrentWeapon.WeaponId) : null;
+    PlayerHeavyAnimationSet.Weapon HeavyWeapon => PoleWeapon ?? (heavyBody != null && player != null && player.CurrentWeapon != null
+        ? heavyAnimations.Find(player.CurrentWeapon.WeaponId) : null);
+    PlayerTurnSpriteBody TwoHandBody => PoleWeapon != null ? poleBody : heavyBody;
+    bool IsHeavy => HeavyWeapon != null;
     PlayerAttackMotion CurrentMotion => IsSwing ? swingMotion : motion;
-    float AttackDuration => turnBody != null ? turnBody.Duration(IsSwing) : CurrentMotion.duration;
-    float AttackHitTime => turnBody != null ? turnBody.HitTime(IsSwing) : CurrentMotion.hitEvents[0].time;
+    float AttackDuration => IsHeavy ? HeavyWeapon.duration : turnBody != null ? turnBody.Duration(IsSwing) : CurrentMotion.duration;
+    float AttackHitTime => IsHeavy ? TwoHandBody.HitTime(false) * AttackDuration / TwoHandBody.Duration(false)
+        : turnBody != null ? turnBody.HitTime(IsSwing) : CurrentMotion.hitEvents[0].time;
 
     void HandleWeaponChanged(WeaponData equippedWeapon)
     {
         playbackVersion++;
         playing = false;
         if (effects != null) effects.Cancel();
+        if (heavyEffects != null) heavyEffects.Cancel();
         RefreshIdle();
     }
 
@@ -173,13 +233,30 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
             return;
         }
         if (fallbackRenderer != null) fallbackRenderer.enabled = false;
+        bool heavy = IsHeavy;
+        if (heavyRoot != null) heavyRoot.gameObject.SetActive(heavy && PoleWeapon == null);
+        if (poleRoot != null) poleRoot.gameObject.SetActive(PoleWeapon != null);
+        if (turnBody != null) turnBody.gameObject.SetActive(!heavy);
+        if (skin != null) skin.gameObject.SetActive(!heavy);
         bool swing = IsSwing;
-        weapon.sprite = swing ? torchSprite : weaponSprite;
-        weapon.enabled = !swing;
-        if (torchMesh != null) torchMesh.gameObject.SetActive(swing);
-        if (effects != null) effects.ConfigureWeapon(swing);
+        weapon.sprite = heavy ? HeavyWeapon.sprite : OneHandWeapon != null ? OneHandWeapon.sprite : IsTorch ? torchSprite : weaponSprite;
+        weapon.enabled = !IsTorch;
+        if (heavyShaft != null)
+        {
+            heavyShaft.sprite = heavy ? HeavyWeapon.shaft : null;
+            heavyShaft.enabled = heavy && heavyShaft.sprite != null;
+        }
+        if (torchMesh != null) torchMesh.gameObject.SetActive(!heavy && IsTorch);
+        if (heavyFlames != null) heavyFlames.SetSprite(heavy ? HeavyWeapon.flames : OneHandWeapon != null ? OneHandWeapon.flames : null);
+        if (heavyEffects != null) { heavyEffects.Configure(HeavyWeapon); if (!heavy) heavyEffects.Cancel(); }
+        if (effects != null)
+        {
+            effects.ConfigureWeapon(IsTorch);
+            effects.ConfigureTrail(OneHandWeapon != null ? OneHandWeapon.trailHeel : IsTorch ? new Vector2(0, 4.9f) : new Vector2(0, 1.5f),
+                OneHandWeapon != null ? OneHandWeapon.trailTip : IsTorch ? new Vector2(.3f, 8.2f) : new Vector2(-.21f, 9.96f));
+        }
         visualRoot.gameObject.SetActive(true);
-        if (skin != null || turnBody != null) ApplyIdle();
+        if (skin != null || turnBody != null || heavyBody != null || poleBody != null) ApplyIdle();
         else ApplyPose(0f);
     }
 
@@ -191,6 +268,14 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
 
     void ApplyPose(float time)
     {
+        if (IsHeavy)
+        {
+            float advance = PoleWeapon != null ? PlayerPoleThrust.Advance(time, AttackDuration,
+                TwoHandBody.ReleaseTime(false) * AttackDuration / TwoHandBody.Duration(false), AttackHitTime) : 0;
+            ApplyHeavyWeapon(TwoHandBody.Apply(time, false, AttackDuration, AttackHitTime, idleClock, advance));
+            heavyEffects.SetPoseTime(TwoHandBody.LastFrameTime);
+            return;
+        }
         if (effects != null) effects.SetPoseTime(time);
         if (turnBody != null)
         {
@@ -212,14 +297,46 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
         ApplyWeaponScale(pose.weaponScale);
     }
 
-    void ApplyIdle() => ApplyWeapon(turnBody != null ? turnBody.ApplyIdle(idleClock) : skin.ApplyIdle(idleClock));
+    void ApplyIdle()
+    {
+        if (IsHeavy) ApplyHeavyWeapon(TwoHandBody.ApplyIdle(idleClock));
+        else if (turnBody != null || skin != null)
+            ApplyWeapon(turnBody != null ? turnBody.ApplyIdle(idleClock) : skin.ApplyIdle(idleClock));
+        else ApplyPose(0f);
+    }
+
+    void ApplyHeavyWeapon(PlayerThrustRig.Pose pose)
+    {
+        weapon.sortingOrder = body.sortingOrder + 1;
+        weapon.transform.localPosition = new Vector3((pose.grip.x - PlayerThrustRig.RootX) / 100f,
+            (PlayerThrustRig.RootY - pose.grip.y) / 100f, 0f);
+        weapon.transform.localRotation = Quaternion.Euler(0f, 0f, pose.weaponAngle - 90f);
+        if (TwoHandBody.LastWeaponReturning)
+        {
+            // A rigid sideways turn. The blade and crossguard keep their
+            // original dimensions instead of uniformly shrinking together.
+            var yaw = Quaternion.Euler(0f, TwoHandBody.LastWeaponYaw, 0f);
+            weapon.transform.localRotation = yaw
+                * Quaternion.Euler(0f, 0f, -90f - TwoHandBody.LastWeaponPitch) * yaw;
+        }
+        var mount = HeavyWeapon;
+        weapon.transform.localScale = new Vector3(mount.scale * mount.FacingAt(TwoHandBody.LastFrameTime), mount.scale, mount.scale);
+        if (heavyShaft != null && heavyShaft.enabled)
+        {
+            // A circular shaft keeps its width while the flat blade turns.
+            heavyShaft.sortingOrder = weapon.sortingOrder;
+            heavyShaft.transform.localPosition = weapon.transform.localPosition;
+            heavyShaft.transform.localRotation = weapon.transform.localRotation;
+            heavyShaft.transform.localScale = Vector3.one * mount.scale;
+        }
+    }
 
     void ApplyWeapon(PlayerThrustRig.Pose pose)
     {
         weapon.transform.localPosition = new Vector3((pose.grip.x - PlayerThrustRig.RootX) / 100f,
             (PlayerThrustRig.RootY - pose.grip.y) / 100f, 0f);
         weapon.transform.localRotation = Quaternion.Euler(0f, 0f, pose.weaponAngle - 90f);
-        ApplyWeaponScale(CurrentMotion.frames[0].weaponScale);
+        ApplyWeaponScale(OneHandWeapon != null ? OneHandWeapon.scale : CurrentMotion.frames[0].weaponScale);
     }
 
     void ApplyWeaponScale(float authoredScale)
@@ -233,7 +350,11 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
 
     public void ShowImpact(Combatant target)
     {
-        if (playing && target != null && effects != null) effects.PlayImpact(target);
+        if (playing && target != null)
+        {
+            if (IsHeavy && heavyEffects != null) heavyEffects.PlayImpact(target);
+            else if (effects != null) effects.PlayImpact(target);
+        }
     }
 
     public IEnumerator PlayAttack(WeaponData equippedWeapon, Func<bool> attackerAlive,
@@ -246,7 +367,9 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
         float duration = AttackDuration, hitTime = AttackHitTime;
         float release = turnBody != null ? turnBody.ReleaseTime(IsSwing) : -1f;
         playing = true;
-        if (effects != null) effects.BeginAttack(duration, hitTime, release);
+        bool heavy = IsHeavy;
+        if (heavy) heavyEffects.BeginAttack(TwoHandBody.ReleaseTime(false), TwoHandBody.HitTime(false));
+        else if (effects != null) effects.BeginAttack(duration, hitTime, release);
         try
         {
             while (true)
@@ -277,6 +400,7 @@ public sealed class PlayerAttackAnimation : MonoBehaviour
             {
                 playing = false;
                 if (effects != null) effects.EndAttack();
+                if (heavyEffects != null) heavyEffects.EndAttack();
                 RefreshIdle();
             }
         }

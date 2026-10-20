@@ -38,7 +38,9 @@ public class DialogueManager : MonoBehaviour
 
     public void Next()
     {
-        if (!IsPlaying || currentNode == null || HasChoice()) return;
+        if (!IsPlaying || currentNode == null) return;
+        if (ui != null && ui.TryAdvancePage()) return;
+        if (HasChoice()) return;
         if (string.IsNullOrEmpty(currentNode.nextNodeID))
         {
             EndDialogue();
@@ -52,7 +54,7 @@ public class DialogueManager : MonoBehaviour
 
     public void Choose(int index)
     {
-        if (!IsPlaying || currentNode == null || currentNode.choices == null
+        if (!IsPlaying || (ui != null && !ui.CanChoose) || currentNode == null || currentNode.choices == null
             || index < 0 || index >= currentNode.choices.Count) return;
         var choice = currentNode.choices[index];
         if (choice == null) return;
@@ -104,7 +106,7 @@ public class DialogueManager : MonoBehaviour
     public bool HasChoice()
     {
         return IsPlaying && currentNode != null && currentNode.choices != null
-            && currentNode.choices.Count > 0;
+            && currentNode.choices.Exists(choice => choice != null);
     }
 
     private void OnDestroy()

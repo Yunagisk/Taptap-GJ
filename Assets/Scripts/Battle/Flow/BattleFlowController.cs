@@ -43,6 +43,13 @@ public class BattleFlowController : MonoBehaviour
         player != null && player.Statuses.Has(StatusId.Exhaust);
 
     public bool IsSelectingSkill => currentState == BattleState.SelectingTarget && currentAction is SkillAction;
+    // Spawned encounters supply their participants before this component's first Start.
+    public void ConfigureParticipants(PlayerCombatant participant, IEnumerable<EnemyCombatant> roster)
+    {
+        if (round != 0) throw new InvalidOperationException("Configure participants before the battle starts.");
+        player = participant;
+        enemies = new List<EnemyCombatant>(roster);
+    }
     public bool CanUseWeaponSkill => SkillUnavailableReason == null;
     public string SkillUnavailableReason
     {

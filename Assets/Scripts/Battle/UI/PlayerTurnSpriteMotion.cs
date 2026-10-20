@@ -12,6 +12,12 @@ public sealed class PlayerTurnSpriteMotion
         public int sprite;
         public Point grip;
         public float angle, idleWeight;
+        // Projected shaft length for grip registration, not a render scale.
+        // Missing in the older one-hand clips: zero also means full length.
+        public float weaponLength;
+        public bool weaponReturning;
+        public float weaponYaw, weaponPitch;
+        public float ProjectedWeaponLength => weaponLength > 0f ? weaponLength : 1f;
         public string view;
     }
     [Serializable] public sealed class Clip
@@ -43,6 +49,8 @@ public sealed class PlayerTurnSpriteMotion
                 if (frame == null || frame.sprite < 0 || frame.sprite >= count || !Finite(frame.time)
                     || frame.time <= previous || frame.time > duration + .00001f
                     || !Finite(frame.grip.x) || !Finite(frame.grip.y) || !Finite(frame.angle)
+                    || !Finite(frame.weaponLength) || frame.weaponLength < 0f || frame.weaponLength > 1.00001f
+                    || !Finite(frame.weaponYaw) || !Finite(frame.weaponPitch)
                     || !Finite(frame.idleWeight) || frame.idleWeight < 0f || frame.idleWeight > 1.00001f) return false;
                 if (Math.Abs(frame.time - hit) < .00001f) contact = true;
                 previous = frame.time;

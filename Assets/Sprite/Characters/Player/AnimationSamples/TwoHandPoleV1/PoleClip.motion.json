@@ -1,0 +1,4907 @@
+{
+  "fps": 30,
+  "thrust": {
+    "fps": 30,
+    "duration": 1.2,
+    "release": 0.4,
+    "hit": 0.56666666,
+    "gripSpacing": 540,
+    "recoveryTurn": null,
+    "frames": [
+      {
+        "time": 0,
+        "angle": 6,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 1,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -186,
+        "rightCuffTurn": 14.712662,
+        "leftCuffTurn": 62.05818,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 0,
+        "grip": {
+          "x": 480,
+          "y": 1335
+        },
+        "offGrip": {
+          "x": 1017.0418,
+          "y": 1278.5547
+        },
+        "rightWrist": {
+          "x": 482.8107,
+          "y": 1301.9893
+        },
+        "leftWrist": {
+          "x": 989.7863,
+          "y": 1265.9828
+        },
+        "rightShoulder": {
+          "x": 574.0377,
+          "y": 917.0075
+        },
+        "leftShoulder": {
+          "x": 825.9658,
+          "y": 983.00525
+        },
+        "rightElbow": {
+          "x": 499.77832,
+          "y": 1102.7103
+        },
+        "leftElbow": {
+          "x": 808.1754,
+          "y": 1182.2124
+        },
+        "rightThumb": {
+          "x": 508.26474,
+          "y": 1336.0513
+        },
+        "leftThumb": {
+          "x": 1045.3065,
+          "y": 1279.606
+        },
+        "rightSleeveRoot": {
+          "x": 574.0377,
+          "y": 917.0075
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.033333335,
+        "angle": 5.9898243,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.8896083,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.98982,
+        "rightCuffTurn": 14.71048,
+        "leftCuffTurn": 62.04702,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 1,
+        "grip": {
+          "x": 479.77106,
+          "y": 1335.1018
+        },
+        "offGrip": {
+          "x": 1016.8229,
+          "y": 1278.7518
+        },
+        "rightWrist": {
+          "x": 482.58636,
+          "y": 1302.0914
+        },
+        "leftWrist": {
+          "x": 989.5721,
+          "y": 1266.1698
+        },
+        "rightShoulder": {
+          "x": 573.8852,
+          "y": 917.12964
+        },
+        "leftShoulder": {
+          "x": 825.81323,
+          "y": 983.1274
+        },
+        "rightElbow": {
+          "x": 499.58185,
+          "y": 1102.8148
+        },
+        "leftElbow": {
+          "x": 807.9923,
+          "y": 1182.3318
+        },
+        "rightThumb": {
+          "x": 508.03558,
+          "y": 1336.1581
+        },
+        "leftThumb": {
+          "x": 1045.0874,
+          "y": 1279.8081
+        },
+        "rightSleeveRoot": {
+          "x": 573.8852,
+          "y": 917.12964
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.06666667,
+        "angle": 5.9290123,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.475972,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.92902,
+        "rightCuffTurn": 14.697891,
+        "leftCuffTurn": 61.979683,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 2,
+        "grip": {
+          "x": 478.40277,
+          "y": 1335.7098
+        },
+        "offGrip": {
+          "x": 1015.5141,
+          "y": 1279.9299
+        },
+        "rightWrist": {
+          "x": 481.24588,
+          "y": 1302.7019
+        },
+        "leftWrist": {
+          "x": 988.2915,
+          "y": 1267.287
+        },
+        "rightShoulder": {
+          "x": 572.97455,
+          "y": 917.85956
+        },
+        "leftShoulder": {
+          "x": 824.9013,
+          "y": 983.85565
+        },
+        "rightElbow": {
+          "x": 498.40906,
+          "y": 1103.4397
+        },
+        "leftElbow": {
+          "x": 806.8995,
+          "y": 1183.0438
+        },
+        "rightThumb": {
+          "x": 506.66617,
+          "y": 1336.7961
+        },
+        "leftThumb": {
+          "x": 1043.7775,
+          "y": 1281.0162
+        },
+        "rightSleeveRoot": {
+          "x": 572.97455,
+          "y": 917.85956
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.1,
+        "angle": 5.7929688,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.08428097,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.79297,
+        "rightCuffTurn": 14.671478,
+        "leftCuffTurn": 61.829155,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 3,
+        "grip": {
+          "x": 475.3418,
+          "y": 1337.0703
+        },
+        "offGrip": {
+          "x": 1012.58405,
+          "y": 1282.5658
+        },
+        "rightWrist": {
+          "x": 478.24802,
+          "y": 1304.0679
+        },
+        "leftWrist": {
+          "x": 985.42505,
+          "y": 1269.7869
+        },
+        "rightShoulder": {
+          "x": 570.937,
+          "y": 919.4925
+        },
+        "leftShoulder": {
+          "x": 822.86096,
+          "y": 985.4855
+        },
+        "rightElbow": {
+          "x": 495.79236,
+          "y": 1104.8389
+        },
+        "leftElbow": {
+          "x": 804.45685,
+          "y": 1184.6368
+        },
+        "rightThumb": {
+          "x": 503.60254,
+          "y": 1338.2238
+        },
+        "leftThumb": {
+          "x": 1040.8448,
+          "y": 1283.7192
+        },
+        "rightSleeveRoot": {
+          "x": 570.937,
+          "y": 919.4925
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.13333334,
+        "angle": 5.580247,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.58025,
+        "rightCuffTurn": 14.634842,
+        "leftCuffTurn": 61.591713,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 4,
+        "grip": {
+          "x": 470.55554,
+          "y": 1339.1975
+        },
+        "offGrip": {
+          "x": 1007.99646,
+          "y": 1286.688
+        },
+        "rightWrist": {
+          "x": 473.5632,
+          "y": 1306.2042
+        },
+        "leftWrist": {
+          "x": 980.9387,
+          "y": 1273.696
+        },
+        "rightShoulder": {
+          "x": 567.75104,
+          "y": 922.04553
+        },
+        "leftShoulder": {
+          "x": 819.6708,
+          "y": 988.03375
+        },
+        "rightElbow": {
+          "x": 491.71982,
+          "y": 1107.03
+        },
+        "leftElbow": {
+          "x": 800.64514,
+          "y": 1187.1268
+        },
+        "rightThumb": {
+          "x": 498.8118,
+          "y": 1340.4558
+        },
+        "leftThumb": {
+          "x": 1036.2527,
+          "y": 1287.9463
+        },
+        "rightSleeveRoot": {
+          "x": 567.75104,
+          "y": 922.04553
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.16666667,
+        "angle": 5.3067613,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.30676,
+        "rightCuffTurn": 14.595825,
+        "leftCuffTurn": 61.282883,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 5,
+        "grip": {
+          "x": 464.40213,
+          "y": 1341.9324
+        },
+        "offGrip": {
+          "x": 1002.0875,
+          "y": 1291.9888
+        },
+        "rightWrist": {
+          "x": 467.54477,
+          "y": 1308.9517
+        },
+        "leftWrist": {
+          "x": 975.16315,
+          "y": 1278.7225
+        },
+        "rightShoulder": {
+          "x": 563.65497,
+          "y": 925.32806
+        },
+        "leftShoulder": {
+          "x": 815.5692,
+          "y": 991.3099
+        },
+        "rightElbow": {
+          "x": 486.51614,
+          "y": 1109.8534
+        },
+        "leftElbow": {
+          "x": 795.7583,
+          "y": 1190.3263
+        },
+        "rightThumb": {
+          "x": 492.65207,
+          "y": 1343.3256
+        },
+        "leftThumb": {
+          "x": 1030.3374,
+          "y": 1293.382
+        },
+        "rightSleeveRoot": {
+          "x": 563.65497,
+          "y": 925.32806
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.2,
+        "angle": 5,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185,
+        "rightCuffTurn": 14.562805,
+        "leftCuffTurn": 60.93264,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 6,
+        "grip": {
+          "x": 457.5,
+          "y": 1345
+        },
+        "offGrip": {
+          "x": 995.4451,
+          "y": 1297.9359
+        },
+        "rightWrist": {
+          "x": 460.80017,
+          "y": 1312.0347
+        },
+        "leftWrist": {
+          "x": 968.6747,
+          "y": 1284.3618
+        },
+        "rightShoulder": {
+          "x": 559.0607,
+          "y": 929.00995
+        },
+        "leftShoulder": {
+          "x": 810.9687,
+          "y": 994.98474
+        },
+        "rightElbow": {
+          "x": 480.7227,
+          "y": 1113.0293
+        },
+        "leftElbow": {
+          "x": 790.2956,
+          "y": 1193.9135
+        },
+        "rightThumb": {
+          "x": 485.74207,
+          "y": 1346.5444
+        },
+        "leftThumb": {
+          "x": 1023.6872,
+          "y": 1299.4803
+        },
+        "rightSleeveRoot": {
+          "x": 559.0607,
+          "y": 929.00995
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.23333333,
+        "angle": 4.6932387,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.69324,
+        "rightCuffTurn": 14.540802,
+        "leftCuffTurn": 60.5776,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 7,
+        "grip": {
+          "x": 450.59787,
+          "y": 1348.0676
+        },
+        "offGrip": {
+          "x": 988.78723,
+          "y": 1303.8843
+        },
+        "rightWrist": {
+          "x": 454.0619,
+          "y": 1315.119
+        },
+        "leftWrist": {
+          "x": 962.17535,
+          "y": 1290.0018
+        },
+        "rightShoulder": {
+          "x": 554.4664,
+          "y": 932.6918
+        },
+        "leftShoulder": {
+          "x": 806.3681,
+          "y": 998.65967
+        },
+        "rightElbow": {
+          "x": 474.9735,
+          "y": 1116.2152
+        },
+        "leftElbow": {
+          "x": 784.85297,
+          "y": 1197.499
+        },
+        "rightThumb": {
+          "x": 478.83127,
+          "y": 1349.7632
+        },
+        "leftThumb": {
+          "x": 1017.0206,
+          "y": 1305.5798
+        },
+        "rightSleeveRoot": {
+          "x": 554.4664,
+          "y": 932.6918
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.26666668,
+        "angle": 4.419753,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0.01978234,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.41975,
+        "rightCuffTurn": 14.530731,
+        "leftCuffTurn": 60.25702,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 8,
+        "grip": {
+          "x": 444.44446,
+          "y": 1350.8025
+        },
+        "offGrip": {
+          "x": 982.8386,
+          "y": 1309.1886
+        },
+        "rightWrist": {
+          "x": 448.05988,
+          "y": 1317.8702
+        },
+        "leftWrist": {
+          "x": 956.37213,
+          "y": 1295.031
+        },
+        "rightShoulder": {
+          "x": 550.3704,
+          "y": 935.97406
+        },
+        "leftShoulder": {
+          "x": 802.2666,
+          "y": 1001.9359
+        },
+        "rightElbow": {
+          "x": 469.88538,
+          "y": 1119.0647
+        },
+        "leftElbow": {
+          "x": 780.0184,
+          "y": 1200.6947
+        },
+        "rightThumb": {
+          "x": 472.66943,
+          "y": 1352.6328
+        },
+        "leftThumb": {
+          "x": 1011.0636,
+          "y": 1311.0189
+        },
+        "rightSleeveRoot": {
+          "x": 550.3704,
+          "y": 935.97406
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.3,
+        "angle": 4.2070312,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.20703,
+        "rightCuffTurn": 14.52861,
+        "leftCuffTurn": 60.00492,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 9,
+        "grip": {
+          "x": 439.6582,
+          "y": 1352.9297
+        },
+        "offGrip": {
+          "x": 978.2031,
+          "y": 1313.315
+        },
+        "rightWrist": {
+          "x": 443.39462,
+          "y": 1320.0109
+        },
+        "leftWrist": {
+          "x": 951.85236,
+          "y": 1298.9431
+        },
+        "rightShoulder": {
+          "x": 547.1846,
+          "y": 938.52734
+        },
+        "leftShoulder": {
+          "x": 799.0763,
+          "y": 1004.4841
+        },
+        "rightElbow": {
+          "x": 465.95065,
+          "y": 1121.2869
+        },
+        "leftElbow": {
+          "x": 776.26953,
+          "y": 1203.1794
+        },
+        "rightThumb": {
+          "x": 467.8762,
+          "y": 1354.8647
+        },
+        "leftThumb": {
+          "x": 1006.42114,
+          "y": 1315.25
+        },
+        "rightSleeveRoot": {
+          "x": 547.1846,
+          "y": 938.52734
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.33333334,
+        "angle": 4.070988,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.07098,
+        "rightCuffTurn": 14.530136,
+        "leftCuffTurn": 59.84246,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 10,
+        "grip": {
+          "x": 436.59723,
+          "y": 1354.2902
+        },
+        "offGrip": {
+          "x": 975.23474,
+          "y": 1315.9542
+        },
+        "rightWrist": {
+          "x": 440.4127,
+          "y": 1321.3805
+        },
+        "leftWrist": {
+          "x": 948.95917,
+          "y": 1301.4453
+        },
+        "rightShoulder": {
+          "x": 545.1471,
+          "y": 940.1601
+        },
+        "leftShoulder": {
+          "x": 797.0362,
+          "y": 1006.11383
+        },
+        "rightElbow": {
+          "x": 463.44592,
+          "y": 1122.7113
+        },
+        "leftElbow": {
+          "x": 773.87756,
+          "y": 1204.7684
+        },
+        "rightThumb": {
+          "x": 464.81055,
+          "y": 1356.2922
+        },
+        "leftThumb": {
+          "x": 1003.44806,
+          "y": 1317.9563
+        },
+        "rightSleeveRoot": {
+          "x": 545.1471,
+          "y": 940.1601
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.36666667,
+        "angle": 4.0101767,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.01018,
+        "rightCuffTurn": 14.53125,
+        "leftCuffTurn": 59.769585,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 11,
+        "grip": {
+          "x": 435.22897,
+          "y": 1354.8982
+        },
+        "offGrip": {
+          "x": 973.90686,
+          "y": 1317.134
+        },
+        "rightWrist": {
+          "x": 439.08002,
+          "y": 1321.9927
+        },
+        "leftWrist": {
+          "x": 947.6652,
+          "y": 1302.5638
+        },
+        "rightShoulder": {
+          "x": 544.2362,
+          "y": 940.89
+        },
+        "leftShoulder": {
+          "x": 796.1241,
+          "y": 1006.8423
+        },
+        "rightElbow": {
+          "x": 462.32806,
+          "y": 1123.3484
+        },
+        "leftElbow": {
+          "x": 772.80963,
+          "y": 1205.4786
+        },
+        "rightThumb": {
+          "x": 463.44016,
+          "y": 1356.9303
+        },
+        "leftThumb": {
+          "x": 1002.11804,
+          "y": 1319.1661
+        },
+        "rightSleeveRoot": {
+          "x": 544.2362,
+          "y": 940.89
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.4,
+        "angle": 4,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184,
+        "rightCuffTurn": 14.53154,
+        "leftCuffTurn": 59.75747,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 12,
+        "grip": {
+          "x": 435,
+          "y": 1355
+        },
+        "offGrip": {
+          "x": 973.68463,
+          "y": 1317.3315
+        },
+        "rightWrist": {
+          "x": 438.8571,
+          "y": 1322.0951
+        },
+        "leftWrist": {
+          "x": 947.44867,
+          "y": 1302.7511
+        },
+        "rightShoulder": {
+          "x": 544.08386,
+          "y": 941.01215
+        },
+        "leftShoulder": {
+          "x": 795.9715,
+          "y": 1006.9643
+        },
+        "rightElbow": {
+          "x": 462.14148,
+          "y": 1123.4551
+        },
+        "leftElbow": {
+          "x": 772.63104,
+          "y": 1205.5977
+        },
+        "rightThumb": {
+          "x": 463.21082,
+          "y": 1357.0371
+        },
+        "leftThumb": {
+          "x": 1001.89545,
+          "y": 1319.3687
+        },
+        "rightSleeveRoot": {
+          "x": 544.08386,
+          "y": 941.01215
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.43333334,
+        "angle": 3.84,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -183.84,
+        "rightCuffTurn": 11.594254,
+        "leftCuffTurn": 60.7069,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 13,
+        "grip": {
+          "x": 445.2,
+          "y": 1353.4
+        },
+        "offGrip": {
+          "x": 983.9877,
+          "y": 1317.236
+        },
+        "rightWrist": {
+          "x": 447.45816,
+          "y": 1320.3469
+        },
+        "leftWrist": {
+          "x": 957.5533,
+          "y": 1303.0184
+        },
+        "rightShoulder": {
+          "x": 553.2361,
+          "y": 943.3039
+        },
+        "leftShoulder": {
+          "x": 804.58856,
+          "y": 1009.6303
+        },
+        "rightElbow": {
+          "x": 461.0902,
+          "y": 1120.812
+        },
+        "leftElbow": {
+          "x": 781.4136,
+          "y": 1208.2831
+        },
+        "rightThumb": {
+          "x": 473.40503,
+          "y": 1355.5159
+        },
+        "leftThumb": {
+          "x": 1012.1927,
+          "y": 1319.3518
+        },
+        "rightSleeveRoot": {
+          "x": 553.2361,
+          "y": 943.3039
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.46666667,
+        "angle": 3.36,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -183.36,
+        "rightCuffTurn": 5.3549347,
+        "leftCuffTurn": 63.529068,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 14,
+        "grip": {
+          "x": 475.8,
+          "y": 1348.6
+        },
+        "offGrip": {
+          "x": 1014.8717,
+          "y": 1316.9509
+        },
+        "rightWrist": {
+          "x": 474.72992,
+          "y": 1315.4872
+        },
+        "leftWrist": {
+          "x": 987.8784,
+          "y": 1303.8256
+        },
+        "rightShoulder": {
+          "x": 580.6929,
+          "y": 950.1794
+        },
+        "leftShoulder": {
+          "x": 830.4399,
+          "y": 1017.6286
+        },
+        "rightElbow": {
+          "x": 468.27023,
+          "y": 1115.5916
+        },
+        "leftElbow": {
+          "x": 808.0144,
+          "y": 1216.3674
+        },
+        "rightThumb": {
+          "x": 503.9863,
+          "y": 1350.952
+        },
+        "leftThumb": {
+          "x": 1043.058,
+          "y": 1319.303
+        },
+        "rightSleeveRoot": {
+          "x": 580.6929,
+          "y": 950.1794
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.5,
+        "angle": 2.56,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0.01978234,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -182.56,
+        "rightCuffTurn": 2.087967,
+        "leftCuffTurn": 68.150185,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 15,
+        "grip": {
+          "x": 526.8,
+          "y": 1340.6
+        },
+        "offGrip": {
+          "x": 1066.261,
+          "y": 1316.4806
+        },
+        "rightWrist": {
+          "x": 521.90656,
+          "y": 1307.8333
+        },
+        "leftWrist": {
+          "x": 1038.453,
+          "y": 1305.1832
+        },
+        "rightShoulder": {
+          "x": 626.4623,
+          "y": 961.64166
+        },
+        "leftShoulder": {
+          "x": 873.5412,
+          "y": 1030.9464
+        },
+        "rightElbow": {
+          "x": 492.36588,
+          "y": 1110.0269
+        },
+        "leftElbow": {
+          "x": 853.1607,
+          "y": 1229.9053
+        },
+        "rightThumb": {
+          "x": 554.9507,
+          "y": 1343.3453
+        },
+        "leftThumb": {
+          "x": 1094.4117,
+          "y": 1319.226
+        },
+        "rightSleeveRoot": {
+          "x": 626.4623,
+          "y": 961.64166
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.53333336,
+        "angle": 1.4399989,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -181.44,
+        "rightCuffTurn": 10.105652,
+        "leftCuffTurn": 74.21036,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 16,
+        "grip": {
+          "x": 598.2001,
+          "y": 1329.4
+        },
+        "offGrip": {
+          "x": 1138.0295,
+          "y": 1315.8298
+        },
+        "rightWrist": {
+          "x": 589.4068,
+          "y": 1297.4581
+        },
+        "leftWrist": {
+          "x": 1109.3519,
+          "y": 1306.9692
+        },
+        "rightShoulder": {
+          "x": 691.0747,
+          "y": 977.93445
+        },
+        "leftShoulder": {
+          "x": 935.0173,
+          "y": 1048.6316
+        },
+        "rightElbow": {
+          "x": 536.3236,
+          "y": 1104.6312
+        },
+        "leftElbow": {
+          "x": 918.26495,
+          "y": 1247.9287
+        },
+        "rightThumb": {
+          "x": 626.29175,
+          "y": 1332.6951
+        },
+        "leftThumb": {
+          "x": 1166.1212,
+          "y": 1319.1249
+        },
+        "rightSleeveRoot": {
+          "x": 691.0747,
+          "y": 977.93445
+        },
+        "view": "poleContact"
+      },
+      {
+        "time": 0.56666666,
+        "angle": 0,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180,
+        "rightCuffTurn": 18.670685,
+        "leftCuffTurn": 82.1853,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 17,
+        "grip": {
+          "x": 690,
+          "y": 1315
+        },
+        "offGrip": {
+          "x": 1230,
+          "y": 1315
+        },
+        "rightWrist": {
+          "x": 677.31274,
+          "y": 1284.3954
+        },
+        "leftWrist": {
+          "x": 1200.5004,
+          "y": 1309.4607
+        },
+        "rightShoulder": {
+          "x": 773.27924,
+          "y": 998.5272
+        },
+        "leftShoulder": {
+          "x": 1012.34534,
+          "y": 1072.7278
+        },
+        "rightElbow": {
+          "x": 600.7224,
+          "y": 1099.6417
+        },
+        "leftElbow": {
+          "x": 1003.93567,
+          "y": 1272.5509
+        },
+        "rightThumb": {
+          "x": 718,
+          "y": 1319
+        },
+        "leftThumb": {
+          "x": 1258,
+          "y": 1319
+        },
+        "rightSleeveRoot": {
+          "x": 773.27924,
+          "y": 998.5272
+        },
+        "view": "poleContact"
+      },
+      {
+        "time": 0.6,
+        "angle": 0.15195604,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180.15196,
+        "rightCuffTurn": 17.736084,
+        "leftCuffTurn": 82.45258,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 18,
+        "grip": {
+          "x": 685.6666,
+          "y": 1316.8201
+        },
+        "offGrip": {
+          "x": 1225.6648,
+          "y": 1315.388
+        },
+        "rightWrist": {
+          "x": 673.3986,
+          "y": 1286.045
+        },
+        "leftWrist": {
+          "x": 1196.1254,
+          "y": 1310.0646
+        },
+        "rightShoulder": {
+          "x": 772.8042,
+          "y": 1000.7136
+        },
+        "leftShoulder": {
+          "x": 1011.76514,
+          "y": 1074.9828
+        },
+        "rightElbow": {
+          "x": 599.33936,
+          "y": 1100.2623
+        },
+        "leftElbow": {
+          "x": 999.296,
+          "y": 1274.5938
+        },
+        "rightThumb": {
+          "x": 713.6771,
+          "y": 1320.7457
+        },
+        "leftThumb": {
+          "x": 1253.6753,
+          "y": 1319.3136
+        },
+        "rightSleeveRoot": {
+          "x": 772.8042,
+          "y": 1000.7136
+        },
+        "view": "poleContact"
+      },
+      {
+        "time": 0.6333333,
+        "angle": 0.28004426,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0.01978234,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180.28004,
+        "rightCuffTurn": 16.817627,
+        "leftCuffTurn": 82.88706,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 19,
+        "grip": {
+          "x": 682.31213,
+          "y": 1318.7517
+        },
+        "offGrip": {
+          "x": 1222.3057,
+          "y": 1316.1123
+        },
+        "rightWrist": {
+          "x": 670.4698,
+          "y": 1287.8104
+        },
+        "leftWrist": {
+          "x": 1192.7155,
+          "y": 1311.0792
+        },
+        "rightShoulder": {
+          "x": 773.78125,
+          "y": 1003.8408
+        },
+        "leftShoulder": {
+          "x": 1012.5172,
+          "y": 1078.2633
+        },
+        "rightElbow": {
+          "x": 598.9801,
+          "y": 1101.0238
+        },
+        "leftElbow": {
+          "x": 995.54736,
+          "y": 1277.5421
+        },
+        "rightThumb": {
+          "x": 710.33136,
+          "y": 1322.6147
+        },
+        "leftThumb": {
+          "x": 1250.3248,
+          "y": 1319.9753
+        },
+        "rightSleeveRoot": {
+          "x": 773.78125,
+          "y": 1003.8408
+        },
+        "view": "poleContact"
+      },
+      {
+        "time": 0.6666667,
+        "angle": 0.40983766,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180.40984,
+        "rightCuffTurn": 15.88736,
+        "leftCuffTurn": 83.2822,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 20,
+        "grip": {
+          "x": 678.88763,
+          "y": 1320.6754
+        },
+        "offGrip": {
+          "x": 1218.8738,
+          "y": 1316.8129
+        },
+        "rightWrist": {
+          "x": 667.4787,
+          "y": 1289.5717
+        },
+        "leftWrist": {
+          "x": 1189.2386,
+          "y": 1312.0511
+        },
+        "rightShoulder": {
+          "x": 774.6545,
+          "y": 1006.901
+        },
+        "leftShoulder": {
+          "x": 1013.17395,
+          "y": 1081.4706
+        },
+        "rightElbow": {
+          "x": 598.60535,
+          "y": 1101.8046
+        },
+        "leftElbow": {
+          "x": 991.77155,
+          "y": 1280.322
+        },
+        "rightThumb": {
+          "x": 706.9155,
+          "y": 1324.475
+        },
+        "leftThumb": {
+          "x": 1246.9017,
+          "y": 1320.6124
+        },
+        "rightSleeveRoot": {
+          "x": 774.6545,
+          "y": 1006.901
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.7,
+        "angle": 0.5669078,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180.56691,
+        "rightCuffTurn": 14.9292145,
+        "leftCuffTurn": 83.443245,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 21,
+        "grip": {
+          "x": 674.3445,
+          "y": 1322.4716
+        },
+        "offGrip": {
+          "x": 1214.3181,
+          "y": 1317.1287
+        },
+        "rightWrist": {
+          "x": 663.3715,
+          "y": 1291.2113
+        },
+        "leftWrist": {
+          "x": 1184.657,
+          "y": 1312.5316
+        },
+        "rightShoulder": {
+          "x": 773.8684,
+          "y": 1008.88574
+        },
+        "leftShoulder": {
+          "x": 1012.3082,
+          "y": 1083.5059
+        },
+        "rightElbow": {
+          "x": 597.1301,
+          "y": 1102.4996
+        },
+        "leftElbow": {
+          "x": 987.01666,
+          "y": 1281.9003
+        },
+        "rightThumb": {
+          "x": 702.3827,
+          "y": 1326.1943
+        },
+        "leftThumb": {
+          "x": 1242.3563,
+          "y": 1320.8514
+        },
+        "rightSleeveRoot": {
+          "x": 773.8684,
+          "y": 1008.88574
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.73333335,
+        "angle": 0.77682793,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180.77682,
+        "rightCuffTurn": 13.931381,
+        "leftCuffTurn": 83.18408,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 22,
+        "grip": {
+          "x": 667.6339,
+          "y": 1324.0199
+        },
+        "offGrip": {
+          "x": 1207.5842,
+          "y": 1316.6987
+        },
+        "rightWrist": {
+          "x": 657.09186,
+          "y": 1292.6117
+        },
+        "leftWrist": {
+          "x": 1177.9271,
+          "y": 1312.0762
+        },
+        "rightShoulder": {
+          "x": 769.8674,
+          "y": 1008.7864
+        },
+        "leftShoulder": {
+          "x": 1008.4924,
+          "y": 1083.2699
+        },
+        "rightElbow": {
+          "x": 593.4517,
+          "y": 1103.0071
+        },
+        "leftElbow": {
+          "x": 980.3132,
+          "y": 1281.2748
+        },
+        "rightThumb": {
+          "x": 695.68555,
+          "y": 1327.6399
+        },
+        "leftThumb": {
+          "x": 1235.6359,
+          "y": 1320.3187
+        },
+        "rightSleeveRoot": {
+          "x": 769.8674,
+          "y": 1008.7864
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.76666665,
+        "angle": 1.0646671,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -181.06467,
+        "rightCuffTurn": 12.863419,
+        "leftCuffTurn": 82.32948,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 23,
+        "grip": {
+          "x": 657.7332,
+          "y": 1325.211
+        },
+        "offGrip": {
+          "x": 1197.64,
+          "y": 1315.1774
+        },
+        "rightWrist": {
+          "x": 647.61975,
+          "y": 1293.6622
+        },
+        "leftWrist": {
+          "x": 1168.03,
+          "y": 1310.2616
+        },
+        "rightShoulder": {
+          "x": 761.1526,
+          "y": 1005.63916
+        },
+        "leftShoulder": {
+          "x": 1000.3505,
+          "y": 1079.7119
+        },
+        "rightElbow": {
+          "x": 586.5669,
+          "y": 1103.2087
+        },
+        "leftElbow": {
+          "x": 970.7305,
+          "y": 1277.5063
+        },
+        "rightThumb": {
+          "x": 685.80273,
+          "y": 1328.6901
+        },
+        "leftThumb": {
+          "x": 1225.7095,
+          "y": 1318.6564
+        },
+        "rightSleeveRoot": {
+          "x": 761.1526,
+          "y": 1005.63916
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.8,
+        "angle": 1.4296337,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -181.42963,
+        "rightCuffTurn": 11.61322,
+        "leftCuffTurn": 81.01092,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 24,
+        "grip": {
+          "x": 644.8464,
+          "y": 1326.2769
+        },
+        "offGrip": {
+          "x": 1184.6782,
+          "y": 1312.8043
+        },
+        "rightWrist": {
+          "x": 635.22156,
+          "y": 1294.5756
+        },
+        "leftWrist": {
+          "x": 1155.1542,
+          "y": 1307.3965
+        },
+        "rightShoulder": {
+          "x": 748.56323,
+          "y": 1000.21313
+        },
+        "leftShoulder": {
+          "x": 988.64,
+          "y": 1073.6581
+        },
+        "rightElbow": {
+          "x": 577.1183,
+          "y": 1103.2017
+        },
+        "leftElbow": {
+          "x": 958.42694,
+          "y": 1271.3629
+        },
+        "rightThumb": {
+          "x": 672.93744,
+          "y": 1329.577
+        },
+        "leftThumb": {
+          "x": 1212.7693,
+          "y": 1316.1045
+        },
+        "rightSleeveRoot": {
+          "x": 748.56323,
+          "y": 1000.21313
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.8333333,
+        "angle": 1.8528264,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -181.85283,
+        "rightCuffTurn": 10.13974,
+        "leftCuffTurn": 79.39516,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 25,
+        "grip": {
+          "x": 629.7807,
+          "y": 1327.3489
+        },
+        "offGrip": {
+          "x": 1169.4983,
+          "y": 1309.8894
+        },
+        "rightWrist": {
+          "x": 620.7386,
+          "y": 1295.4766
+        },
+        "leftWrist": {
+          "x": 1140.0931,
+          "y": 1303.8683
+        },
+        "rightShoulder": {
+          "x": 733.3983,
+          "y": 993.3921
+        },
+        "leftShoulder": {
+          "x": 974.54987,
+          "y": 1066.0706
+        },
+        "rightElbow": {
+          "x": 566.1534,
+          "y": 1103.0696
+        },
+        "leftElbow": {
+          "x": 944.1587,
+          "y": 1263.748
+        },
+        "rightThumb": {
+          "x": 657.8954,
+          "y": 1330.4415
+        },
+        "leftThumb": {
+          "x": 1197.613,
+          "y": 1312.982
+        },
+        "rightSleeveRoot": {
+          "x": 733.3983,
+          "y": 993.3921
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.8666667,
+        "angle": 2.3190336,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -182.31903,
+        "rightCuffTurn": 8.441086,
+        "leftCuffTurn": 77.55048,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 26,
+        "grip": {
+          "x": 613.0947,
+          "y": 1328.4114
+        },
+        "offGrip": {
+          "x": 1152.6525,
+          "y": 1306.5609
+        },
+        "rightWrist": {
+          "x": 604.74023,
+          "y": 1296.3519
+        },
+        "leftWrist": {
+          "x": 1123.4008,
+          "y": 1299.8341
+        },
+        "rightShoulder": {
+          "x": 716.2809,
+          "y": 985.49475
+        },
+        "leftShoulder": {
+          "x": 958.6572,
+          "y": 1057.3002
+        },
+        "rightElbow": {
+          "x": 554.30597,
+          "y": 1102.8154
+        },
+        "leftElbow": {
+          "x": 928.48804,
+          "y": 1255.0117
+        },
+        "rightThumb": {
+          "x": 641.23364,
+          "y": 1331.2751
+        },
+        "leftThumb": {
+          "x": 1180.7914,
+          "y": 1309.4247
+        },
+        "rightSleeveRoot": {
+          "x": 716.2809,
+          "y": 985.49475
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.9,
+        "angle": 2.8130407,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -182.81303,
+        "rightCuffTurn": 6.5173798,
+        "leftCuffTurn": 75.54446,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 27,
+        "grip": {
+          "x": 595.3471,
+          "y": 1329.4482
+        },
+        "offGrip": {
+          "x": 1134.6964,
+          "y": 1302.9467
+        },
+        "rightWrist": {
+          "x": 587.79517,
+          "y": 1297.1903
+        },
+        "leftWrist": {
+          "x": 1105.6323,
+          "y": 1295.4503
+        },
+        "rightShoulder": {
+          "x": 697.8347,
+          "y": 976.839
+        },
+        "leftShoulder": {
+          "x": 941.5393,
+          "y": 1047.6978
+        },
+        "rightElbow": {
+          "x": 542.2055,
+          "y": 1102.4557
+        },
+        "leftElbow": {
+          "x": 911.97034,
+          "y": 1245.4999
+        },
+        "rightThumb": {
+          "x": 623.50964,
+          "y": 1332.0692
+        },
+        "leftThumb": {
+          "x": 1162.859,
+          "y": 1305.5676
+        },
+        "rightSleeveRoot": {
+          "x": 697.8347,
+          "y": 976.839
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.93333334,
+        "angle": 3.3196368,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.0010041595,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -183.31964,
+        "rightCuffTurn": 4.3772125,
+        "leftCuffTurn": 73.46283,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 28,
+        "grip": {
+          "x": 577.09625,
+          "y": 1330.4435
+        },
+        "offGrip": {
+          "x": 1116.1902,
+          "y": 1299.1742
+        },
+        "rightWrist": {
+          "x": 570.46686,
+          "y": 1297.9834
+        },
+        "leftWrist": {
+          "x": 1087.3431,
+          "y": 1290.8818
+        },
+        "rightShoulder": {
+          "x": 678.6458,
+          "y": 967.7267
+        },
+        "leftShoulder": {
+          "x": 923.69617,
+          "y": 1037.6788
+        },
+        "rightElbow": {
+          "x": 530.4464,
+          "y": 1102.0283
+        },
+        "leftElbow": {
+          "x": 895.12714,
+          "y": 1235.6279
+        },
+        "rightThumb": {
+          "x": 605.2809,
+          "y": 1332.8154
+        },
+        "leftThumb": {
+          "x": 1144.3749,
+          "y": 1301.5461
+        },
+        "rightSleeveRoot": {
+          "x": 678.6458,
+          "y": 967.7267
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.96666664,
+        "angle": 3.8236065,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.03549373,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -183.82361,
+        "rightCuffTurn": 2.0434418,
+        "leftCuffTurn": 71.42445,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 29,
+        "grip": {
+          "x": 558.90076,
+          "y": 1331.3813
+        },
+        "offGrip": {
+          "x": 1097.6987,
+          "y": 1295.3715
+        },
+        "rightWrist": {
+          "x": 553.3111,
+          "y": 1298.7262
+        },
+        "leftWrist": {
+          "x": 1069.0841,
+          "y": 1286.3097
+        },
+        "rightShoulder": {
+          "x": 659.2261,
+          "y": 958.4309
+        },
+        "leftShoulder": {
+          "x": 905.4857,
+          "y": 1027.7689
+        },
+        "rightElbow": {
+          "x": 519.56744,
+          "y": 1101.5933
+        },
+        "leftElbow": {
+          "x": 878.4165,
+          "y": 1225.9286
+        },
+        "rightThumb": {
+          "x": 587.10516,
+          "y": 1333.5052
+        },
+        "leftThumb": {
+          "x": 1125.9032,
+          "y": 1297.4954
+        },
+        "rightSleeveRoot": {
+          "x": 659.2261,
+          "y": 958.4309
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 1,
+        "angle": 4.309739,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.14470148,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.30974,
+        "rightCuffTurn": 0.4751892,
+        "leftCuffTurn": 69.46462,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 30,
+        "grip": {
+          "x": 541.3192,
+          "y": 1332.2458
+        },
+        "offGrip": {
+          "x": 1079.7922,
+          "y": 1291.6658
+        },
+        "rightWrist": {
+          "x": 536.8915,
+          "y": 1299.413
+        },
+        "leftWrist": {
+          "x": 1051.42,
+          "y": 1281.8711
+        },
+        "rightShoulder": {
+          "x": 640.2533,
+          "y": 949.2981
+        },
+        "leftShoulder": {
+          "x": 887.61005,
+          "y": 1018.20593
+        },
+        "rightElbow": {
+          "x": 510.16235,
+          "y": 1101.2072
+        },
+        "leftElbow": {
+          "x": 862.36835,
+          "y": 1216.6067
+        },
+        "rightThumb": {
+          "x": 569.54065,
+          "y": 1334.1304
+        },
+        "leftThumb": {
+          "x": 1108.0137,
+          "y": 1293.5503
+        },
+        "rightSleeveRoot": {
+          "x": 640.2533,
+          "y": 949.2981
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.0333333,
+        "angle": 4.76282,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.32570028,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.76282,
+        "rightCuffTurn": 3.1712036,
+        "leftCuffTurn": 67.576775,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 31,
+        "grip": {
+          "x": 524.91003,
+          "y": 1333.021
+        },
+        "offGrip": {
+          "x": 1063.0454,
+          "y": 1288.1842
+        },
+        "rightWrist": {
+          "x": 521.7706,
+          "y": 1300.0399
+        },
+        "leftWrist": {
+          "x": 1034.9274,
+          "y": 1277.6821
+        },
+        "rightShoulder": {
+          "x": 622.51825,
+          "y": 940.7149
+        },
+        "leftShoulder": {
+          "x": 870.9763,
+          "y": 1009.0783
+        },
+        "rightElbow": {
+          "x": 502.81876,
+          "y": 1100.94
+        },
+        "leftElbow": {
+          "x": 847.56934,
+          "y": 1207.7039
+        },
+        "rightThumb": {
+          "x": 553.14545,
+          "y": 1334.6823
+        },
+        "leftThumb": {
+          "x": 1091.2809,
+          "y": 1289.8455
+        },
+        "rightSleeveRoot": {
+          "x": 622.51825,
+          "y": 940.7149
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.0666667,
+        "angle": 5.167637,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.54457563,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.16763,
+        "rightCuffTurn": 6.001465,
+        "leftCuffTurn": 65.807365,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 32,
+        "grip": {
+          "x": 510.23187,
+          "y": 1333.6909
+        },
+        "offGrip": {
+          "x": 1048.037,
+          "y": 1285.0531
+        },
+        "rightWrist": {
+          "x": 508.49097,
+          "y": 1300.6066
+        },
+        "leftWrist": {
+          "x": 1020.17706,
+          "y": 1273.8844
+        },
+        "rightShoulder": {
+          "x": 606.7163,
+          "y": 933.02356
+        },
+        "leftShoulder": {
+          "x": 856.2867,
+          "y": 1000.6499
+        },
+        "rightElbow": {
+          "x": 497.98145,
+          "y": 1100.8828
+        },
+        "leftElbow": {
+          "x": 834.5387,
+          "y": 1199.464
+        },
+        "rightThumb": {
+          "x": 538.47833,
+          "y": 1335.1527
+        },
+        "leftThumb": {
+          "x": 1076.2834,
+          "y": 1286.5149
+        },
+        "rightSleeveRoot": {
+          "x": 606.7163,
+          "y": 933.02356
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.1,
+        "angle": 5.5089765,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.75363684,
+        "rightFlex": 0.01978234,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.50897,
+        "rightCuffTurn": 8.866318,
+        "leftCuffTurn": 64.285515,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 33,
+        "grip": {
+          "x": 497.84323,
+          "y": 1334.2399
+        },
+        "offGrip": {
+          "x": 1035.3491,
+          "y": 1282.3989
+        },
+        "rightWrist": {
+          "x": 497.56073,
+          "y": 1301.111
+        },
+        "leftWrist": {
+          "x": 1007.7252,
+          "y": 1270.6587
+        },
+        "rightShoulder": {
+          "x": 593.3568,
+          "y": 926.4944
+        },
+        "leftShoulder": {
+          "x": 843.89014,
+          "y": 993.45575
+        },
+        "rightElbow": {
+          "x": 495.85538,
+          "y": 1101.1183
+        },
+        "leftElbow": {
+          "x": 823.6593,
+          "y": 1192.4299
+        },
+        "rightThumb": {
+          "x": 526.0979,
+          "y": 1335.5333
+        },
+        "leftThumb": {
+          "x": 1063.6038,
+          "y": 1283.6924
+        },
+        "rightSleeveRoot": {
+          "x": 593.3568,
+          "y": 926.4944
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.1333333,
+        "angle": 5.771625,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.9086394,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.77162,
+        "rightCuffTurn": 11.589554,
+        "leftCuffTurn": 63.100555,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 34,
+        "grip": {
+          "x": 488.3027,
+          "y": 1334.6515
+        },
+        "offGrip": {
+          "x": 1025.5652,
+          "y": 1280.3472
+        },
+        "rightWrist": {
+          "x": 489.44275,
+          "y": 1301.541
+        },
+        "leftWrist": {
+          "x": 998.13385,
+          "y": 1268.1637
+        },
+        "rightShoulder": {
+          "x": 583.0407,
+          "y": 921.4362
+        },
+        "leftShoulder": {
+          "x": 834.3183,
+          "y": 987.8833
+        },
+        "rightElbow": {
+          "x": 496.325,
+          "y": 1101.6594
+        },
+        "leftElbow": {
+          "x": 815.3512,
+          "y": 1186.9818
+        },
+        "rightThumb": {
+          "x": 516.563,
+          "y": 1335.8154
+        },
+        "leftThumb": {
+          "x": 1053.8254,
+          "y": 1281.5111
+        },
+        "rightSleeveRoot": {
+          "x": 583.0407,
+          "y": 921.4362
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.1666666,
+        "angle": 5.9403706,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.98599714,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.94037,
+        "rightCuffTurn": 13.787033,
+        "leftCuffTurn": 62.331657,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 35,
+        "grip": {
+          "x": 482.16876,
+          "y": 1334.9103
+        },
+        "offGrip": {
+          "x": 1019.26904,
+          "y": 1279.0238
+        },
+        "rightWrist": {
+          "x": 484.4802,
+          "y": 1301.8608
+        },
+        "leftWrist": {
+          "x": 991.9668,
+          "y": 1266.5537
+        },
+        "rightShoulder": {
+          "x": 576.39264,
+          "y": 918.1678
+        },
+        "leftShoulder": {
+          "x": 828.1506,
+          "y": 984.28314
+        },
+        "rightElbow": {
+          "x": 498.43384,
+          "y": 1102.3483
+        },
+        "leftElbow": {
+          "x": 810.04443,
+          "y": 1183.4618
+        },
+        "rightThumb": {
+          "x": 510.43237,
+          "y": 1335.991
+        },
+        "leftThumb": {
+          "x": 1047.5327,
+          "y": 1280.1045
+        },
+        "rightSleeveRoot": {
+          "x": 576.39264,
+          "y": 918.1678
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.2,
+        "angle": 6,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 1,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -186,
+        "rightCuffTurn": 14.712662,
+        "leftCuffTurn": 62.05818,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 0,
+        "grip": {
+          "x": 480,
+          "y": 1335
+        },
+        "offGrip": {
+          "x": 1017.0418,
+          "y": 1278.5547
+        },
+        "rightWrist": {
+          "x": 482.8107,
+          "y": 1301.9893
+        },
+        "leftWrist": {
+          "x": 989.7863,
+          "y": 1265.9828
+        },
+        "rightShoulder": {
+          "x": 574.0377,
+          "y": 917.0075
+        },
+        "leftShoulder": {
+          "x": 825.9658,
+          "y": 983.00525
+        },
+        "rightElbow": {
+          "x": 499.77832,
+          "y": 1102.7103
+        },
+        "leftElbow": {
+          "x": 808.1754,
+          "y": 1182.2124
+        },
+        "rightThumb": {
+          "x": 508.26474,
+          "y": 1336.0513
+        },
+        "leftThumb": {
+          "x": 1045.3065,
+          "y": 1279.606
+        },
+        "rightSleeveRoot": {
+          "x": 574.0377,
+          "y": 917.0075
+        },
+        "view": "poleReady"
+      }
+    ]
+  },
+  "swing": {
+    "fps": 30,
+    "duration": 1.2,
+    "release": 0.4,
+    "hit": 0.56666666,
+    "gripSpacing": 540,
+    "recoveryTurn": null,
+    "frames": [
+      {
+        "time": 0,
+        "angle": 6,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 1,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -186,
+        "rightCuffTurn": 14.712662,
+        "leftCuffTurn": 62.05818,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 0,
+        "grip": {
+          "x": 480,
+          "y": 1335
+        },
+        "offGrip": {
+          "x": 1017.0418,
+          "y": 1278.5547
+        },
+        "rightWrist": {
+          "x": 482.8107,
+          "y": 1301.9893
+        },
+        "leftWrist": {
+          "x": 989.7863,
+          "y": 1265.9828
+        },
+        "rightShoulder": {
+          "x": 574.0377,
+          "y": 917.0075
+        },
+        "leftShoulder": {
+          "x": 825.9658,
+          "y": 983.00525
+        },
+        "rightElbow": {
+          "x": 499.77832,
+          "y": 1102.7103
+        },
+        "leftElbow": {
+          "x": 808.1754,
+          "y": 1182.2124
+        },
+        "rightThumb": {
+          "x": 508.26474,
+          "y": 1336.0513
+        },
+        "leftThumb": {
+          "x": 1045.3065,
+          "y": 1279.606
+        },
+        "rightSleeveRoot": {
+          "x": 574.0377,
+          "y": 917.0075
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.033333335,
+        "angle": 5.9898243,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.8896083,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.98982,
+        "rightCuffTurn": 14.71048,
+        "leftCuffTurn": 62.04702,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 1,
+        "grip": {
+          "x": 479.77106,
+          "y": 1335.1018
+        },
+        "offGrip": {
+          "x": 1016.8229,
+          "y": 1278.7518
+        },
+        "rightWrist": {
+          "x": 482.58636,
+          "y": 1302.0914
+        },
+        "leftWrist": {
+          "x": 989.5721,
+          "y": 1266.1698
+        },
+        "rightShoulder": {
+          "x": 573.8852,
+          "y": 917.12964
+        },
+        "leftShoulder": {
+          "x": 825.81323,
+          "y": 983.1274
+        },
+        "rightElbow": {
+          "x": 499.58185,
+          "y": 1102.8148
+        },
+        "leftElbow": {
+          "x": 807.9923,
+          "y": 1182.3318
+        },
+        "rightThumb": {
+          "x": 508.03558,
+          "y": 1336.1581
+        },
+        "leftThumb": {
+          "x": 1045.0874,
+          "y": 1279.8081
+        },
+        "rightSleeveRoot": {
+          "x": 573.8852,
+          "y": 917.12964
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.06666667,
+        "angle": 5.9290123,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.475972,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.92902,
+        "rightCuffTurn": 14.697891,
+        "leftCuffTurn": 61.979683,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 2,
+        "grip": {
+          "x": 478.40277,
+          "y": 1335.7098
+        },
+        "offGrip": {
+          "x": 1015.5141,
+          "y": 1279.9299
+        },
+        "rightWrist": {
+          "x": 481.24588,
+          "y": 1302.7019
+        },
+        "leftWrist": {
+          "x": 988.2915,
+          "y": 1267.287
+        },
+        "rightShoulder": {
+          "x": 572.97455,
+          "y": 917.85956
+        },
+        "leftShoulder": {
+          "x": 824.9013,
+          "y": 983.85565
+        },
+        "rightElbow": {
+          "x": 498.40906,
+          "y": 1103.4397
+        },
+        "leftElbow": {
+          "x": 806.8995,
+          "y": 1183.0438
+        },
+        "rightThumb": {
+          "x": 506.66617,
+          "y": 1336.7961
+        },
+        "leftThumb": {
+          "x": 1043.7775,
+          "y": 1281.0162
+        },
+        "rightSleeveRoot": {
+          "x": 572.97455,
+          "y": 917.85956
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.1,
+        "angle": 5.7929688,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.08428097,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.79297,
+        "rightCuffTurn": 14.671478,
+        "leftCuffTurn": 61.829155,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 3,
+        "grip": {
+          "x": 475.3418,
+          "y": 1337.0703
+        },
+        "offGrip": {
+          "x": 1012.58405,
+          "y": 1282.5658
+        },
+        "rightWrist": {
+          "x": 478.24802,
+          "y": 1304.0679
+        },
+        "leftWrist": {
+          "x": 985.42505,
+          "y": 1269.7869
+        },
+        "rightShoulder": {
+          "x": 570.937,
+          "y": 919.4925
+        },
+        "leftShoulder": {
+          "x": 822.86096,
+          "y": 985.4855
+        },
+        "rightElbow": {
+          "x": 495.79236,
+          "y": 1104.8389
+        },
+        "leftElbow": {
+          "x": 804.45685,
+          "y": 1184.6368
+        },
+        "rightThumb": {
+          "x": 503.60254,
+          "y": 1338.2238
+        },
+        "leftThumb": {
+          "x": 1040.8448,
+          "y": 1283.7192
+        },
+        "rightSleeveRoot": {
+          "x": 570.937,
+          "y": 919.4925
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.13333334,
+        "angle": 5.580247,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.58025,
+        "rightCuffTurn": 14.634842,
+        "leftCuffTurn": 61.591713,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 4,
+        "grip": {
+          "x": 470.55554,
+          "y": 1339.1975
+        },
+        "offGrip": {
+          "x": 1007.99646,
+          "y": 1286.688
+        },
+        "rightWrist": {
+          "x": 473.5632,
+          "y": 1306.2042
+        },
+        "leftWrist": {
+          "x": 980.9387,
+          "y": 1273.696
+        },
+        "rightShoulder": {
+          "x": 567.75104,
+          "y": 922.04553
+        },
+        "leftShoulder": {
+          "x": 819.6708,
+          "y": 988.03375
+        },
+        "rightElbow": {
+          "x": 491.71982,
+          "y": 1107.03
+        },
+        "leftElbow": {
+          "x": 800.64514,
+          "y": 1187.1268
+        },
+        "rightThumb": {
+          "x": 498.8118,
+          "y": 1340.4558
+        },
+        "leftThumb": {
+          "x": 1036.2527,
+          "y": 1287.9463
+        },
+        "rightSleeveRoot": {
+          "x": 567.75104,
+          "y": 922.04553
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.16666667,
+        "angle": 5.3067613,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.30676,
+        "rightCuffTurn": 14.595825,
+        "leftCuffTurn": 61.282883,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 5,
+        "grip": {
+          "x": 464.40213,
+          "y": 1341.9324
+        },
+        "offGrip": {
+          "x": 1002.0875,
+          "y": 1291.9888
+        },
+        "rightWrist": {
+          "x": 467.54477,
+          "y": 1308.9517
+        },
+        "leftWrist": {
+          "x": 975.16315,
+          "y": 1278.7225
+        },
+        "rightShoulder": {
+          "x": 563.65497,
+          "y": 925.32806
+        },
+        "leftShoulder": {
+          "x": 815.5692,
+          "y": 991.3099
+        },
+        "rightElbow": {
+          "x": 486.51614,
+          "y": 1109.8534
+        },
+        "leftElbow": {
+          "x": 795.7583,
+          "y": 1190.3263
+        },
+        "rightThumb": {
+          "x": 492.65207,
+          "y": 1343.3256
+        },
+        "leftThumb": {
+          "x": 1030.3374,
+          "y": 1293.382
+        },
+        "rightSleeveRoot": {
+          "x": 563.65497,
+          "y": 925.32806
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 0.2,
+        "angle": 5,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185,
+        "rightCuffTurn": 14.562805,
+        "leftCuffTurn": 60.93264,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 6,
+        "grip": {
+          "x": 457.5,
+          "y": 1345
+        },
+        "offGrip": {
+          "x": 995.4451,
+          "y": 1297.9359
+        },
+        "rightWrist": {
+          "x": 460.80017,
+          "y": 1312.0347
+        },
+        "leftWrist": {
+          "x": 968.6747,
+          "y": 1284.3618
+        },
+        "rightShoulder": {
+          "x": 559.0607,
+          "y": 929.00995
+        },
+        "leftShoulder": {
+          "x": 810.9687,
+          "y": 994.98474
+        },
+        "rightElbow": {
+          "x": 480.7227,
+          "y": 1113.0293
+        },
+        "leftElbow": {
+          "x": 790.2956,
+          "y": 1193.9135
+        },
+        "rightThumb": {
+          "x": 485.74207,
+          "y": 1346.5444
+        },
+        "leftThumb": {
+          "x": 1023.6872,
+          "y": 1299.4803
+        },
+        "rightSleeveRoot": {
+          "x": 559.0607,
+          "y": 929.00995
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.23333333,
+        "angle": 4.6932387,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.69324,
+        "rightCuffTurn": 14.540802,
+        "leftCuffTurn": 60.5776,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 7,
+        "grip": {
+          "x": 450.59787,
+          "y": 1348.0676
+        },
+        "offGrip": {
+          "x": 988.78723,
+          "y": 1303.8843
+        },
+        "rightWrist": {
+          "x": 454.0619,
+          "y": 1315.119
+        },
+        "leftWrist": {
+          "x": 962.17535,
+          "y": 1290.0018
+        },
+        "rightShoulder": {
+          "x": 554.4664,
+          "y": 932.6918
+        },
+        "leftShoulder": {
+          "x": 806.3681,
+          "y": 998.65967
+        },
+        "rightElbow": {
+          "x": 474.9735,
+          "y": 1116.2152
+        },
+        "leftElbow": {
+          "x": 784.85297,
+          "y": 1197.499
+        },
+        "rightThumb": {
+          "x": 478.83127,
+          "y": 1349.7632
+        },
+        "leftThumb": {
+          "x": 1017.0206,
+          "y": 1305.5798
+        },
+        "rightSleeveRoot": {
+          "x": 554.4664,
+          "y": 932.6918
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.26666668,
+        "angle": 4.419753,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0.01978234,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.41975,
+        "rightCuffTurn": 14.530731,
+        "leftCuffTurn": 60.25702,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 8,
+        "grip": {
+          "x": 444.44446,
+          "y": 1350.8025
+        },
+        "offGrip": {
+          "x": 982.8386,
+          "y": 1309.1886
+        },
+        "rightWrist": {
+          "x": 448.05988,
+          "y": 1317.8702
+        },
+        "leftWrist": {
+          "x": 956.37213,
+          "y": 1295.031
+        },
+        "rightShoulder": {
+          "x": 550.3704,
+          "y": 935.97406
+        },
+        "leftShoulder": {
+          "x": 802.2666,
+          "y": 1001.9359
+        },
+        "rightElbow": {
+          "x": 469.88538,
+          "y": 1119.0647
+        },
+        "leftElbow": {
+          "x": 780.0184,
+          "y": 1200.6947
+        },
+        "rightThumb": {
+          "x": 472.66943,
+          "y": 1352.6328
+        },
+        "leftThumb": {
+          "x": 1011.0636,
+          "y": 1311.0189
+        },
+        "rightSleeveRoot": {
+          "x": 550.3704,
+          "y": 935.97406
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.3,
+        "angle": 4.2070312,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.20703,
+        "rightCuffTurn": 14.52861,
+        "leftCuffTurn": 60.00492,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 9,
+        "grip": {
+          "x": 439.6582,
+          "y": 1352.9297
+        },
+        "offGrip": {
+          "x": 978.2031,
+          "y": 1313.315
+        },
+        "rightWrist": {
+          "x": 443.39462,
+          "y": 1320.0109
+        },
+        "leftWrist": {
+          "x": 951.85236,
+          "y": 1298.9431
+        },
+        "rightShoulder": {
+          "x": 547.1846,
+          "y": 938.52734
+        },
+        "leftShoulder": {
+          "x": 799.0763,
+          "y": 1004.4841
+        },
+        "rightElbow": {
+          "x": 465.95065,
+          "y": 1121.2869
+        },
+        "leftElbow": {
+          "x": 776.26953,
+          "y": 1203.1794
+        },
+        "rightThumb": {
+          "x": 467.8762,
+          "y": 1354.8647
+        },
+        "leftThumb": {
+          "x": 1006.42114,
+          "y": 1315.25
+        },
+        "rightSleeveRoot": {
+          "x": 547.1846,
+          "y": 938.52734
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.33333334,
+        "angle": 4.070988,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.07098,
+        "rightCuffTurn": 14.530136,
+        "leftCuffTurn": 59.84246,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 10,
+        "grip": {
+          "x": 436.59723,
+          "y": 1354.2902
+        },
+        "offGrip": {
+          "x": 975.23474,
+          "y": 1315.9542
+        },
+        "rightWrist": {
+          "x": 440.4127,
+          "y": 1321.3805
+        },
+        "leftWrist": {
+          "x": 948.95917,
+          "y": 1301.4453
+        },
+        "rightShoulder": {
+          "x": 545.1471,
+          "y": 940.1601
+        },
+        "leftShoulder": {
+          "x": 797.0362,
+          "y": 1006.11383
+        },
+        "rightElbow": {
+          "x": 463.44592,
+          "y": 1122.7113
+        },
+        "leftElbow": {
+          "x": 773.87756,
+          "y": 1204.7684
+        },
+        "rightThumb": {
+          "x": 464.81055,
+          "y": 1356.2922
+        },
+        "leftThumb": {
+          "x": 1003.44806,
+          "y": 1317.9563
+        },
+        "rightSleeveRoot": {
+          "x": 545.1471,
+          "y": 940.1601
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.36666667,
+        "angle": 4.0101767,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.01018,
+        "rightCuffTurn": 14.53125,
+        "leftCuffTurn": 59.769585,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 11,
+        "grip": {
+          "x": 435.22897,
+          "y": 1354.8982
+        },
+        "offGrip": {
+          "x": 973.90686,
+          "y": 1317.134
+        },
+        "rightWrist": {
+          "x": 439.08002,
+          "y": 1321.9927
+        },
+        "leftWrist": {
+          "x": 947.6652,
+          "y": 1302.5638
+        },
+        "rightShoulder": {
+          "x": 544.2362,
+          "y": 940.89
+        },
+        "leftShoulder": {
+          "x": 796.1241,
+          "y": 1006.8423
+        },
+        "rightElbow": {
+          "x": 462.32806,
+          "y": 1123.3484
+        },
+        "leftElbow": {
+          "x": 772.80963,
+          "y": 1205.4786
+        },
+        "rightThumb": {
+          "x": 463.44016,
+          "y": 1356.9303
+        },
+        "leftThumb": {
+          "x": 1002.11804,
+          "y": 1319.1661
+        },
+        "rightSleeveRoot": {
+          "x": 544.2362,
+          "y": 940.89
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.4,
+        "angle": 4,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184,
+        "rightCuffTurn": 14.53154,
+        "leftCuffTurn": 59.75747,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 12,
+        "grip": {
+          "x": 435,
+          "y": 1355
+        },
+        "offGrip": {
+          "x": 973.68463,
+          "y": 1317.3315
+        },
+        "rightWrist": {
+          "x": 438.8571,
+          "y": 1322.0951
+        },
+        "leftWrist": {
+          "x": 947.44867,
+          "y": 1302.7511
+        },
+        "rightShoulder": {
+          "x": 544.08386,
+          "y": 941.01215
+        },
+        "leftShoulder": {
+          "x": 795.9715,
+          "y": 1006.9643
+        },
+        "rightElbow": {
+          "x": 462.14148,
+          "y": 1123.4551
+        },
+        "leftElbow": {
+          "x": 772.63104,
+          "y": 1205.5977
+        },
+        "rightThumb": {
+          "x": 463.21082,
+          "y": 1357.0371
+        },
+        "leftThumb": {
+          "x": 1001.89545,
+          "y": 1319.3687
+        },
+        "rightSleeveRoot": {
+          "x": 544.08386,
+          "y": 941.01215
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.43333334,
+        "angle": 3.84,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -183.84,
+        "rightCuffTurn": 11.594254,
+        "leftCuffTurn": 60.7069,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 13,
+        "grip": {
+          "x": 445.2,
+          "y": 1353.4
+        },
+        "offGrip": {
+          "x": 983.9877,
+          "y": 1317.236
+        },
+        "rightWrist": {
+          "x": 447.45816,
+          "y": 1320.3469
+        },
+        "leftWrist": {
+          "x": 957.5533,
+          "y": 1303.0184
+        },
+        "rightShoulder": {
+          "x": 553.2361,
+          "y": 943.3039
+        },
+        "leftShoulder": {
+          "x": 804.58856,
+          "y": 1009.6303
+        },
+        "rightElbow": {
+          "x": 461.0902,
+          "y": 1120.812
+        },
+        "leftElbow": {
+          "x": 781.4136,
+          "y": 1208.2831
+        },
+        "rightThumb": {
+          "x": 473.40503,
+          "y": 1355.5159
+        },
+        "leftThumb": {
+          "x": 1012.1927,
+          "y": 1319.3518
+        },
+        "rightSleeveRoot": {
+          "x": 553.2361,
+          "y": 943.3039
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.46666667,
+        "angle": 3.36,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -183.36,
+        "rightCuffTurn": 5.3549347,
+        "leftCuffTurn": 63.529068,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 14,
+        "grip": {
+          "x": 475.8,
+          "y": 1348.6
+        },
+        "offGrip": {
+          "x": 1014.8717,
+          "y": 1316.9509
+        },
+        "rightWrist": {
+          "x": 474.72992,
+          "y": 1315.4872
+        },
+        "leftWrist": {
+          "x": 987.8784,
+          "y": 1303.8256
+        },
+        "rightShoulder": {
+          "x": 580.6929,
+          "y": 950.1794
+        },
+        "leftShoulder": {
+          "x": 830.4399,
+          "y": 1017.6286
+        },
+        "rightElbow": {
+          "x": 468.27023,
+          "y": 1115.5916
+        },
+        "leftElbow": {
+          "x": 808.0144,
+          "y": 1216.3674
+        },
+        "rightThumb": {
+          "x": 503.9863,
+          "y": 1350.952
+        },
+        "leftThumb": {
+          "x": 1043.058,
+          "y": 1319.303
+        },
+        "rightSleeveRoot": {
+          "x": 580.6929,
+          "y": 950.1794
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.5,
+        "angle": 2.56,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0.01978234,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -182.56,
+        "rightCuffTurn": 2.087967,
+        "leftCuffTurn": 68.150185,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 15,
+        "grip": {
+          "x": 526.8,
+          "y": 1340.6
+        },
+        "offGrip": {
+          "x": 1066.261,
+          "y": 1316.4806
+        },
+        "rightWrist": {
+          "x": 521.90656,
+          "y": 1307.8333
+        },
+        "leftWrist": {
+          "x": 1038.453,
+          "y": 1305.1832
+        },
+        "rightShoulder": {
+          "x": 626.4623,
+          "y": 961.64166
+        },
+        "leftShoulder": {
+          "x": 873.5412,
+          "y": 1030.9464
+        },
+        "rightElbow": {
+          "x": 492.36588,
+          "y": 1110.0269
+        },
+        "leftElbow": {
+          "x": 853.1607,
+          "y": 1229.9053
+        },
+        "rightThumb": {
+          "x": 554.9507,
+          "y": 1343.3453
+        },
+        "leftThumb": {
+          "x": 1094.4117,
+          "y": 1319.226
+        },
+        "rightSleeveRoot": {
+          "x": 626.4623,
+          "y": 961.64166
+        },
+        "view": "poleLoad"
+      },
+      {
+        "time": 0.53333336,
+        "angle": 1.4399989,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -181.44,
+        "rightCuffTurn": 10.105652,
+        "leftCuffTurn": 74.21036,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 16,
+        "grip": {
+          "x": 598.2001,
+          "y": 1329.4
+        },
+        "offGrip": {
+          "x": 1138.0295,
+          "y": 1315.8298
+        },
+        "rightWrist": {
+          "x": 589.4068,
+          "y": 1297.4581
+        },
+        "leftWrist": {
+          "x": 1109.3519,
+          "y": 1306.9692
+        },
+        "rightShoulder": {
+          "x": 691.0747,
+          "y": 977.93445
+        },
+        "leftShoulder": {
+          "x": 935.0173,
+          "y": 1048.6316
+        },
+        "rightElbow": {
+          "x": 536.3236,
+          "y": 1104.6312
+        },
+        "leftElbow": {
+          "x": 918.26495,
+          "y": 1247.9287
+        },
+        "rightThumb": {
+          "x": 626.29175,
+          "y": 1332.6951
+        },
+        "leftThumb": {
+          "x": 1166.1212,
+          "y": 1319.1249
+        },
+        "rightSleeveRoot": {
+          "x": 691.0747,
+          "y": 977.93445
+        },
+        "view": "poleContact"
+      },
+      {
+        "time": 0.56666666,
+        "angle": 0,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180,
+        "rightCuffTurn": 18.670685,
+        "leftCuffTurn": 82.1853,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 17,
+        "grip": {
+          "x": 690,
+          "y": 1315
+        },
+        "offGrip": {
+          "x": 1230,
+          "y": 1315
+        },
+        "rightWrist": {
+          "x": 677.31274,
+          "y": 1284.3954
+        },
+        "leftWrist": {
+          "x": 1200.5004,
+          "y": 1309.4607
+        },
+        "rightShoulder": {
+          "x": 773.27924,
+          "y": 998.5272
+        },
+        "leftShoulder": {
+          "x": 1012.34534,
+          "y": 1072.7278
+        },
+        "rightElbow": {
+          "x": 600.7224,
+          "y": 1099.6417
+        },
+        "leftElbow": {
+          "x": 1003.93567,
+          "y": 1272.5509
+        },
+        "rightThumb": {
+          "x": 718,
+          "y": 1319
+        },
+        "leftThumb": {
+          "x": 1258,
+          "y": 1319
+        },
+        "rightSleeveRoot": {
+          "x": 773.27924,
+          "y": 998.5272
+        },
+        "view": "poleContact"
+      },
+      {
+        "time": 0.6,
+        "angle": 0.15195604,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180.15196,
+        "rightCuffTurn": 17.736084,
+        "leftCuffTurn": 82.45258,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 18,
+        "grip": {
+          "x": 685.6666,
+          "y": 1316.8201
+        },
+        "offGrip": {
+          "x": 1225.6648,
+          "y": 1315.388
+        },
+        "rightWrist": {
+          "x": 673.3986,
+          "y": 1286.045
+        },
+        "leftWrist": {
+          "x": 1196.1254,
+          "y": 1310.0646
+        },
+        "rightShoulder": {
+          "x": 772.8042,
+          "y": 1000.7136
+        },
+        "leftShoulder": {
+          "x": 1011.76514,
+          "y": 1074.9828
+        },
+        "rightElbow": {
+          "x": 599.33936,
+          "y": 1100.2623
+        },
+        "leftElbow": {
+          "x": 999.296,
+          "y": 1274.5938
+        },
+        "rightThumb": {
+          "x": 713.6771,
+          "y": 1320.7457
+        },
+        "leftThumb": {
+          "x": 1253.6753,
+          "y": 1319.3136
+        },
+        "rightSleeveRoot": {
+          "x": 772.8042,
+          "y": 1000.7136
+        },
+        "view": "poleContact"
+      },
+      {
+        "time": 0.6333333,
+        "angle": 0.28004426,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0.01978234,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180.28004,
+        "rightCuffTurn": 16.817627,
+        "leftCuffTurn": 82.88706,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 19,
+        "grip": {
+          "x": 682.31213,
+          "y": 1318.7517
+        },
+        "offGrip": {
+          "x": 1222.3057,
+          "y": 1316.1123
+        },
+        "rightWrist": {
+          "x": 670.4698,
+          "y": 1287.8104
+        },
+        "leftWrist": {
+          "x": 1192.7155,
+          "y": 1311.0792
+        },
+        "rightShoulder": {
+          "x": 773.78125,
+          "y": 1003.8408
+        },
+        "leftShoulder": {
+          "x": 1012.5172,
+          "y": 1078.2633
+        },
+        "rightElbow": {
+          "x": 598.9801,
+          "y": 1101.0238
+        },
+        "leftElbow": {
+          "x": 995.54736,
+          "y": 1277.5421
+        },
+        "rightThumb": {
+          "x": 710.33136,
+          "y": 1322.6147
+        },
+        "leftThumb": {
+          "x": 1250.3248,
+          "y": 1319.9753
+        },
+        "rightSleeveRoot": {
+          "x": 773.78125,
+          "y": 1003.8408
+        },
+        "view": "poleContact"
+      },
+      {
+        "time": 0.6666667,
+        "angle": 0.40983766,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180.40984,
+        "rightCuffTurn": 15.88736,
+        "leftCuffTurn": 83.2822,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 20,
+        "grip": {
+          "x": 678.88763,
+          "y": 1320.6754
+        },
+        "offGrip": {
+          "x": 1218.8738,
+          "y": 1316.8129
+        },
+        "rightWrist": {
+          "x": 667.4787,
+          "y": 1289.5717
+        },
+        "leftWrist": {
+          "x": 1189.2386,
+          "y": 1312.0511
+        },
+        "rightShoulder": {
+          "x": 774.6545,
+          "y": 1006.901
+        },
+        "leftShoulder": {
+          "x": 1013.17395,
+          "y": 1081.4706
+        },
+        "rightElbow": {
+          "x": 598.60535,
+          "y": 1101.8046
+        },
+        "leftElbow": {
+          "x": 991.77155,
+          "y": 1280.322
+        },
+        "rightThumb": {
+          "x": 706.9155,
+          "y": 1324.475
+        },
+        "leftThumb": {
+          "x": 1246.9017,
+          "y": 1320.6124
+        },
+        "rightSleeveRoot": {
+          "x": 774.6545,
+          "y": 1006.901
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.7,
+        "angle": 0.5669078,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180.56691,
+        "rightCuffTurn": 14.9292145,
+        "leftCuffTurn": 83.443245,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 21,
+        "grip": {
+          "x": 674.3445,
+          "y": 1322.4716
+        },
+        "offGrip": {
+          "x": 1214.3181,
+          "y": 1317.1287
+        },
+        "rightWrist": {
+          "x": 663.3715,
+          "y": 1291.2113
+        },
+        "leftWrist": {
+          "x": 1184.657,
+          "y": 1312.5316
+        },
+        "rightShoulder": {
+          "x": 773.8684,
+          "y": 1008.88574
+        },
+        "leftShoulder": {
+          "x": 1012.3082,
+          "y": 1083.5059
+        },
+        "rightElbow": {
+          "x": 597.1301,
+          "y": 1102.4996
+        },
+        "leftElbow": {
+          "x": 987.01666,
+          "y": 1281.9003
+        },
+        "rightThumb": {
+          "x": 702.3827,
+          "y": 1326.1943
+        },
+        "leftThumb": {
+          "x": 1242.3563,
+          "y": 1320.8514
+        },
+        "rightSleeveRoot": {
+          "x": 773.8684,
+          "y": 1008.88574
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.73333335,
+        "angle": 0.77682793,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -180.77682,
+        "rightCuffTurn": 13.931381,
+        "leftCuffTurn": 83.18408,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 22,
+        "grip": {
+          "x": 667.6339,
+          "y": 1324.0199
+        },
+        "offGrip": {
+          "x": 1207.5842,
+          "y": 1316.6987
+        },
+        "rightWrist": {
+          "x": 657.09186,
+          "y": 1292.6117
+        },
+        "leftWrist": {
+          "x": 1177.9271,
+          "y": 1312.0762
+        },
+        "rightShoulder": {
+          "x": 769.8674,
+          "y": 1008.7864
+        },
+        "leftShoulder": {
+          "x": 1008.4924,
+          "y": 1083.2699
+        },
+        "rightElbow": {
+          "x": 593.4517,
+          "y": 1103.0071
+        },
+        "leftElbow": {
+          "x": 980.3132,
+          "y": 1281.2748
+        },
+        "rightThumb": {
+          "x": 695.68555,
+          "y": 1327.6399
+        },
+        "leftThumb": {
+          "x": 1235.6359,
+          "y": 1320.3187
+        },
+        "rightSleeveRoot": {
+          "x": 769.8674,
+          "y": 1008.7864
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.76666665,
+        "angle": 1.0646671,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -181.06467,
+        "rightCuffTurn": 12.863419,
+        "leftCuffTurn": 82.32948,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 23,
+        "grip": {
+          "x": 657.7332,
+          "y": 1325.211
+        },
+        "offGrip": {
+          "x": 1197.64,
+          "y": 1315.1774
+        },
+        "rightWrist": {
+          "x": 647.61975,
+          "y": 1293.6622
+        },
+        "leftWrist": {
+          "x": 1168.03,
+          "y": 1310.2616
+        },
+        "rightShoulder": {
+          "x": 761.1526,
+          "y": 1005.63916
+        },
+        "leftShoulder": {
+          "x": 1000.3505,
+          "y": 1079.7119
+        },
+        "rightElbow": {
+          "x": 586.5669,
+          "y": 1103.2087
+        },
+        "leftElbow": {
+          "x": 970.7305,
+          "y": 1277.5063
+        },
+        "rightThumb": {
+          "x": 685.80273,
+          "y": 1328.6901
+        },
+        "leftThumb": {
+          "x": 1225.7095,
+          "y": 1318.6564
+        },
+        "rightSleeveRoot": {
+          "x": 761.1526,
+          "y": 1005.63916
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.8,
+        "angle": 1.4296337,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -181.42963,
+        "rightCuffTurn": 11.61322,
+        "leftCuffTurn": 81.01092,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 24,
+        "grip": {
+          "x": 644.8464,
+          "y": 1326.2769
+        },
+        "offGrip": {
+          "x": 1184.6782,
+          "y": 1312.8043
+        },
+        "rightWrist": {
+          "x": 635.22156,
+          "y": 1294.5756
+        },
+        "leftWrist": {
+          "x": 1155.1542,
+          "y": 1307.3965
+        },
+        "rightShoulder": {
+          "x": 748.56323,
+          "y": 1000.21313
+        },
+        "leftShoulder": {
+          "x": 988.64,
+          "y": 1073.6581
+        },
+        "rightElbow": {
+          "x": 577.1183,
+          "y": 1103.2017
+        },
+        "leftElbow": {
+          "x": 958.42694,
+          "y": 1271.3629
+        },
+        "rightThumb": {
+          "x": 672.93744,
+          "y": 1329.577
+        },
+        "leftThumb": {
+          "x": 1212.7693,
+          "y": 1316.1045
+        },
+        "rightSleeveRoot": {
+          "x": 748.56323,
+          "y": 1000.21313
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.8333333,
+        "angle": 1.8528264,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -181.85283,
+        "rightCuffTurn": 10.13974,
+        "leftCuffTurn": 79.39516,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 25,
+        "grip": {
+          "x": 629.7807,
+          "y": 1327.3489
+        },
+        "offGrip": {
+          "x": 1169.4983,
+          "y": 1309.8894
+        },
+        "rightWrist": {
+          "x": 620.7386,
+          "y": 1295.4766
+        },
+        "leftWrist": {
+          "x": 1140.0931,
+          "y": 1303.8683
+        },
+        "rightShoulder": {
+          "x": 733.3983,
+          "y": 993.3921
+        },
+        "leftShoulder": {
+          "x": 974.54987,
+          "y": 1066.0706
+        },
+        "rightElbow": {
+          "x": 566.1534,
+          "y": 1103.0696
+        },
+        "leftElbow": {
+          "x": 944.1587,
+          "y": 1263.748
+        },
+        "rightThumb": {
+          "x": 657.8954,
+          "y": 1330.4415
+        },
+        "leftThumb": {
+          "x": 1197.613,
+          "y": 1312.982
+        },
+        "rightSleeveRoot": {
+          "x": 733.3983,
+          "y": 993.3921
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.8666667,
+        "angle": 2.3190336,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -182.31903,
+        "rightCuffTurn": 8.441086,
+        "leftCuffTurn": 77.55048,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 26,
+        "grip": {
+          "x": 613.0947,
+          "y": 1328.4114
+        },
+        "offGrip": {
+          "x": 1152.6525,
+          "y": 1306.5609
+        },
+        "rightWrist": {
+          "x": 604.74023,
+          "y": 1296.3519
+        },
+        "leftWrist": {
+          "x": 1123.4008,
+          "y": 1299.8341
+        },
+        "rightShoulder": {
+          "x": 716.2809,
+          "y": 985.49475
+        },
+        "leftShoulder": {
+          "x": 958.6572,
+          "y": 1057.3002
+        },
+        "rightElbow": {
+          "x": 554.30597,
+          "y": 1102.8154
+        },
+        "leftElbow": {
+          "x": 928.48804,
+          "y": 1255.0117
+        },
+        "rightThumb": {
+          "x": 641.23364,
+          "y": 1331.2751
+        },
+        "leftThumb": {
+          "x": 1180.7914,
+          "y": 1309.4247
+        },
+        "rightSleeveRoot": {
+          "x": 716.2809,
+          "y": 985.49475
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.9,
+        "angle": 2.8130407,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -182.81303,
+        "rightCuffTurn": 6.5173798,
+        "leftCuffTurn": 75.54446,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 27,
+        "grip": {
+          "x": 595.3471,
+          "y": 1329.4482
+        },
+        "offGrip": {
+          "x": 1134.6964,
+          "y": 1302.9467
+        },
+        "rightWrist": {
+          "x": 587.79517,
+          "y": 1297.1903
+        },
+        "leftWrist": {
+          "x": 1105.6323,
+          "y": 1295.4503
+        },
+        "rightShoulder": {
+          "x": 697.8347,
+          "y": 976.839
+        },
+        "leftShoulder": {
+          "x": 941.5393,
+          "y": 1047.6978
+        },
+        "rightElbow": {
+          "x": 542.2055,
+          "y": 1102.4557
+        },
+        "leftElbow": {
+          "x": 911.97034,
+          "y": 1245.4999
+        },
+        "rightThumb": {
+          "x": 623.50964,
+          "y": 1332.0692
+        },
+        "leftThumb": {
+          "x": 1162.859,
+          "y": 1305.5676
+        },
+        "rightSleeveRoot": {
+          "x": 697.8347,
+          "y": 976.839
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.93333334,
+        "angle": 3.3196368,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.0010041595,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -183.31964,
+        "rightCuffTurn": 4.3772125,
+        "leftCuffTurn": 73.46283,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 28,
+        "grip": {
+          "x": 577.09625,
+          "y": 1330.4435
+        },
+        "offGrip": {
+          "x": 1116.1902,
+          "y": 1299.1742
+        },
+        "rightWrist": {
+          "x": 570.46686,
+          "y": 1297.9834
+        },
+        "leftWrist": {
+          "x": 1087.3431,
+          "y": 1290.8818
+        },
+        "rightShoulder": {
+          "x": 678.6458,
+          "y": 967.7267
+        },
+        "leftShoulder": {
+          "x": 923.69617,
+          "y": 1037.6788
+        },
+        "rightElbow": {
+          "x": 530.4464,
+          "y": 1102.0283
+        },
+        "leftElbow": {
+          "x": 895.12714,
+          "y": 1235.6279
+        },
+        "rightThumb": {
+          "x": 605.2809,
+          "y": 1332.8154
+        },
+        "leftThumb": {
+          "x": 1144.3749,
+          "y": 1301.5461
+        },
+        "rightSleeveRoot": {
+          "x": 678.6458,
+          "y": 967.7267
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 0.96666664,
+        "angle": 3.8236065,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.03549373,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -183.82361,
+        "rightCuffTurn": 2.0434418,
+        "leftCuffTurn": 71.42445,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 29,
+        "grip": {
+          "x": 558.90076,
+          "y": 1331.3813
+        },
+        "offGrip": {
+          "x": 1097.6987,
+          "y": 1295.3715
+        },
+        "rightWrist": {
+          "x": 553.3111,
+          "y": 1298.7262
+        },
+        "leftWrist": {
+          "x": 1069.0841,
+          "y": 1286.3097
+        },
+        "rightShoulder": {
+          "x": 659.2261,
+          "y": 958.4309
+        },
+        "leftShoulder": {
+          "x": 905.4857,
+          "y": 1027.7689
+        },
+        "rightElbow": {
+          "x": 519.56744,
+          "y": 1101.5933
+        },
+        "leftElbow": {
+          "x": 878.4165,
+          "y": 1225.9286
+        },
+        "rightThumb": {
+          "x": 587.10516,
+          "y": 1333.5052
+        },
+        "leftThumb": {
+          "x": 1125.9032,
+          "y": 1297.4954
+        },
+        "rightSleeveRoot": {
+          "x": 659.2261,
+          "y": 958.4309
+        },
+        "view": "poleFollowThrough"
+      },
+      {
+        "time": 1,
+        "angle": 4.309739,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.14470148,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.30974,
+        "rightCuffTurn": 0.4751892,
+        "leftCuffTurn": 69.46462,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 30,
+        "grip": {
+          "x": 541.3192,
+          "y": 1332.2458
+        },
+        "offGrip": {
+          "x": 1079.7922,
+          "y": 1291.6658
+        },
+        "rightWrist": {
+          "x": 536.8915,
+          "y": 1299.413
+        },
+        "leftWrist": {
+          "x": 1051.42,
+          "y": 1281.8711
+        },
+        "rightShoulder": {
+          "x": 640.2533,
+          "y": 949.2981
+        },
+        "leftShoulder": {
+          "x": 887.61005,
+          "y": 1018.20593
+        },
+        "rightElbow": {
+          "x": 510.16235,
+          "y": 1101.2072
+        },
+        "leftElbow": {
+          "x": 862.36835,
+          "y": 1216.6067
+        },
+        "rightThumb": {
+          "x": 569.54065,
+          "y": 1334.1304
+        },
+        "leftThumb": {
+          "x": 1108.0137,
+          "y": 1293.5503
+        },
+        "rightSleeveRoot": {
+          "x": 640.2533,
+          "y": 949.2981
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.0333333,
+        "angle": 4.76282,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.32570028,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -184.76282,
+        "rightCuffTurn": 3.1712036,
+        "leftCuffTurn": 67.576775,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 31,
+        "grip": {
+          "x": 524.91003,
+          "y": 1333.021
+        },
+        "offGrip": {
+          "x": 1063.0454,
+          "y": 1288.1842
+        },
+        "rightWrist": {
+          "x": 521.7706,
+          "y": 1300.0399
+        },
+        "leftWrist": {
+          "x": 1034.9274,
+          "y": 1277.6821
+        },
+        "rightShoulder": {
+          "x": 622.51825,
+          "y": 940.7149
+        },
+        "leftShoulder": {
+          "x": 870.9763,
+          "y": 1009.0783
+        },
+        "rightElbow": {
+          "x": 502.81876,
+          "y": 1100.94
+        },
+        "leftElbow": {
+          "x": 847.56934,
+          "y": 1207.7039
+        },
+        "rightThumb": {
+          "x": 553.14545,
+          "y": 1334.6823
+        },
+        "leftThumb": {
+          "x": 1091.2809,
+          "y": 1289.8455
+        },
+        "rightSleeveRoot": {
+          "x": 622.51825,
+          "y": 940.7149
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.0666667,
+        "angle": 5.167637,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.54457563,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.16763,
+        "rightCuffTurn": 6.001465,
+        "leftCuffTurn": 65.807365,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 32,
+        "grip": {
+          "x": 510.23187,
+          "y": 1333.6909
+        },
+        "offGrip": {
+          "x": 1048.037,
+          "y": 1285.0531
+        },
+        "rightWrist": {
+          "x": 508.49097,
+          "y": 1300.6066
+        },
+        "leftWrist": {
+          "x": 1020.17706,
+          "y": 1273.8844
+        },
+        "rightShoulder": {
+          "x": 606.7163,
+          "y": 933.02356
+        },
+        "leftShoulder": {
+          "x": 856.2867,
+          "y": 1000.6499
+        },
+        "rightElbow": {
+          "x": 497.98145,
+          "y": 1100.8828
+        },
+        "leftElbow": {
+          "x": 834.5387,
+          "y": 1199.464
+        },
+        "rightThumb": {
+          "x": 538.47833,
+          "y": 1335.1527
+        },
+        "leftThumb": {
+          "x": 1076.2834,
+          "y": 1286.5149
+        },
+        "rightSleeveRoot": {
+          "x": 606.7163,
+          "y": 933.02356
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.1,
+        "angle": 5.5089765,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.75363684,
+        "rightFlex": 0.01978234,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.50897,
+        "rightCuffTurn": 8.866318,
+        "leftCuffTurn": 64.285515,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 33,
+        "grip": {
+          "x": 497.84323,
+          "y": 1334.2399
+        },
+        "offGrip": {
+          "x": 1035.3491,
+          "y": 1282.3989
+        },
+        "rightWrist": {
+          "x": 497.56073,
+          "y": 1301.111
+        },
+        "leftWrist": {
+          "x": 1007.7252,
+          "y": 1270.6587
+        },
+        "rightShoulder": {
+          "x": 593.3568,
+          "y": 926.4944
+        },
+        "leftShoulder": {
+          "x": 843.89014,
+          "y": 993.45575
+        },
+        "rightElbow": {
+          "x": 495.85538,
+          "y": 1101.1183
+        },
+        "leftElbow": {
+          "x": 823.6593,
+          "y": 1192.4299
+        },
+        "rightThumb": {
+          "x": 526.0979,
+          "y": 1335.5333
+        },
+        "leftThumb": {
+          "x": 1063.6038,
+          "y": 1283.6924
+        },
+        "rightSleeveRoot": {
+          "x": 593.3568,
+          "y": 926.4944
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.1333333,
+        "angle": 5.771625,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.9086394,
+        "rightFlex": 0,
+        "leftFlex": 0.01978234,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.77162,
+        "rightCuffTurn": 11.589554,
+        "leftCuffTurn": 63.100555,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 34,
+        "grip": {
+          "x": 488.3027,
+          "y": 1334.6515
+        },
+        "offGrip": {
+          "x": 1025.5652,
+          "y": 1280.3472
+        },
+        "rightWrist": {
+          "x": 489.44275,
+          "y": 1301.541
+        },
+        "leftWrist": {
+          "x": 998.13385,
+          "y": 1268.1637
+        },
+        "rightShoulder": {
+          "x": 583.0407,
+          "y": 921.4362
+        },
+        "leftShoulder": {
+          "x": 834.3183,
+          "y": 987.8833
+        },
+        "rightElbow": {
+          "x": 496.325,
+          "y": 1101.6594
+        },
+        "leftElbow": {
+          "x": 815.3512,
+          "y": 1186.9818
+        },
+        "rightThumb": {
+          "x": 516.563,
+          "y": 1335.8154
+        },
+        "leftThumb": {
+          "x": 1053.8254,
+          "y": 1281.5111
+        },
+        "rightSleeveRoot": {
+          "x": 583.0407,
+          "y": 921.4362
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.1666666,
+        "angle": 5.9403706,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 0.98599714,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -185.94037,
+        "rightCuffTurn": 13.787033,
+        "leftCuffTurn": 62.331657,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 35,
+        "grip": {
+          "x": 482.16876,
+          "y": 1334.9103
+        },
+        "offGrip": {
+          "x": 1019.26904,
+          "y": 1279.0238
+        },
+        "rightWrist": {
+          "x": 484.4802,
+          "y": 1301.8608
+        },
+        "leftWrist": {
+          "x": 991.9668,
+          "y": 1266.5537
+        },
+        "rightShoulder": {
+          "x": 576.39264,
+          "y": 918.1678
+        },
+        "leftShoulder": {
+          "x": 828.1506,
+          "y": 984.28314
+        },
+        "rightElbow": {
+          "x": 498.43384,
+          "y": 1102.3483
+        },
+        "leftElbow": {
+          "x": 810.04443,
+          "y": 1183.4618
+        },
+        "rightThumb": {
+          "x": 510.43237,
+          "y": 1335.991
+        },
+        "leftThumb": {
+          "x": 1047.5327,
+          "y": 1280.1045
+        },
+        "rightSleeveRoot": {
+          "x": 576.39264,
+          "y": 918.1678
+        },
+        "view": "poleReady"
+      },
+      {
+        "time": 1.2,
+        "angle": 6,
+        "weaponLength": 1,
+        "weaponYaw": 0,
+        "weaponPitch": 30,
+        "idleWeight": 1,
+        "rightFlex": 0,
+        "leftFlex": 0,
+        "rightTilt": 0,
+        "leftTilt": 0,
+        "handRotation": -186,
+        "rightCuffTurn": 14.712662,
+        "leftCuffTurn": 62.05818,
+        "rightNormal": -1,
+        "leftNormal": -1,
+        "leftUpperLength": 200,
+        "leftForearmLength": 200,
+        "weaponReturning": false,
+        "sprite": 0,
+        "grip": {
+          "x": 480,
+          "y": 1335
+        },
+        "offGrip": {
+          "x": 1017.0418,
+          "y": 1278.5547
+        },
+        "rightWrist": {
+          "x": 482.8107,
+          "y": 1301.9893
+        },
+        "leftWrist": {
+          "x": 989.7863,
+          "y": 1265.9828
+        },
+        "rightShoulder": {
+          "x": 574.0377,
+          "y": 917.0075
+        },
+        "leftShoulder": {
+          "x": 825.9658,
+          "y": 983.00525
+        },
+        "rightElbow": {
+          "x": 499.77832,
+          "y": 1102.7103
+        },
+        "leftElbow": {
+          "x": 808.1754,
+          "y": 1182.2124
+        },
+        "rightThumb": {
+          "x": 508.26474,
+          "y": 1336.0513
+        },
+        "leftThumb": {
+          "x": 1045.3065,
+          "y": 1279.606
+        },
+        "rightSleeveRoot": {
+          "x": 574.0377,
+          "y": 917.0075
+        },
+        "view": "poleReady"
+      }
+    ]
+  }
+}

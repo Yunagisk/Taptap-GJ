@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,6 +18,7 @@ public class BattleResultUI : MonoBehaviour
     private TMP_Text returnLabel;
     private TMP_FontAsset runtimeFont;
     private bool returning;
+    private Coroutine pendingResult;
 
     private void Awake()
     {
@@ -27,12 +29,42 @@ public class BattleResultUI : MonoBehaviour
     }
 
     private void OnEnable() { battleFlow.OnBattleStateChanged += ShowResult; }
-    private void OnDisable() { battleFlow.OnBattleStateChanged -= ShowResult; }
+    private void OnDisable()
+    {
+        battleFlow.OnBattleStateChanged -= ShowResult;
+        if (pendingResult != null) StopCoroutine(pendingResult);
+        pendingResult = null;
+    }
     private void Start() { ShowResult(battleFlow.CurrentState); }
 
     private void ShowResult(BattleState state)
     {
-        if (state != BattleState.Victory && state != BattleState.Defeat) return;
+        if (pendingResult != null) StopCoroutine(pendingResult);
+        pendingResult = null;
+        if (state != BattleState.Victory && state != BattleState.Defeat)
+        {
+            overlay.SetActive(false);
+            return;
+        }
+        if (state == BattleState.Victory && EnemyDefeatSpritePlayback.AnyPlayingIn(gameObject.scene))
+        {
+            overlay.SetActive(false);
+            pendingResult = StartCoroutine(ShowAfterDeath(state));
+            return;
+        }
+        PresentResult(state);
+    }
+
+    private IEnumerator ShowAfterDeath(BattleState state)
+    {
+        while (battleFlow.CurrentState == state && EnemyDefeatSpritePlayback.AnyPlayingIn(gameObject.scene))
+            yield return null;
+        pendingResult = null;
+        if (isActiveAndEnabled && battleFlow.CurrentState == state) PresentResult(state);
+    }
+
+    private void PresentResult(BattleState state)
+    {
         bool victory = state == BattleState.Victory;
         title.text = victory ? "\u6218\u6597\u80dc\u5229" : "\u6218\u6597\u5931\u8d25";
         title.color = victory ? new Color32(125, 213, 158, 255) : new Color32(237, 130, 130, 255);

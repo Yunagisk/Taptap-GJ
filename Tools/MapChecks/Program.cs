@@ -182,6 +182,7 @@ static class Program
         CheckVillageReentry();
         CheckMainStory();
         CheckEquipment();
+        InventoryCategoryChecks.Run(Check);
         CheckShop();
         CheckWeaponPrices();
         VillageEventChecks.Run(Layout, Check);

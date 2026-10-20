@@ -43,6 +43,8 @@ public class InventoryState
     public List<string> weapons = new List<string>() { "sword" };
     // 四个装备槽。空列表用于迁移旧局；四个空槽表示主动卸下。
     public List<string> equippedWeaponIds = new List<string>();
+    // Per-run notification history; unopened categories retain their new-weapon dot.
+    public List<string> seenWeaponIds = new List<string>() { "sword" };
 }
 
 [Serializable]

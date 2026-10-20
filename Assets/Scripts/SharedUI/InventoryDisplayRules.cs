@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-// Inventory columns classify weapons; the four equipment slots remain independent.
+// Both category equipment and its picker use the same primary-damage classification.
 public static class InventoryDisplayRules
 {
     public readonly struct WeaponEntry

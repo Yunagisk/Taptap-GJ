@@ -12,8 +12,8 @@ public sealed class BattleHudEnemyView : MonoBehaviour
     EnemyCombatant enemy;
     BattleHudView hud;
     RectTransform worldTag, intent, arrow, worldName;
-    TMP_Text intentText;
-    Image intentIcon;
+    TMP_Text intentText, intentEffect;
+    bool hasIntentEffect;
     Renderer[] renderers;
     DamageResistance resistance;
 
@@ -34,8 +34,7 @@ public sealed class BattleHudEnemyView : MonoBehaviour
         worldName.GetComponent<TMP_Text>().text = "敌人 " + index;
         BattleHudView.OutlineNumber(worldName.GetComponent<TMP_Text>());
         intentText = intent.Find("Amount").GetComponent<TMP_Text>();
-        intentIcon = intent.Find("Icon").GetComponent<Image>();
-        intentIcon.sprite = hud.damageIcons[0];
+        intentEffect = intent.Find("SpecialEffect").GetComponent<TMP_Text>();
         for (int i = 0; i < weaknesses.Length; i++) weaknesses[i].sprite = hud.damageIcons[i];
         Refresh();
     }
@@ -61,7 +60,12 @@ public sealed class BattleHudEnemyView : MonoBehaviour
         unknownWeakness.gameObject.SetActive(known == 0);
         var action = enemy.UpcomingAction;
         bool skip = enemy.Break != null && enemy.Break.SkipPending;
-        intentIcon.enabled = !skip && action != null;
+        string effect = !skip && action != null ? action.IntentEffectText : string.Empty;
+        hasIntentEffect = !string.IsNullOrWhiteSpace(effect);
+        intentEffect.gameObject.SetActive(hasIntentEffect);
+        intentEffect.text = effect;
+        intent.sizeDelta = new Vector2(hasIntentEffect ? 150 : 90, hasIntentEffect ? 72 : 46);
+        intentText.rectTransform.anchoredPosition = new Vector2(0, hasIntentEffect ? 14 : 0);
         intentText.text = skip ? "跳过" : action == null ? "—" : action.Damage + (action.AttackCount > 1 ? "×" + action.AttackCount : "");
         worldTag.gameObject.SetActive(!enemy.IsDead);
         arrow.gameObject.SetActive(!enemy.IsDead && enemy == hud.SelectedEnemy);
@@ -81,7 +85,7 @@ public sealed class BattleHudEnemyView : MonoBehaviour
         Vector2 foot = ScreenPoint(new Vector3(bounds.center.x, bounds.min.y, bounds.center.z));
         float halfWidth = hud.Root.rect.width * .5f, halfHeight = hud.Root.rect.height * .5f;
         float x = Mathf.Clamp(top.x, -halfWidth + 60, halfWidth - 60);
-        intent.anchoredPosition = new Vector2(x, Mathf.Min(top.y + 72, halfHeight - 200));
+        intent.anchoredPosition = new Vector2(x, Mathf.Min(top.y + (hasIntentEffect ? 84 : 72), halfHeight - 200));
         arrow.anchoredPosition = new Vector2(x, Mathf.Min(top.y + 28, halfHeight - 245));
         worldName.anchoredPosition = new Vector2(x, Mathf.Max(foot.y - 20, -halfHeight + 185));
     }

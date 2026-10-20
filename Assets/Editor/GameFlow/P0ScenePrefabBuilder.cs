@@ -144,6 +144,9 @@ public static class P0ScenePrefabBuilder
 
     static void BuildEquipmentPrefab()
     {
+        // Preserve the authored parchment layout when rebuilding legacy P0 UI.
+        var authored = AssetDatabase.LoadAssetAtPath<GameObject>(EquipmentPath);
+        if (authored != null && authored.GetComponent<InventoryLayoutView>() != null) return;
         var root = Rect("EquipmentPanel", null);
         Stretch(root);
         root.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, 0.65f);
@@ -222,6 +225,7 @@ public static class P0ScenePrefabBuilder
         ui.choiceParent = choices;
         ui.choicePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(ChoicePath).GetComponent<Button>();
         ui.continueButton = ButtonAt("Continue", window, "下一段", new Vector2(828, -466), new Vector2(140, 38), 21);
+        RpgDialogueLayout.Ensure(ui);
         overlay.gameObject.SetActive(false);
         SavePrefab(root.gameObject, DialoguePath);
         Object.DestroyImmediate(root.gameObject);
@@ -283,7 +287,7 @@ public static class P0ScenePrefabBuilder
         player.inventoryHealthFill = null;
         player.weaponNames = equipment.slotLabels;
         player.weaponStatuses = new TMP_Text[0];
-        player.weaponSlots = equipment.slotButtons.Select(button => button.GetComponent<Image>()).ToArray();
+        player.weaponSlots = EquipmentButtons(equipment).Select(button => button.GetComponent<Image>()).ToArray();
         player.sinStatusText = null;
         player.virtueStatusText = null;
         Click(equipment.closeButton, player.CloseInventory);
@@ -307,10 +311,10 @@ public static class P0ScenePrefabBuilder
         replacement.transform.SetSiblingIndex(old.transform.GetSiblingIndex());
         var equipment = replacement.GetComponent<EquipmentPanelView>();
         var mapping = RootMapping(old, replacement);
-        Add(mapping, screen.focusSlot, equipment.slotButtons[0].gameObject);
+        Add(mapping, screen.focusSlot, EquipmentButtons(equipment)[0].gameObject);
         RemapReferences(scene, mapping);
         screen.panelBag = replacement;
-        screen.focusSlot = equipment.slotButtons[0].gameObject;
+        screen.focusSlot = EquipmentButtons(equipment)[0].gameObject;
         Click(equipment.closeButton, screen.ClosePanels);
         Object.DestroyImmediate(old);
         replacement.SetActive(false);
@@ -532,14 +536,21 @@ public static class P0ScenePrefabBuilder
     {
         Require(view != null && PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(view.gameObject) == EquipmentPath,
             "Equipment window must be a connected EquipmentPanel prefab.");
-        Require(view.slotButtons != null && view.slotButtons.Length == EquipmentRules.SlotCount
-            && view.slotButtons.All(button => button != null), "Four equipment slots are required.");
+        var buttons = EquipmentButtons(view);
+        Require(buttons.Length == EquipmentRules.SlotCount && buttons.All(button => button != null), "Four equipment category cards are required.");
+        if (view.inventoryLayout != null)
+            Require(view.inventoryLayout.weaponPicker != null && view.inventoryLayout.pickerVisibility != null
+                && view.inventoryLayout.categorySlots.All(slot => slot.card != null && slot.newDot != null),
+                "Equipment picker/notification references are missing.");
         Require(view.window != null && view.visibility != null && view.panelToggler != null && view.rowButtonPrefab != null
             && view.ownedRowsParent != null && view.ownedWeaponsScroll != null && view.weaponLibrary != null
             && view.healthText != null && view.statusText != null && view.sinText != null && view.itemsText != null
-            && view.questText != null && view.equipButton != null && view.unequipButton != null
+            && view.questText != null && (view.inventoryLayout != null || view.equipButton != null) && view.unequipButton != null
             && view.selectWeaponButton != null && view.closeButton != null, "Equipment panel references are missing.");
     }
+
+    static Button[] EquipmentButtons(EquipmentPanelView view) => view.inventoryLayout != null
+        ? view.inventoryLayout.categorySlots.Select(slot => slot.card.button).ToArray() : view.slotButtons;
 
     static void ValidateDialogue(DialogueManager manager)
     {

@@ -14,6 +14,7 @@
     <Compile Include="../../Assets/Scripts/Core/NewRunFactory.cs" Link="NewRunFactory.cs" />
     <Compile Include="../../Assets/Scripts/Core/MainStoryRules.cs" Link="MainStoryRules.cs" />
     <Compile Include="../../Assets/Scripts/Core/EquipmentRules.cs" Link="EquipmentRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/InventoryEquipmentRules.cs" Link="InventoryEquipmentRules.cs" />
     <Compile Include="../../Assets/Scripts/Inventory/Weapons/WeaponTable.cs" Link="WeaponTable.cs" />
     <Compile Include="../../Assets/Scripts/Inventory/Weapons/ShopRules.cs" Link="ShopRules.cs" />
     <Compile Include="../../Assets/Scripts/Map/Data/MapLayout.cs" Link="MapLayout.cs" />
@@ -22,6 +23,7 @@
     <Compile Include="../../Assets/Scripts/Map/Logic/MapRevealTransition.cs" Link="MapRevealTransition.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="VillageEventChecks.cs" />
+    <Compile Include="InventoryCategoryChecks.cs" />
     <Content Include="../../Assets/Data/EnemyAttacks/Maps/ThreeSinWhitebox.json" Link="ThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
