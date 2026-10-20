@@ -19,8 +19,10 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
+RESOLVE_CAP = int(re.search(r'DefaultMaxResolve\s*=\s*(\d+)',
+    (ROOT / 'Assets/Scripts/Battle/Status/StatusRules.cs').read_text(encoding='utf-8-sig')).group(1))
 KINDS = ("rat", "crow", "wraith")
-LABELS = {"rat": "老鼠", "crow": "腐鸦", "wraith": "怨影"}
+LABELS = {"rat": "瘟鼠", "crow": "腐鸦", "wraith": "怨影"}
 WEIGHTS = {"rat": (45, 25, 20, 10), "crow": (40, 25, 20, 15),
            "wraith": (35, 30, 20, 15)}
 NORMAL_DAMAGE = {"rat": 4, "crow": 3, "wraith": 4}
@@ -94,7 +96,7 @@ class Weapon:
     cost: int
     stages: tuple[tuple[int, int, tuple[tuple[int, int], ...]], ...]
     ignore_resistance: bool
-    # Current four starter skills have no rider except hammer's sunder.
+    # Current three starter skills have no rider except hammer's sunder.
     sunder: int
 
 
@@ -164,7 +166,7 @@ class Enemy:
 class Player:
     hp: int = 100
     resolve: int = 1
-    max_resolve: int = 3
+    max_resolve: int = RESOLVE_CAP
     poison: int = 0
     sunder: int = 0
     sunder_applied: int = 0
@@ -498,7 +500,7 @@ def main() -> None:
     parser.add_argument("--profiles", nargs="+", choices=HP_PROFILES,
                         default=["installed"])
     parser.add_argument("--weapons", nargs="+", default=["sword"],
-                        choices=["sword", "axe", "hammer", "dual_swords"])
+                        choices=["sword", "axe", "hammer"])
     parser.add_argument("--policies", nargs="+", choices=["focus", "reactive"],
                         default=["focus"])
     parser.add_argument("--quiet", action="store_true")
@@ -514,7 +516,7 @@ def main() -> None:
         RELATIONS["crow"] = (1, 0, 1, 1)
     elif args.crow_pierce == "resistant":
         RELATIONS["crow"] = (2, 0, 1, 1)
-    weapons = {weapon.id: weapon for weapon in map(read_weapon, (1, 4, 5, 7))}
+    weapons = {weapon.id: weapon for weapon in map(read_weapon, (1, 5, 7))}
     self_check(weapons)
     rows = []
     for profile in args.profiles:
@@ -561,7 +563,7 @@ def main() -> None:
     output = {
         "model_version": 3, "seed": args.seed, "crow_pierce": args.crow_pierce,
         "scope": "Offline simulation of installed small-monster data, not a replacement for Unity gameplay validation",
-        "player": {"hp": 100, "initial_resolve": 1, "resolve_cap": 3,
+        "player": {"hp": 100, "initial_resolve": 1, "resolve_cap": RESOLVE_CAP,
                    "healing": False, "weapon_switching": False,
                    "other_buffs": False, "all_weaknesses_known": True},
         "weapons_from_assets": [asdict(weapons[id_]) for id_ in args.weapons],

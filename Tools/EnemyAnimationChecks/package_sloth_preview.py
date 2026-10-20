@@ -52,9 +52,9 @@ for state in ['idle', 'attack', 'hurt', 'death']:
 
 html = '''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>懒惰 · 30 FPS 全套动作</title>
 <style>body{margin:0;background:#151a22;color:#eef1f5;font:16px system-ui}main{max-width:1040px;margin:auto;padding:24px}h1{font-size:25px;margin:0 0 10px}p,small{color:#b8c4d3;line-height:1.65}button,select{padding:9px 14px;margin:4px;border:1px solid #64758b;background:#2d394c;color:white;border-radius:6px;cursor:pointer}.active{border-color:#c3d7ec;background:#445b76}.row{display:flex;align-items:center;flex-wrap:wrap;gap:6px}#status{margin-left:auto;font-variant-numeric:tabular-nums}#stage{display:block;max-width:100%;width:auto;height:520px;object-fit:contain;margin:14px auto;background:#1f2633}input{width:100%}a{color:#abccee}#downloads{display:flex;gap:18px;flex-wrap:wrap}</style>
-<main><h1>懒惰 · 30 FPS 全套动作</h1><p>沉重呼吸、抬爪蓄力与挥击、受击后缩、倒伏及黑粉消散。与老鼠、怨影使用相同的原画网格动画方式，保留原画颜色。<br>待机一轮 144 个姿态，攻击 36 帧，受击 18 帧，死亡倒伏 42 帧。下面是 Unity 实际渲染，非重新绘制的逐帧素材。</p>
+<main><h1>懒惰 · 30 FPS 全套动作</h1><p>沉重呼吸、抬爪蓄力与挥击、受击后缩、倒伏及黑粉消散。与瘟鼠、怨影使用相同的原画网格动画方式，保留原画颜色。<br>待机一轮 144 个姿态，攻击 36 帧，受击 18 帧，死亡倒伏 42 帧。下面是 Unity 实际渲染，非重新绘制的逐帧素材。</p>
 <div class="row" id="states"></div><div class="row"><button id="play">暂停</button><button id="restart">重播</button><select id="speed"><option value="1">正常速度</option><option value=".5">半速</option><option value=".25">四分之一速度</option></select><span id="status">正在加载</span></div>
-<img id="stage" alt="懒惰 Unity 动画实录"><input id="scrub" type="range" min="0" value="0"><div id="downloads"></div><p><a href="../small-monsters-v1/index.html">对照老鼠与怨影</a></p><p><small>Unity 预览：Assets/Scenes/SlothAnimationPreview.unity。TestScene 与 BattleSimulator 的懒惰均已接入。</small></p></main>
+<img id="stage" alt="懒惰 Unity 动画实录"><input id="scrub" type="range" min="0" value="0"><div id="downloads"></div><p><a href="../small-monsters-v1/index.html">对照瘟鼠与怨影</a></p><p><small>Unity 预览：Assets/Scenes/SlothAnimationPreview.unity。TestScene 与 BattleSimulator 的懒惰均已接入。</small></p></main>
 <script>
 const clips=__CLIPS__,labels={idle:'待机',attack:'攻击',hurt:'受击',death:'死亡 + 黑粉消散'},$=id=>document.getElementById(id);let state='idle',playing=true,time=0,last=performance.now(),speed=1,shown=-1,ready=false;
 for(const [key,label]of Object.entries(labels)){const b=document.createElement('button');b.id=key;b.textContent=label;b.onclick=()=>choose(key);$('states').append(b);const a=document.createElement('a');a.href='Sloth_'+key+'_30fps.png';a.download='';a.textContent=label+' APNG';$('downloads').append(a)}
@@ -73,8 +73,8 @@ if match:
     combined = json.loads(match[1])
     combined['Sloth'] = {state: ['../sloth-v1/' + frame for frame in frames] for state, frames in clips.items()}
     text = text[:match.start(1)] + json.dumps(combined) + text[match.end(1):]
-    text = text.replace("names={Rat:'老鼠',Wraith:'怨影'}", "names={Rat:'老鼠',Wraith:'怨影',Sloth:'懒惰'}")
-    text = text.replace('老鼠与怨影 · 全套动作', '小怪与懒惰 · 全套动作')
+    text = text.replace("names={Rat:'瘟鼠',Wraith:'怨影'}", "names={Rat:'瘟鼠',Wraith:'怨影',Sloth:'懒惰'}")
+    text = text.replace('瘟鼠与怨影 · 全套动作', '小怪与懒惰 · 全套动作')
     text = text.replace("a.href=species+'_'+k+'_30fps.png'", "a.href=(species==='Sloth'?'../sloth-v1/':'')+species+'_'+k+'_30fps.png'")
     if '懒惰：沉重呼吸与低头' not in text:
         text = text.replace(":'怨影：悬浮与衣摆起伏", ":species==='Sloth'?'懒惰：沉重呼吸与低头 → 抬爪蓄力挥击 → 受击后缩 → 倒伏 → 黑粉消散。':'怨影：悬浮与衣摆起伏")

@@ -44,7 +44,8 @@ public sealed class VillageIntroController : MonoBehaviour
     void RefreshNavigation()
     {
         var state = GameRoot.I != null ? GameRoot.I.state : null;
-        navigation.SetActive(!IsOpen && VillageIntroRules.IsGuideRun(state) && !owner.IsLoading
+        navigation.SetActive(!IsOpen && !SlothChapterPresentation.BlocksVillage
+            && VillageIntroRules.IsGuideRun(state) && !owner.IsLoading
             && !owner.IsResting && (owner.panelRoot == null || !owner.panelRoot.activeSelf));
         objective.text = MainStoryRules.GoalText(state);
         MayorButton.gameObject.SetActive(VillageIntroRules.IsAwaitingMayor(state) || VillageIntroRules.NeedsReport(state));
@@ -70,12 +71,13 @@ public sealed class VillageIntroController : MonoBehaviour
     public void TogglePause() { if (view != null) view.TogglePause(); }
     public void OpenMayorHouse()
     {
-        if (IsOpen || owner.IsLoading || owner.IsResting) return;
+        if (IsOpen || owner.IsLoading || owner.IsResting || SlothChapterPresentation.BlocksVillage) return;
         if (VillageIntroRules.IsAwaitingMayor(GameRoot.I.state)) Play(content.mayorApproachDialogue, content.mayorBackground);
         else if (VillageIntroRules.NeedsReport(GameRoot.I.state)) Play(content.reportDialogue, content.mayorBackground);
     }
     public void OpenBlacksmith()
     {
+        if (SlothChapterPresentation.BlocksVillage) return;
         if (!IsOpen && GameRoot.I.state.story.guideCompleted) { owner.OpenShop(); return; }
         if (!IsOpen && !owner.IsLoading && !owner.IsResting && VillageIntroRules.NeedsBlacksmith(GameRoot.I.state))
             Play(content.blacksmithDialogue, content.blacksmithBackground,
@@ -109,7 +111,7 @@ public sealed class VillageIntroController : MonoBehaviour
         var goal = GuideUI.Image("Objective", stage, new Color32(248, 247, 241, 245));
         GuideUI.Center(goal.rectTransform, new Vector2(0, 365), new Vector2(760, 78)); goal.raycastTarget = false;
         objective = GuideUI.Label("Goal", goal.transform, "", Vector2.zero, new Vector2(730, 58), content.font);
-        MayorButton = GuideUI.Button("MayorHouse", stage, "哈罗德宅邸\n前往交谈", new Vector2(-315, -100),
+        MayorButton = GuideUI.Button("MayorHouse", stage, "哈罗德宅邸\n前往交谈", new Vector2(80, 170),
             new Vector2(210, 76), content.font, OpenMayorHouse);
         BlacksmithButton = GuideUI.Button("Blacksmith", stage, "西城区铁匠铺\n领取武器", new Vector2(-530, 250),
             new Vector2(230, 76), content.font, OpenBlacksmith);

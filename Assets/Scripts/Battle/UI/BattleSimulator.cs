@@ -46,7 +46,7 @@ public sealed class BattleSimulator : MonoBehaviour
         var ids = new HashSet<string>();
         if (weaponLibrary != null && weaponLibrary.weapons != null)
             foreach (var weapon in weaponLibrary.weapons)
-                if (weapon != null && weapon.WeaponId != "dual_swords" && ids.Add(weapon.WeaponId)) weapons.Add(weapon);
+                if (weapon != null && WeaponTable.Find(weapon.WeaponId) != null && ids.Add(weapon.WeaponId)) weapons.Add(weapon);
         BuildControls();
     }
     void Start() => RestartBattle();
@@ -75,7 +75,7 @@ public sealed class BattleSimulator : MonoBehaviour
         enemy = null;
         root.state = new GameState();
         root.state.player.hp = root.state.player.maxHp = 1000;
-        root.state.player.resolve = root.state.player.maxResolve = 3;
+        root.state.player.resolve = root.state.player.maxResolve = StatusRules.DefaultMaxResolve;
         root.state.player.currentWeaponId = weapons[weaponIndex].WeaponId;
         foreach (var weapon in weapons) if (!root.state.inventory.weapons.Contains(weapon.WeaponId)) root.state.inventory.weapons.Add(weapon.WeaponId);
         root.state.inventory.items.Add(new ItemStack(ItemTable.Bandage, 1));
@@ -200,7 +200,7 @@ public sealed class BattleSimulator : MonoBehaviour
         }
         Button(panel.transform, "NextWeapon", "下一把武器", new Vector2(601, -131), new Vector2(138, 34), NextWeapon);
         Button(panel.transform, "NextEnemy", "下一个敌人", new Vector2(747, -131), new Vector2(138, 34), NextEnemy);
-        Label(panel.transform, "切换即重开对局 · 仅一个敌人 · 双刀不参与", new Vector2(15, -173), new Vector2(870, 25), 18);
+        Label(panel.transform, "切换即重开对局 · 仅一个敌人", new Vector2(15, -173), new Vector2(870, 25), 18);
         status = Label(panel.transform, "准备中…", new Vector2(15, -210), new Vector2(870, 28), 19);
         var actions = new GameObject("SimulationActions", typeof(RectTransform)); actions.transform.SetParent(canvas.transform, false);
         var actionRect = actions.GetComponent<RectTransform>(); actionRect.anchorMin = actionRect.anchorMax = new Vector2(.5f, 0);

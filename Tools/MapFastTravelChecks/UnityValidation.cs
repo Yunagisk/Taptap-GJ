@@ -85,12 +85,23 @@ public static class MapFastTravelValidation
         Check(destination.button.interactable && !map.CanMove(destination.nodeId), "distant visited node is clickable without pretending it is adjacent");
         int encounters = 0, villages = 0;
         controller.NodeEntered += _ => encounters++; controller.onVillageEntered.AddListener(() => villages++);
+        var adjacent = view.NodeTransform("r1_c").GetComponent<MapSceneNode>();
+        Click(adjacent.button);
+        Check(map.State.currentNodeId == adjacent.nodeId && map.World.time == 3
+            && !controller.IsFastTravelConfirmationOpen && encounters == 0,
+            "clicking an adjacent completed node walks immediately without a travel confirmation");
+        Click(view.NodeTransform("r1_camp").GetComponent<MapSceneNode>().button);
+        Check(map.State.currentNodeId == "r1_camp" && map.World.time == 4
+            && !controller.IsFastTravelConfirmationOpen && !controller.IsCampOpen,
+            "walking back to the adjacent completed camp needs no travel confirmation or camp reentry");
         int time = map.World.time;
         string before = JsonUtility.ToJson(GameRoot.I.state);
         Vector2 oldPosition = view.mapContent.anchoredPosition; Vector3 oldScale = view.mapContent.localScale;
         Click(destination.button);
         Check(controller.IsFastTravelConfirmationOpen && controller.FastTravelUI.IsOpen,
             "clicking the native distant node opens the travel confirmation");
+        var dial = view.canvas.GetComponentInChildren<MapTimeDialView>(true).GetComponent<CanvasGroup>();
+        Check(dial != null && dial.alpha == 0, "travel preview clears the clock from the bottom-edge destination");
         var plan = controller.PendingTravel;
         Check(plan.TimeCost >= 4 && JsonUtility.ToJson(GameRoot.I.state) == before,
             "native route preview has a real multi-edge quote and spends no resources");
@@ -109,6 +120,7 @@ public static class MapFastTravelValidation
         yield return new WaitForSecondsRealtime(.5f);
         Check(!controller.IsFastTravelConfirmationOpen && JsonUtility.ToJson(GameRoot.I.state) == before,
             "canceling changes neither position nor time nor any run data");
+        Check(dial.alpha == 1, "canceling restores the ordinary map clock");
         Check(Vector2.Distance(view.mapContent.anchoredPosition, oldPosition) < 1 && Vector3.Distance(view.mapContent.localScale, oldScale) < .01f,
             "canceling restores the previous camera position and zoom");
         Check(!view.mapContent.GetComponentsInChildren<Transform>().Any(t => t.name.StartsWith("TravelEndpoint_")),
@@ -120,6 +132,7 @@ public static class MapFastTravelValidation
             "confirming moves to the selected location and pays the exact quoted cost once");
         Check(!controller.IsFastTravelConfirmationOpen && map.State.pendingRequestId == null && encounters == 0 && villages == 0,
             "fast travel never dispatches intermediate encounters, camps or village scenes");
+        Check(dial.alpha == 1, "confirming restores the map clock for the arrival-time animation");
         yield return new WaitForSecondsRealtime(1.1f);
         Capture("arrived.png", view);
         Check(!view.viewport.IsTravelPreview, "arrival returns camera controls to normal map navigation");
@@ -149,10 +162,46 @@ public static class MapFastTravelValidation
         Check(!controller.IsFastTravelConfirmationOpen && !flow.pauseOverlay.activeSelf,
             "Escape cancels the travel confirmation without also opening the pause menu");
         yield return new WaitForSecondsRealtime(.45f);
-        map.State.visitedNodes.Remove("r1_camp"); view.Refresh();
-        Check(!view.NodeTransform("r1_camp").GetComponent<MapSceneNode>().button.interactable,
-            "unvisited distant destinations remain unavailable");
+        map.State.visitedNodes.Remove("r1_camp"); map.State.clearedNodes.Remove("r1_camp"); view.Refresh();
+        var unvisited = view.NodeTransform("r1_camp").GetComponent<MapSceneNode>();
+        Check(unvisited.button.interactable && !map.CanMove(unvisited.nodeId),
+            "an unvisited visible destination is clickable through completed intermediate nodes");
+        Check(!view.NodeTransform("r1_boss").GetComponent<MapSceneNode>().button.interactable,
+            "an unfinished camp cannot be crossed to reach the boss behind it");
         Check(map.World.time == time && encounters == 0, "cancellation and rejection tests never trigger encounters or additional travel time");
+        before = JsonUtility.ToJson(GameRoot.I.state);
+        Click(unvisited.button);
+        Check(controller.IsFastTravelConfirmationOpen && JsonUtility.ToJson(GameRoot.I.state) == before,
+            "previewing the unvisited destination does not mark it visited or spend resources");
+        Click(controller.FastTravelUI.CancelButton);
+        Check(JsonUtility.ToJson(GameRoot.I.state) == before, "canceling an unvisited destination preserves the complete run state");
+        yield return new WaitForSecondsRealtime(.45f);
+        Click(unvisited.button);
+        controller.CampUI.restButton.enabled = false;
+        controller.ConfirmFastTravel();
+        Check(!controller.IsFastTravelConfirmationOpen && JsonUtility.ToJson(GameRoot.I.state) == before,
+            "an unavailable destination UI rejects confirmation without partial travel or time charges");
+        controller.CampUI.restButton.enabled = true;
+        yield return new WaitForSecondsRealtime(.45f);
+        Click(unvisited.button);
+        plan = controller.PendingTravel;
+        Check(plan != null && plan.TimeCost > 1, "the unfinished camp has a direct multi-edge travel quote");
+        Click(controller.FastTravelUI.ConfirmButton); controller.ConfirmFastTravel();
+        Check(map.State.currentNodeId == unvisited.nodeId && map.World.time == plan.ArrivalTime
+            && map.State.visitedNodes.Contains(unvisited.nodeId) && !map.State.clearedNodes.Contains(unvisited.nodeId)
+            && map.GetPendingRequest()?.kind == MapNodeKind.Camp,
+            "confirmation reaches the unvisited destination once and creates its ordinary camp entry request");
+        deadline = Time.realtimeSinceStartupAsDouble + 15;
+        while ((controller.IsEnteringNode || MapSceneTransition.IsBusy) && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
+        Check(controller.IsCampOpen && encounters == 1 && villages == 0 && map.World.time == plan.ArrivalTime,
+            "arrival enters the destination camp once without replaying any intermediate encounter");
+        controller.RestAtCamp();
+        Check(!controller.IsCampOpen && map.State.clearedNodes.Contains(unvisited.nodeId)
+            && map.GetPendingRequest() == null && map.World.time == plan.ArrivalTime + 1,
+            "the destination camp settles normally after fast travel");
+        deadline = Time.realtimeSinceStartupAsDouble + 15;
+        while ((view.IsRevealing || controller.IsEnteringNode || MapSceneTransition.IsBusy)
+            && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
         controller.MoveToNode("r2_camp");
         Check(controller.IsFastTravelConfirmationOpen, "scene cleanup starts with an open travel confirmation");
         UnityEngine.Object.Destroy(view.canvas.gameObject);
@@ -164,17 +213,26 @@ public static class MapFastTravelValidation
     {
         Canvas.ForceUpdateCanvases();
         Rect panel = ScreenBounds((RectTransform)ui.transform.Find("TravelCard"));
+        var canvas = view.canvas.rootCanvas;
+        var camera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+        float width = camera != null ? camera.pixelWidth : Screen.width;
+        float height = camera != null ? camera.pixelHeight : Screen.height;
         foreach (string id in new[] { plan.OriginId, plan.DestinationId })
         {
             Rect node = ScreenBounds(view.NodeTransform(id));
-            Check(node.xMin >= 0 && node.xMax <= Screen.width && node.yMax <= Screen.height
-                && node.yMin > panel.yMax + 10, "wide travel camera keeps " + id + " fully visible above the confirmation card");
+            Check(node.xMin >= 0 && node.xMax <= width && node.yMin >= 0 && node.yMax <= height
+                && !panel.Overlaps(node), "bounded travel camera keeps " + id + " fully visible beside the confirmation card"
+                + "; node=" + node + "; card=" + panel);
         }
     }
     static Rect ScreenBounds(RectTransform rect)
     {
         var corners = new Vector3[4]; rect.GetWorldCorners(corners);
-        return Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
+        var canvas = rect.GetComponentInParent<Canvas>().rootCanvas;
+        var camera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+        Vector2 min = RectTransformUtility.WorldToScreenPoint(camera, corners[0]);
+        Vector2 max = RectTransformUtility.WorldToScreenPoint(camera, corners[2]);
+        return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
     }
     static void Click(Button button) => ExecuteEvents.Execute(button.gameObject,
         new PointerEventData(EventSystem.current) { button = PointerEventData.InputButton.Left }, ExecuteEvents.pointerClickHandler);
@@ -202,7 +260,15 @@ public static class MapFastTravelValidation
             if (view.GetComponent<WorldMapController>().FastTravelUI != null && view.GetComponent<WorldMapController>().FastTravelUI.IsOpen)
                 view.GetComponent<WorldMapController>().FastTravelUI.SendMessage("LateUpdate");
             foreach (var label in UnityEngine.Object.FindObjectsOfType<TMP_Text>()) label.ForceMeshUpdate();
-            Canvas.ForceUpdateCanvases(); camera.Render(); RenderTexture.active = render;
+            Canvas.ForceUpdateCanvases();
+            Rect painted = MapUITransform.Bounds(view.originalBackground.rectTransform, (RectTransform)view.viewport.transform);
+            Rect window = ((RectTransform)view.viewport.transform).rect;
+            Check(painted.xMin <= window.xMin + 1 && painted.xMax >= window.xMax - 1
+                && painted.yMin <= window.yMin + 1 && painted.yMax >= window.yMax - 1,
+                name + " keeps the actual painted map over the entire viewport");
+            var controller = view.GetComponent<WorldMapController>();
+            if (controller.IsFastTravelConfirmationOpen) CheckFraming(view, controller.PendingTravel, controller.FastTravelUI);
+            camera.Render(); RenderTexture.active = render;
             pixels.ReadPixels(new Rect(0, 0, width, height), 0, 0); pixels.Apply();
             File.WriteAllBytes(Path.Combine(Path.GetDirectoryName(Output), name), pixels.EncodeToPNG());
         }

@@ -1,0 +1,604 @@
+{
+  "templates": [
+    {
+      "id": "w01",
+      "title": "棺下敲击",
+      "description": "荒地里一具半埋的旧棺传出轻微敲击，土层似乎刚被翻动。有人等着搭救，也可能只是危险的伪装。",
+      "weight": 2,
+      "choices": [
+        {
+          "label": "挖开检查",
+          "timeCost": 1,
+          "outcomes": [
+            {
+              "weight": 70,
+              "sinDelta": -15,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            },
+            {
+              "weight": 30,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": true,
+              "repairBridge": false
+            }
+          ]
+        },
+        {
+          "label": "离开",
+          "timeCost": 0,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w02",
+      "title": "夜半送葬",
+      "description": "几个疲惫的村民抬着草席走入荒地。没有足够的人手，也没有足够的灯火，亡者的随身物品还留在路旁。",
+      "weight": 2,
+      "choices": [
+        {
+          "label": "协助安葬",
+          "timeCost": 1,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": -15,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        },
+        {
+          "label": "翻找遗物",
+          "timeCost": 0,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": 20,
+              "healAmount": 0,
+              "rewardText": "获得 1 份绷带",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w03",
+      "title": "被封死的门",
+      "description": "破屋的木门被从外面钉死，门后传来虚弱的求助声。你可以留下清水，也可以冒险撬开木板。",
+      "weight": 2,
+      "choices": [
+        {
+          "label": "留下清水",
+          "timeCost": 1,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": -12,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "首次直接受击 −15%",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        },
+        {
+          "label": "撬开木板",
+          "timeCost": 1,
+          "outcomes": [
+            {
+              "weight": 60,
+              "sinDelta": -15,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            },
+            {
+              "weight": 40,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": true,
+              "repairBridge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w04",
+      "title": "被弃的药箱",
+      "description": "翻覆的药箱落在路边，几支药瓶依旧完整。仔细辨认需要时间，直接翻找也许会惊动藏在附近的东西。",
+      "weight": 3,
+      "choices": [
+        {
+          "label": "仔细检查",
+          "timeCost": 1,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": 0,
+              "healAmount": 25,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        },
+        {
+          "label": "直接翻找",
+          "timeCost": 0,
+          "outcomes": [
+            {
+              "weight": 65,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "获得 1 份绷带",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            },
+            {
+              "weight": 35,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": true,
+              "repairBridge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w05",
+      "title": "霉烂粮车",
+      "description": "一辆被遗弃的粮车散着霉味，角落里仍有能够食用的粮食。几个饥饿的人远远看着，没有靠近。",
+      "weight": 2,
+      "choices": [
+        {
+          "label": "分配可用粮食",
+          "timeCost": 1,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": -15,
+              "healAmount": 10,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        },
+        {
+          "label": "独占补给",
+          "timeCost": 0,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": 20,
+              "healAmount": 0,
+              "rewardText": "获得 1 份绷带",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w06",
+      "title": "荒废告解室",
+      "description": "断壁中剩下一间小小的告解室，帘后传来低语。壁龛里几只旧罐子仍被布条仔细封着。",
+      "weight": 2,
+      "choices": [
+        {
+          "label": "倾听安慰",
+          "timeCost": 1,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": -12,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "首次直接受击 −15%",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        },
+        {
+          "label": "掀开帘子",
+          "timeCost": 0,
+          "outcomes": [
+            {
+              "weight": 60,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "获得 1 份净化剂",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            },
+            {
+              "weight": 40,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": true,
+              "repairBridge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w07",
+      "title": "无字墓碑",
+      "description": "墓碑上只有被雨水磨平的凹痕，旁边的木牌隐约留着姓名。坟头的泥土尚未沉实。",
+      "weight": 2,
+      "choices": [
+        {
+          "label": "补刻姓名",
+          "timeCost": 1,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": -15,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "下一次完整攻击 +15%",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        },
+        {
+          "label": "搜查墓土",
+          "timeCost": 0,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": 15,
+              "healAmount": 0,
+              "rewardText": "获得 1 份绷带",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w08",
+      "title": "断桥上的绳索",
+      "description": "通往另一条道路的旧桥已经断裂，两侧仍能沿原路回到村庄。修好绳索能增加一条横向通路。",
+      "weight": 1,
+      "choices": [
+        {
+          "label": "修复通道",
+          "timeCost": 2,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": true
+            }
+          ]
+        },
+        {
+          "label": "搜查桥下",
+          "timeCost": 0,
+          "outcomes": [
+            {
+              "weight": 60,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "获得 1 份绷带",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            },
+            {
+              "weight": 40,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": true,
+              "repairBridge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w09",
+      "title": "自罚游行",
+      "description": "一列沉默的人拖着空车行进，有人反复伤害自己。阻止伤害可能平息痛苦，也可能惊扰队伍中的异物。",
+      "weight": 1,
+      "choices": [
+        {
+          "label": "阻止伤害",
+          "timeCost": 1,
+          "outcomes": [
+            {
+              "weight": 80,
+              "sinDelta": -15,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            },
+            {
+              "weight": 20,
+              "sinDelta": -15,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": true,
+              "repairBridge": false
+            }
+          ]
+        },
+        {
+          "label": "检查空车",
+          "timeCost": 0,
+          "outcomes": [
+            {
+              "weight": 60,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "获得 1 份绷带",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            },
+            {
+              "weight": 40,
+              "sinDelta": 0,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": true,
+              "repairBridge": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "w10",
+      "title": "最后一封家书",
+      "description": "石堆旁压着一封未能送出的家书，包裹里的遗物和药布已经沾满尘土。这里似乎只差最后一次告别。",
+      "weight": 2,
+      "choices": [
+        {
+          "label": "安放遗物",
+          "timeCost": 1,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": -15,
+              "healAmount": 0,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 20,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        },
+        {
+          "label": "取方巾包扎",
+          "timeCost": 0,
+          "outcomes": [
+            {
+              "weight": 100,
+              "sinDelta": 15,
+              "healAmount": 15,
+              "rewardText": "",
+              "effectText": "",
+              "campRecoveryBonusPercent": 0,
+              "encounter": false,
+              "repairBridge": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "enemyVariants": [
+    {
+      "id": "preview_crow_stage1",
+      "name": "腐鸦",
+      "stage": 1
+    },
+    {
+      "id": "preview_rat_stage1",
+      "name": "瘟鼠",
+      "stage": 1
+    },
+    {
+      "id": "preview_shade_stage1",
+      "name": "怨影",
+      "stage": 1
+    },
+    {
+      "id": "preview_crow_stage2",
+      "name": "腐鸦",
+      "stage": 2
+    },
+    {
+      "id": "preview_rat_stage2",
+      "name": "瘟鼠",
+      "stage": 2
+    },
+    {
+      "id": "preview_shade_stage2",
+      "name": "怨影",
+      "stage": 2
+    },
+    {
+      "id": "preview_crow_stage3",
+      "name": "腐鸦",
+      "stage": 3
+    },
+    {
+      "id": "preview_rat_stage3",
+      "name": "瘟鼠",
+      "stage": 3
+    },
+    {
+      "id": "preview_shade_stage3",
+      "name": "怨影",
+      "stage": 3
+    }
+  ],
+  "graph": {
+    "villageNodeId": "village",
+    "nodes": [
+      {
+        "id": "village",
+        "neighbors": [
+          "field01",
+          "field04"
+        ],
+        "x": -420,
+        "y": 0
+      },
+      {
+        "id": "field01",
+        "neighbors": [
+          "village",
+          "field02"
+        ],
+        "x": -220,
+        "y": 170
+      },
+      {
+        "id": "field02",
+        "neighbors": [
+          "field01",
+          "field03"
+        ],
+        "x": 20,
+        "y": 240
+      },
+      {
+        "id": "field03",
+        "neighbors": [
+          "field02",
+          "field07"
+        ],
+        "x": 270,
+        "y": 170
+      },
+      {
+        "id": "field04",
+        "neighbors": [
+          "village",
+          "field05"
+        ],
+        "x": -220,
+        "y": -170
+      },
+      {
+        "id": "field05",
+        "neighbors": [
+          "field04",
+          "field06"
+        ],
+        "x": 20,
+        "y": -240
+      },
+      {
+        "id": "field06",
+        "neighbors": [
+          "field05",
+          "field07"
+        ],
+        "x": 270,
+        "y": -170
+      },
+      {
+        "id": "field07",
+        "neighbors": [
+          "field03",
+          "field06"
+        ],
+        "x": 440,
+        "y": 0
+      }
+    ],
+    "repairableRoads": [
+      {
+        "from": "field02",
+        "to": "field05"
+      }
+    ]
+  }
+}

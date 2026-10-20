@@ -36,12 +36,16 @@ static class Program
     static void LoadAssets()
     {
         string library = File.ReadAllText(Path.Combine(Root, "Assets/Data/Weapons/WeaponLibrary.asset"));
-        int[] totals = { 10, 13, 10, 8, 11, 10, 11, 8, 8, 11, 10, 10 };
-        int[] prices = { 4, 8, 8, 8, 4, 8, 4, 8, 4, 12, 12, 12 };
-        int[] costs = { 2, 3, 2, 3, 2, 3, 2, 2, 2, 3, 3, 3 };
-        int[] masks = { 1, 1, 1, 1, 2, 2, 4, 4, 8, 3, 9, 12 };
-        for (int i = 1; i <= 12; i++)
+        int[] numbers = { 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12 };
+        int[] totals = { 10, 13, 10, 11, 10, 11, 8, 8, 11, 10, 10 };
+        int[] prices = { 4, 8, 8, 4, 8, 4, 8, 4, 12, 12, 12 };
+        int[] costs = { 2, 3, 2, 2, 3, 2, 2, 2, 3, 3, 3 };
+        int[] masks = { 1, 2, 1, 2, 2, 4, 4, 8, 3, 9, 12 };
+        Check(!File.Exists(Path.Combine(Root, "Assets/Data/Weapons/KBW04.asset"))
+            && !File.Exists(Path.Combine(Root, "Assets/Data/Skills/KBS04.asset")), "retired dual-sword weapon and skill assets are removed");
+        for (int index = 0; index < numbers.Length; index++)
         {
+            int i = numbers[index];
             string weaponPath = Path.Combine(Root, $"Assets/Data/Weapons/KBW{i:00}.asset");
             string raw = File.ReadAllText(weaponPath).Replace("\r\n", "\n");
             string skillPath = Path.Combine(Root, $"Assets/Data/Skills/KBS{i:00}.asset");
@@ -75,10 +79,10 @@ static class Program
             Set(weapon, "skill", skill);
             Weapons.Add(id, weapon);
             Check(skill.IsConfigured, "configured skill " + id);
-            Eq(skill.DeterminationCost, costs[i - 1], "skill cost " + id);
-            Eq(weapon.Price, prices[i - 1], "weapon price " + id);
-            Eq(weapon.DamageComponents.Sum(p => p.damage) * weapon.AttackCount, totals[i - 1], "basic damage " + id);
-            Eq(weapon.DamageComponents.Aggregate(0, (mask, p) => mask | 1 << (int)p.damageType), masks[i - 1], "basic types " + id);
+            Eq(skill.DeterminationCost, costs[index], "skill cost " + id);
+            Eq(weapon.Price, prices[index], "weapon price " + id);
+            Eq(weapon.DamageComponents.Sum(p => p.damage) * weapon.AttackCount, totals[index], "basic damage " + id);
+            Eq(weapon.DamageComponents.Aggregate(0, (mask, p) => mask | 1 << (int)p.damageType), masks[index], "basic types " + id);
         }
     }
     static PlayerCombatant Player(string id, bool animated = false)
@@ -111,9 +115,9 @@ static class Program
         => Run(new SkillAction(enemies.Length == 0 ? new[] { primary } : enemies).Execute(player, primary));
     static void NormalSkills()
     {
-        string[] ids = { "sword", "greatsword", "spear", "dual_swords", "axe", "sickle", "hammer", "flail", "torch", "poleaxe", "flame_tongue", "heaven_fire" };
-        int[] damage = { 24, 29, 18, 16, 10, 14, 19, 16, 11, 11, 16, 14 };
-        int[] secondary = { 0, 0, 0, 0, 10, 0, 0, 0, 0, 5, 0, 0 };
+        string[] ids = { "sword", "greatsword", "spear", "axe", "sickle", "hammer", "flail", "torch", "poleaxe", "flame_tongue", "heaven_fire" };
+        int[] damage = { 24, 29, 18, 10, 14, 19, 16, 11, 11, 16, 14 };
+        int[] secondary = { 0, 0, 0, 10, 0, 0, 0, 0, 5, 0, 0 };
         for (int i = 0; i < ids.Length; i++)
         {
             var player = Player(ids[i], true); var target = Enemy(); var other = Enemy();
@@ -134,7 +138,7 @@ static class Program
         Cast(p, e); Eq(e.CurrentHP, 176, "sword bypasses resistance");
         p = Player("sword"); e = Enemy(200, 99, (PlayerDamageType.Pierce, DamageReaction.Immune));
         Cast(p, e); Eq(e.CurrentHP, 200, "sword cannot bypass immunity");
-        foreach (var item in new[] { ("greatsword", PlayerDamageType.Pierce, StatusId.Weak), ("hammer", PlayerDamageType.Blunt, StatusId.Sunder), ("flail", PlayerDamageType.Blunt, StatusId.Weak), ("torch", PlayerDamageType.Fire, StatusId.Ignite) })
+        foreach (var item in new[] { ("greatsword", PlayerDamageType.Slash, StatusId.Weak), ("hammer", PlayerDamageType.Blunt, StatusId.Sunder), ("flail", PlayerDamageType.Blunt, StatusId.Weak), ("torch", PlayerDamageType.Fire, StatusId.Ignite) })
         {
             p = Player(item.Item1); e = Enemy(200, 99, (item.Item2, DamageReaction.Immune)); Cast(p, e);
             Eq(e.CurrentHP, 200, "immune damage " + item.Item1); Eq(e.Statuses.Stacks(item.Item3), 0, "immune blocks rider " + item.Item1);
@@ -151,8 +155,17 @@ static class Program
         Eq(e.Break.Progress, 2, "spear adds normal plus extra break");
         p = Player("spear"); e = Enemy(200, 3, (PlayerDamageType.Pierce, DamageReaction.Weak)); e.Break.TryAdd(3, 1); Cast(p, e);
         Eq(e.Break.Progress, 0, "protected spear target cannot accumulate break");
-        p = Player("dual_swords"); e = Enemy(200, 3, (PlayerDamageType.Pierce, DamageReaction.Weak)); Cast(p, e);
-        Check(e.Break.SkipPending && e.Break.Progress == 0, "dual sword breaks on third hit and protection blocks fourth");
+        p = Player("flail"); e = Enemy(200, 2, (PlayerDamageType.Blunt, DamageReaction.Weak)); Cast(p, e);
+        Check(e.Break.SkipPending && e.Break.Progress == 0, "flail breaks on its second hit without retaining break progress");
+        p = Player("greatsword"); e = Enemy(200, 3, (PlayerDamageType.Pierce, DamageReaction.Immune));
+        Run(new PlayerAttackAction().Execute(p, e));
+        Eq(e.CurrentHP, 187, "greatsword basic slash ignores pierce immunity");
+        Cast(p, e); Eq(e.CurrentHP, 158, "greatsword skill slash ignores pierce immunity");
+        Eq(e.Statuses.Stacks(StatusId.Weak), 1, "greatsword slash applies its rider despite pierce immunity");
+        p = Player("greatsword"); e = Enemy(200, 3, (PlayerDamageType.Slash, DamageReaction.Immune), (PlayerDamageType.Pierce, DamageReaction.Weak));
+        Run(new PlayerAttackAction().Execute(p, e));
+        Eq(e.CurrentHP, 200, "greatsword basic is blocked by slash immunity");
+        Eq(e.Break.Progress, 0, "greatsword does not trigger a pierce weakness");
     }
     static void Boundaries()
     {
@@ -164,12 +177,12 @@ static class Program
         Eq(e.CurrentHP, 182, "scythe can exploit break on next player turn after skipped enemy action");
         p = Player("sickle"); e = Enemy(200, 1); e.Break.TryAdd(1, 1); e.Break.ConsumeSkip(); e.BattleRound = 3; Cast(p, e);
         Eq(e.CurrentHP, 186, "expired break protection grants no scythe bonus");
-        p = Player("dual_swords", true); e = Enemy(7); var other = Enemy(); Cast(p, e, e, other);
-        Eq(p.GetComponent<PlayerAttackAnimation>().Plays, 2, "lethal multi-hit stops remaining segments"); Eq(other.CurrentHP, 200, "multi-hit does not retarget");
+        p = Player("sickle", true); e = Enemy(7); var other = Enemy(); Cast(p, e, e, other);
+        Eq(p.GetComponent<PlayerAttackAnimation>().Plays, 1, "lethal multi-hit stops remaining segments"); Eq(other.CurrentHP, 200, "multi-hit does not retarget");
         p = Player("poleaxe", true); e = Enemy(6); other = Enemy(); Cast(p, e, e, other);
         Eq(other.CurrentHP, 195, "poleaxe sweep continues after primary dies"); Eq(p.GetComponent<PlayerAttackAnimation>().Plays, 2, "poleaxe uses two attack phases");
-        p = Player("dual_swords"); e = Enemy(); p.ApplyStatus(StatusId.Haste, 1); Cast(p, e); Eq(e.CurrentHP, 184, "haste does not add skill segments");
-        p = Player("dual_swords", true); e = Enemy(); p.ApplyStatus(StatusId.Haste, 1); Run(new PlayerAttackAction().Execute(p, e)); Eq(e.CurrentHP, 188, "haste still adds basic segment");
+        p = Player("flail"); e = Enemy(); p.ApplyStatus(StatusId.Haste, 1); Cast(p, e); Eq(e.CurrentHP, 184, "haste does not add skill segments");
+        p = Player("flail", true); e = Enemy(); p.ApplyStatus(StatusId.Haste, 1); Run(new PlayerAttackAction().Execute(p, e)); Eq(e.CurrentHP, 188, "haste still adds basic segment");
         p = Player("sword"); e = Enemy(); p.SpendDetermination(2); Cast(p, e); Eq(e.CurrentHP, 200, "insufficient resolve prevents damage"); Eq(p.CurrentDetermination, 1, "insufficient resolve remains unchanged");
         p = Player("sword"); e = Enemy(); p.ApplyStatus(StatusId.Exhaust, 1); Cast(p, e); Eq(e.CurrentHP, 200, "exhaust prevents skill"); Eq(p.CurrentDetermination, 3, "exhaust costs nothing");
         p = Player("axe"); Run(new SkillAction(Array.Empty<EnemyCombatant>()).Execute(p, null)); Eq(p.CurrentDetermination, 3, "no targets costs nothing");
@@ -237,8 +250,10 @@ static class Program
         GameRoot.I = new GameObject().AddComponent<GameRoot>();
         GameRoot.I.state.player.maxResolve = 4; GameRoot.I.state.player.resolve = 4;
         capped.Initialize();
-        Eq(capped.MaxDetermination, 4, "explicit run cap is preserved instead of silently reduced");
-        Eq(capped.CurrentDetermination, 4, "explicit four-point run restores all four points");
+        Eq(capped.MaxDetermination, 3, "legacy four-point cap migrates to the shared three-point rule");
+        Eq(capped.CurrentDetermination, 3, "legacy determination is clamped to three points");
+        Eq(GameRoot.I.state.player.maxResolve, 3, "combat migration persists the corrected cap");
+        Eq(capped.AddDetermination(1), 0, "legacy migration cannot regain a fourth point");
         Console.WriteLine($"PASS: {checks} weapon asset, skill damage, immunity, break, animation, resolve and targeting checks.");
     }
 }

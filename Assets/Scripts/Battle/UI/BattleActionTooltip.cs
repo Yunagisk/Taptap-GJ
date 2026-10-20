@@ -156,7 +156,7 @@ public sealed class BattleActionTooltip : MonoBehaviour
         var grant = StatusRules.GrantResolve(player.CurrentDetermination, player.MaxDetermination, 1,
             player.Statuses.Has(StatusId.Exhaust), player.Statuses.Stacks(StatusId.Steadfast));
         if (player.Statuses.Has(StatusId.Exhaust)) return "疲惫：本次无法获得决心。";
-        if (grant.Granted == 0) return "完成行动后获得 1 点决心（当前已满）。";
+        if (grant.Granted == 0) return "决心已满（上限 " + player.MaxDetermination + " 点），本次不再增加。";
         return "完成行动后获得 " + grant.Granted + " 点决心" + (grant.ConsumeSteadfast ? "（坚定，消耗 1 层）。" : "。");
     }
 

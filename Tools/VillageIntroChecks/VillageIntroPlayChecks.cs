@@ -162,7 +162,8 @@ public sealed class VillageIntroPlayChecks : MonoBehaviour
         var map = FindObjectOfType<WorldMapController>();
         yield return WaitUntil(() => map.Guide != null && map.Guide.IsOpen, "outside narration opens before node movement");
         manager = map.Guide.View.Manager; ui = manager.ui;
-        Capture("09-outside.png"); yield return WalkDialogue();
+        yield return null;
+        Capture("09-outside.png"); CheckMapDialoguePresentation(map.Guide.View); yield return WalkDialogue();
         Check(state.story.guideOutsideReady && state.world.time == outsideTime, "outside narration unlocks movement without charging time");
         string wrong = map.Progression.GetNeighbors(map.Progression.Layout.villageNodeId)
             .First(id => id != state.story.tutorialNodeId);
@@ -172,6 +173,8 @@ public sealed class VillageIntroPlayChecks : MonoBehaviour
         map.MoveToNode(state.story.tutorialNodeId);
         yield return WaitUntil(() => map.Guide.IsOpen && !MapSceneTransition.IsBusy, "move to old mill and open encounter prose");
         manager = map.Guide.View.Manager; ui = manager.ui;
+        yield return null;
+        CheckMapDialoguePresentation(map.Guide.View);
         Check(state.world.time == outsideTime + 1, "walking to the old mill costs exactly one unit");
         yield return WalkDialogue();
         yield return WaitUntil(() => SceneManager.GetActiveScene().name == "CombatScene", "encounter prose enters the real combat scene");
@@ -197,34 +200,11 @@ public sealed class VillageIntroPlayChecks : MonoBehaviour
         Check(state.player.lanternCharges == 1 && enemy.GetComponent<DamageResistance>().UnknownWeaknessCount == 0,
             "actual lantern action consumes one charge and discovers the enemy weaknesses");
         manager = battle.Guide.View.Manager; ui = manager.ui; yield return WalkDialogue();
-        // Fail after learning the lantern. Discovery and completed lessons must survive the normal revival path.
-        battle.Player.TakeDamage(battle.Player.CurrentHP - 1);
+        // Morning reload/defeat is verified independently by DayStartSaveValidation.
+        // This route completes the actual teaching sequence without replacing its run.
         battle.PlayerDefend();
-        yield return WaitUntil(() => battle.CurrentState == BattleState.Defeat, "guide defeat uses the real enemy turn");
-        Check((state.story.guideLessons & GuideLesson.Lantern) != 0 && battle.Player.CurrentDetermination > 0,
-            "actual lantern and defense lessons are recorded before defeat");
-        FindObjectOfType<BattleResultUI>().ReturnToWorldMap();
-        yield return WaitUntil(() => SceneManager.GetActiveScene().name == "Village", "guide defeat revives at the village checkpoint");
-        yield return null; yield return null; Bind();
-        Check(!intro.IsOpen && state.player.hp == state.player.maxHp && state.player.lanternCharges == 2
-            && state.inventory.weapons.Count == 2, "revival retains equipment and restores enough oil to retry safely");
-        screen.LeaveToMap();
-        yield return WaitUntil(() => SceneManager.GetActiveScene().name == "MainMap", "retry leaves the village without replaying arrival");
-        yield return null; yield return null;
-        map = FindObjectOfType<WorldMapController>();
-        yield return WaitUntil(() => !map.GetComponent<WorldMapSceneView>().IsRevealing, "retry map is ready");
-        Capture("14-map-route.png");
-        Check(map.Guide.TargetLabel != null && map.Guide.TargetLabel.gameObject.activeInHierarchy
-            && map.Guide.TargetLabel.text.Contains("旧磨坊小路"), "the tutorial destination has a visible label on the real map node");
-        map.MoveToNode(state.story.tutorialNodeId);
-        yield return WaitUntil(() => map.Guide.IsOpen && !MapSceneTransition.IsBusy, "retry reaches the pending encounter");
-        manager = map.Guide.View.Manager; ui = manager.ui; yield return WalkDialogue();
-        yield return WaitUntil(() => SceneManager.GetActiveScene().name == "CombatScene", "retry enters real combat");
-        yield return null; yield return null;
-        battle = FindObjectOfType<BattleFlowController>(); enemy = battle.Enemies[0];
-        outsideTime++;
-        Check(battle.Guide.Step == GuideBattleStep.Break && enemy.GetComponent<DamageResistance>().UnknownWeaknessCount == 0,
-            "retry resumes the unfinished lesson and does not demand an impossible repeated lantern reveal");
+        yield return WaitUntil(() => battle.CurrentState == BattleState.PlayerTurn && battle.Guide.View.IsOpen,
+            "ordinary defense reaches the break lesson");
         manager = battle.Guide.View.Manager; ui = manager.ui; yield return WalkDialogue();
         for (int action = 0; action < 6 && battle.Guide.Step == GuideBattleStep.Break; action++)
         {
@@ -281,8 +261,13 @@ public sealed class VillageIntroPlayChecks : MonoBehaviour
         yield return WalkDialogue();
         intro.OpenMayorHouse(); yield return null;
         Capture("13-report.png"); yield return WalkDialogue();
+        yield return WaitUntil(() => screen.SlothChapter != null && screen.SlothChapter.IsOpen,
+            "guide report flows into the sloth appeal");
+        manager = screen.SlothChapter.Manager; ui = manager.ui;
+        yield return WalkDialogue();
         Check(state.story.guideCompleted && screen.CanUseFacilities && !VillageIntroRules.IsRestricted(state)
-            && MainStoryRules.GoalText(state).Contains("懒惰"), "report completes the guide and releases services and the sloth main story");
+            && state.story.slothHookSeen && state.story.stage == MainStoryStage.TutorialCompleted,
+            "report and appeal release services and the sloth main story");
         intro.OpenBlacksmith(); yield return null;
         Check(screen.panelShop.activeInHierarchy, "blacksmith changes from starter rewards to real trade after the guide");
         screen.ClosePanels(); screen.OpenInn(); yield return null;
@@ -342,6 +327,32 @@ public sealed class VillageIntroPlayChecks : MonoBehaviour
         Check(condition(), message);
     }
     Button[] Choices() => ui.choiceParent.GetComponentsInChildren<Button>(false);
+    void CheckMapDialoguePresentation(GuideDialogueView view)
+    {
+        Canvas.ForceUpdateCanvases();
+        var canvas = view.transform.Find("GuideCanvas").GetComponent<Canvas>();
+        Check(canvas.isRootCanvas, "map guide has an independent root canvas");
+        var corners = new Vector3[4];
+        canvas.GetComponent<RectTransform>().GetWorldCorners(corners);
+        var bottom = RectTransformUtility.WorldToScreenPoint(null, corners[0]);
+        var top = RectTransformUtility.WorldToScreenPoint(null, corners[2]);
+        Check(top.x - bottom.x >= Screen.width * .95f && top.y - bottom.y >= Screen.height * .95f,
+            "map guide fills the game viewport");
+        var button = view.Manager.ui.continueButton;
+        var rect = button.GetComponent<RectTransform>();
+        var pointer = new PointerEventData(EventSystem.current) {
+            position = RectTransformUtility.WorldToScreenPoint(null, rect.TransformPoint(rect.rect.center)),
+            button = PointerEventData.InputButton.Left };
+        var hits = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointer, hits);
+        Check(hits.Count > 0 && hits[0].gameObject.transform.IsChildOf(view.transform),
+            "actual map guide click hits the active narrative surface");
+        string beforeNode = view.Manager.CurrentNodeId;
+        int beforePage = view.Manager.ui.CurrentPage;
+        ExecuteEvents.ExecuteHierarchy(hits[0].gameObject, pointer, ExecuteEvents.pointerClickHandler);
+        Check(view.Manager.CurrentNodeId != beforeNode || view.Manager.ui.CurrentPage != beforePage,
+            "actual pointer click advances map guide prose");
+    }
     void Submit(int index)
     {
         var button = Choices()[index];

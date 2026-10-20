@@ -20,5 +20,6 @@ public sealed class VillageIntroContent : ScriptableObject
     public Sprite mayorBackground;
     public Sprite blacksmithBackground;
     public Sprite outsideBackground;
+    public Sprite slothShrineBackground;
     public SmallMonsterData tutorialEnemy;
 }

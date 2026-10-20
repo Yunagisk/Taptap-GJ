@@ -27,10 +27,7 @@ public static class MapMenuPolishBuilder
                 var child = controls.Find(name);
                 if (child != null) Object.DestroyImmediate(child.gameObject);
             }
-            var focus = controls.Find("Focus").GetComponent<Button>();
-            focus.GetComponentInChildren<TMP_Text>(true).text = "定位";
-            GameFlowMenuStyle.StyleButton(focus);
-            ((RectTransform)controls).sizeDelta = new Vector2(136, 72);
+            viewport.CreateControls(view.font);
             var serialized = new SerializedObject(viewport);
             serialized.FindProperty("overviewButton").objectReferenceValue = null;
             serialized.FindProperty("overviewLabel").objectReferenceValue = null;

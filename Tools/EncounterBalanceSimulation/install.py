@@ -73,9 +73,9 @@ attack_script = meta("Assets/Scripts/Battle/Data/EnemyAttackData.cs")
 definition_script = meta("Assets/Scripts/Battle/Data/SmallMonsterData.cs")
 definitions = {}
 for kind, name, hp, low_guard, weak, weights, normal, heavy, status in [
-    ("Rat", "老鼠", 36, 30, [(0, 0), (2, 0)], [45, 20, 20, 15], 2, 4, (3, 1, 0, "瘟咬")),
-    ("Crow", "腐鸦", 36, 0, [(1, 0)], [45, 20, 20, 15], 1, 0, (5, 1, 0, "腐鸣")),
-    ("Wraith", "怨影", 44, 0, [(2, 2), (3, 0)], [45, 20, 20, 15], 2, 6, (6, 1, 0, "怨咒")),
+    ("Rat", "瘟鼠", 36, 30, [(0, 0), (2, 0)], [45, 20, 20, 15], 4, 8, (3, 1, 0, "瘟咬")),
+    ("Crow", "腐鸦", 36, 0, [(1, 0)], [45, 20, 20, 15], 3, 0, (5, 1, 0, "腐鸣")),
+    ("Wraith", "怨影", 44, 0, [(2, 2), (3, 0)], [45, 20, 20, 15], 4, 10, (6, 1, 0, "怨咒")),
 ]:
     follow = None
     if heavy:
@@ -87,7 +87,7 @@ for kind, name, hp, low_guard, weak, weights, normal, heavy, status in [
         ("Basic", {"Rat": "啃咬", "Crow": "啄击", "Wraith": "阴爪"}[kind], 0, normal, 1, weights[0], False),
         ("Status", status[3], 0, status[2], 1, weights[1], True),
         ("Signature", "连啄" if kind == "Crow" else "伏身" if kind == "Rat" else "凝怨",
-         0 if kind == "Crow" else 1, 1 if kind == "Crow" else 0, 2 if kind == "Crow" else 1, weights[2], False),
+         0 if kind == "Crow" else 1, 2 if kind == "Crow" else 0, 2 if kind == "Crow" else 1, weights[2], False),
         ("Guard", {"Rat": "蜷缩", "Crow": "敛翼", "Wraith": "雾化"}[kind], 2, 0, 1, weights[3], False),
     ]:
         fields = f"  attackName: {action_name}\n  kind: {action_kind}\n  weight: {weight}\n  followUp: {ref(follow if action_kind == 1 else None)}\n"
@@ -99,6 +99,18 @@ for kind, name, hp, low_guard, weak, weights, normal, heavy, status in [
     fields += "".join(f"  - {ref(id_)}\n" for id_ in actions)
     fields += "  resistances:\n" + "".join(f"  - damageType: {type_}\n    damageReaction: {reaction}\n" for type_, reaction in weak)
     definitions[kind] = (asset(f"Assets/Data/SmallMonsters/{kind}.asset", definition_script, kind, fields), hp, weak)
+
+# Keep the mandatory lessons independent from overworld damage tuning.
+guide_fields = (ROOT / "Assets/Data/EnemyAttacks/SmallMonsters/WraithBasic.asset").read_text("utf-8-sig")
+guide_fields = guide_fields.split("  m_EditorClassIdentifier:\n", 1)[1]
+guide_fields = re.sub(r"^  damage: \d+$", "  damage: 2", guide_fields, flags=re.M)
+guide_attack = asset("Assets/Data/EnemyAttacks/SmallMonsters/GuideWraithBasic.asset",
+                     attack_script, "GuideWraithBasic", guide_fields)
+guide_definition = ROOT / "Assets/Data/SmallMonsters/GuideWraith.asset"
+if guide_definition.exists():
+    guide_text = guide_definition.read_text("utf-8-sig")
+    wraith_attack = meta("Assets/Data/EnemyAttacks/SmallMonsters/WraithBasic.asset")
+    guide_definition.write_text(guide_text.replace(ref(wraith_attack), ref(guide_attack)), "utf-8")
 
 crow_path = ROOT / "Assets/Prefabs/Enemies/Crow.prefab"
 if not crow_path.exists():

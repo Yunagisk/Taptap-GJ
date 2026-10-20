@@ -21,6 +21,10 @@ public class MapWildernessEventUI : MonoBehaviour
     public ScrollRect resultScroll;
 
     public bool IsOpen => enabled && gameObject.activeInHierarchy;
+    public bool IsChoosing => ActiveNode() != null && !ActiveNode().resolved && !ActiveNode().abandoned
+        && !ActiveNode().encounterPending;
+    public WildernessLeaveWarning LeaveWarning { get; private set; }
+    public bool IsLeaveConfirmationOpen => LeaveWarning != null && LeaveWarning.IsOpen;
 
     GameObject previousFocus;
     UnityAction[] chooseActions;
@@ -39,7 +43,7 @@ public class MapWildernessEventUI : MonoBehaviour
             && ValidButton(choiceButtons[0], false) && ValidButton(choiceButtons[1], false)
             && choiceLabels[0] != null && choiceLabels[1] != null
             && ValidButton(closeButton, false) && ValidButton(victoryButton, false)
-            && ValidButton(defeatButton, false);
+            && ValidButton(defeatButton, false) && resultScroll != null;
     }
 
     public bool Show()
@@ -49,6 +53,13 @@ public class MapWildernessEventUI : MonoBehaviour
         if (!gameObject.activeInHierarchy && EventSystem.current != null)
             previousFocus = EventSystem.current.currentSelectedGameObject;
         renderedKey = null;
+        if (LeaveWarning == null)
+        {
+            LeaveWarning = closeButton.GetComponent<WildernessLeaveWarning>()
+                ?? closeButton.gameObject.AddComponent<WildernessLeaveWarning>();
+            LeaveWarning.Bind(this);
+        }
+        LeaveWarning.Hide();
         transform.SetAsLastSibling();
         gameObject.SetActive(true);
         if (!gameObject.activeInHierarchy) return false;
@@ -90,6 +101,7 @@ public class MapWildernessEventUI : MonoBehaviour
 
     void OnDisable()
     {
+        if (LeaveWarning != null) LeaveWarning.Hide();
         if (!listenersBound) return;
         for (int i = 0; i < 2 && choiceButtons != null && i < choiceButtons.Length; i++)
             Listen(choiceButtons[i], chooseActions[i], false);
@@ -107,7 +119,7 @@ public class MapWildernessEventUI : MonoBehaviour
 
     bool CanAct(Button button)
     {
-        return IsOpen && controller != null && controller.isActiveAndEnabled
+        return IsOpen && !IsLeaveConfirmationOpen && controller != null && controller.isActiveAndEnabled
             && (flow == null || !flow.IsLoading) && ValidButton(button, true) && button.IsInteractable();
     }
 
@@ -135,6 +147,12 @@ public class MapWildernessEventUI : MonoBehaviour
         controller.CloseWildernessEvent();
     }
 
+    public void HandleBack()
+    {
+        if (IsLeaveConfirmationOpen) LeaveWarning.Cancel();
+        else Close();
+    }
+
     WildernessLevelState Level => GameRoot.I != null && GameRoot.I.state != null
         && GameRoot.I.state.map != null ? GameRoot.I.state.map.wildernessEvents : null;
     WildernessNodeState ActiveNode()
@@ -152,19 +170,20 @@ public class MapWildernessEventUI : MonoBehaviour
         var catalog = controller.WildernessCatalog;
         var definition = node == null ? null : WildernessEventRules.FindDefinition(catalog, node.templateId);
         if (node == null || definition == null || state.world == null || state.player == null) return;
+        state.player.NormalizeResolve();
         resourcesText.text = WorldResourceRules.TimeLabel(state.world) + "    生命 " + state.player.hp
-            + "/" + state.player.maxHp + "    罪恶 " + state.world.sin + "/100    罪骸 " + state.world.sinRemnant;
+            + "/" + state.player.maxHp + "    罪恶 " + state.world.sin + "/100    罪骸 " + state.world.sinRemnant
+            + "    决心 " + state.player.resolve + "/" + state.player.maxResolve;
+        resourcesText.fontSize = 23;
         eventTitle.text = definition.title;
-        string bridge = !string.IsNullOrEmpty(node.bridgeFrom) && !string.IsNullOrEmpty(node.bridgeTo)
-            ? "\n可修复通道：" + NodeName(node.bridgeFrom) + " — " + NodeName(node.bridgeTo) : "";
-        eventDescription.text = definition.description + bridge;
+        eventDescription.gameObject.SetActive(false);
         bool choosing = !node.resolved && !node.abandoned;
         bool pending = node.encounterPending;
         for (int i = 0; i < choiceButtons.Length; i++)
         {
             choiceButtons[i].gameObject.SetActive(choosing);
             choiceButtons[i].interactable = choosing;
-            if (i < definition.choices.Count) choiceLabels[i].text = ChoiceSummary(definition.choices[i]);
+            if (i < definition.choices.Count) choiceLabels[i].text = WildernessEventRules.DescribeChoice(definition.choices[i]);
         }
         victoryButton.gameObject.SetActive(pending);
         defeatButton.gameObject.SetActive(pending);
@@ -172,9 +191,10 @@ public class MapWildernessEventUI : MonoBehaviour
         closeButton.interactable = !pending;
         ConfigureNavigation(choosing, pending);
         closeLabel.text = pending ? "先应对小怪" : choosing ? "离开此处" : "继续探索";
-        eventMeta.text = choosing ? "选择一种行动；离开后将无法再参与此事。"
-            : pending ? "小怪拦住了去路，你打算怎么做？" : "事件已结束，可以继续探索。";
-        string result = choosing ? "" : ResultSummary(level, definition, node);
+        eventMeta.rectTransform.anchoredPosition = new Vector2(48, -610);
+        eventMeta.gameObject.SetActive(!choosing);
+        eventMeta.text = pending ? "小怪拦住了去路，你打算怎么做？" : "事件已结束，可以继续探索。";
+        string result = choosing ? definition.description : ResultSummary(level, definition, node);
         if (pending)
         {
             string enemy = "小怪";
@@ -186,9 +206,10 @@ public class MapWildernessEventUI : MonoBehaviour
             result += "\n\n当前遭遇：" + enemy + " × 1";
         }
         resultText.text = Present(result);
-        if (resultScroll != null) resultScroll.gameObject.SetActive(!choosing);
-        var descriptionRect = eventDescription.rectTransform;
-        descriptionRect.sizeDelta = new Vector2(descriptionRect.sizeDelta.x, 115);
+        resultScroll.gameObject.SetActive(true);
+        var scrollRect = (RectTransform)resultScroll.transform;
+        scrollRect.anchoredPosition = new Vector2(48, -167);
+        scrollRect.sizeDelta = new Vector2(1004, choosing ? 160 : 430);
         string key = node.id + ":" + node.chosenIndex + ":" + node.encounterResolved;
         if (key != renderedKey)
         {
@@ -247,28 +268,6 @@ public class MapWildernessEventUI : MonoBehaviour
         return node != null ? node.displayName : "相邻地点";
     }
 
-    static string ChoiceSummary(WildernessChoiceDefinition choice)
-    {
-        var text = new StringBuilder(choice.label).Append("  ·  额外 ").Append(choice.timeCost).Append(" 单位时间\n");
-        long total = 0;
-        foreach (var outcome in choice.outcomes) total += outcome.weight;
-        for (int i = 0; i < choice.outcomes.Count; i++)
-        {
-            var outcome = choice.outcomes[i];
-            if (i != 0) text.Append(" / ");
-            if (choice.outcomes.Count > 1) text.Append(Math.Round(outcome.weight * 100d / total)).Append("% ");
-            if (outcome.sinDelta != 0) text.Append("罪恶 ").Append(outcome.sinDelta > 0 ? "+" : "").Append(outcome.sinDelta).Append("  ");
-            if (outcome.healAmount > 0) text.Append("恢复 ").Append(outcome.healAmount).Append(" 生命  ");
-            if (outcome.campRecoveryBonusPercent > 0) text.Append("下次营地恢复 +").Append(outcome.campRecoveryBonusPercent).Append("%  ");
-            if (outcome.repairBridge) text.Append("修复通道  ");
-            if (outcome.encounter) text.Append("遇到小怪（另耗时 1）");
-            else if (outcome.sinDelta == 0 && outcome.healAmount == 0
-                && !outcome.repairBridge && outcome.campRecoveryBonusPercent == 0)
-                text.Append("平安离开");
-        }
-        return text.ToString().TrimEnd();
-    }
-
     void ConfigureNavigation(bool choosing, bool pending)
     {
         var buttons = choosing ? new[] { choiceButtons[0], choiceButtons[1], closeButton }
@@ -285,7 +284,8 @@ public class MapWildernessEventUI : MonoBehaviour
     {
         if (!IsOpen || EventSystem.current == null) return;
         var node = ActiveNode();
-        var preferred = node != null && node.encounterPending ? victoryButton : closeButton;
+        var preferred = node != null && node.encounterPending ? victoryButton
+            : node != null && !node.resolved && !node.abandoned ? choiceButtons[0] : closeButton;
         if (ValidButton(preferred, true) && preferred.IsInteractable())
             EventSystem.current.SetSelectedGameObject(preferred.gameObject);
     }

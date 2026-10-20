@@ -32,4 +32,5 @@ MonoBehaviour:
   itemTutorial: {fileID: 11400000, guid: 74e1d865b7e150aba8d2e7fa6040f011, type: 2}
   blacksmithBackground: {fileID: 21300000, guid: 9b880f22275eafd42955b2cdf4afcc51, type: 3}
   outsideBackground: {fileID: 21300000, guid: 33158e2d8d76fe5409d10ba852a4c560, type: 3}
+  slothShrineBackground: {fileID: 21300000, guid: 845fc7730d804f3391e46739407c170b, type: 3}
   tutorialEnemy: {fileID: 11400000, guid: 81d0c207d55b4245a9b7782973e29df6, type: 2}

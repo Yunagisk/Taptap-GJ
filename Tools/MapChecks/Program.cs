@@ -142,7 +142,7 @@ static class Program
     {
         var layout = Layout();
         var source = JsonSerializer.Deserialize<WildernessEventCatalog>(File.ReadAllText(
-            FindRepoFile(Path.Combine("Assets", "Data", "Wilderness", "WildernessEvents.json"))), Json);
+            FindRepoFile(Path.Combine("Tools", "WildernessChecks", "Fixtures", "LegacyWildernessEvents.json"))), Json);
         var catalog = MapWildernessRules.BuildCatalog(source, layout);
         GameState state = null;
         MapProgression map = null;
@@ -197,13 +197,21 @@ static class Program
         foreach (var node in layout.nodes)
             if (!state.map.visitedNodes.Contains(node.id)) state.map.visitedNodes.Add(node.id);
         state.map.currentNodeId = bridge.bridgeFrom;
-        Check(map.TryPlanFastTravel(bridge.bridgeTo, out var shortcut) && shortcut.TimeCost == 1,
-            "fast travel uses an actually repaired shortcut as a one-unit shortest route");
-        Check(map.TryFastTravel(shortcut) && state.map.wildernessEvents.currentNodeId == bridge.bridgeTo,
-            "fast travel keeps wilderness position synchronized after the repaired shortcut");
+        Check(!map.CanFastTravel(bridge.bridgeTo) && map.CanMove(bridge.bridgeTo),
+            "an actually repaired shortcut makes its endpoints adjacent and uses ordinary movement");
+        int shortcutTime = state.world.time;
+        Check(map.TryMove(bridge.bridgeTo, out var shortcutRequest) && shortcutRequest == null
+            && state.world.time == shortcutTime + 1 && state.map.wildernessEvents.currentNodeId == bridge.bridgeTo,
+            "ordinary movement across a repaired shortcut costs one unit and synchronizes wilderness position");
     }
 
-    static void Main(string[] args)
+    static int Main(string[] args)
+    {
+        try { Run(args); return 0; }
+        catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+    }
+
+    static void Run(string[] args)
     {
         if (args.Length > 0 && args[0] == "--guide-only")
         {
@@ -222,6 +230,7 @@ static class Program
         VillageEventChecks.Run(Layout, Check);
         FastTravelChecks.Run(Layout, Check);
         GuideQuestChecks.Run(Layout, Check);
+        SlothChapterChecks.Run(Layout, Check);
         CheckMapReveals();
         CheckBossIntroductions();
         CheckRepairedRoadReveals();
@@ -238,7 +247,7 @@ static class Program
             Check(fresh.story.stage == MainStoryStage.ArrivedVillage
                 && !string.IsNullOrEmpty(fresh.story.tutorialNodeId)
                 && fresh.story.completedDialogueIds.Count == 0, "new game initializes a fresh main story");
-            Check(fresh.shop.stocked && fresh.shop.availableWeaponIds.Count == WeaponTable.All.Length - 1
+            Check(fresh.shop.stocked && fresh.shop.availableWeaponIds.Count == 8
                 && !fresh.shop.availableWeaponIds.Contains(weapon), "chosen weapon removed from new shop stock");
             Check(fresh.world.sinRemnant == WeaponTable.StartingRemnant, "new game prepays four sin remnants");
             Check(fresh.player.hp == 100 && fresh.player.resolve == 1 && fresh.player.lanternCharges == 2, "new game initializes player resources");
@@ -249,7 +258,7 @@ static class Program
             fresh.inventory.items.Add(new ItemStack("old-run-item", 5));
             fresh.shop.availableWeaponIds.Clear();
             var next = NewRunFactory.Create(Layout(), weapon, 67891);
-            Check(next.player.hp == 100 && next.inventory.items.Count == 0 && next.shop.availableWeaponIds.Count == WeaponTable.All.Length - 1
+            Check(next.player.hp == 100 && next.inventory.items.Count == 0 && next.shop.availableWeaponIds.Count == 8
                 && next.world.sinRemnant == WeaponTable.StartingRemnant && next.map.randomSeed == 67891,
                 "successive new game does not inherit previous state");
         }
@@ -611,6 +620,8 @@ static class Program
                 break;
             }
         var state = NewRunFactory.Create(layout, "sword", 66);
+        // Preserve legacy three-boss dialogue coverage; submission homecoming is checked separately.
+        state.map.slothChapterOnly = false;
         Check(state.story.tutorialNodeId == tutorialId, "story picks the first village-adjacent battle");
         var tutorial = new MapNodeRequest { nodeId = tutorialId, kind = MapNodeKind.Battle };
         var slothRegion = layout.regions.Find(region => region.bossKey == "sloth");
@@ -654,6 +665,8 @@ static class Program
         MainStoryRules.OnNodeCompleted(state, new MapNodeRequest { nodeId = sloth.nodeId, kind = MapNodeKind.Battle, bossKey = "sloth" });
         MainStoryRules.OnNodeCompleted(state, new MapNodeRequest { nodeId = "another-boss", kind = MapNodeKind.Boss, bossKey = "placeholder_2" });
         Check(state.story.stage == MainStoryStage.TutorialCompleted, "repeated tutorial and unrelated bosses do not advance the story");
+        state.map.clearedNodes.Add(sloth.nodeId);
+        state.map.defeatedBossNodes.Add(sloth.nodeId);
         MainStoryRules.OnNodeCompleted(state, sloth);
         Check(state.story.stage == MainStoryStage.SlothDefeated && state.world.sinRemnant == remnant
             && state.inventory.weapons.Count == owned, "sloth completion records the milestone without granting rewards");
@@ -694,6 +707,7 @@ static class Program
         MainStoryRules.EnsureInitialized(missing, noTutorial);
         Check(string.IsNullOrEmpty(missing.story.tutorialNodeId), "a map without an adjacent battle does not invent a tutorial node");
         var exploredFirst = NewRunFactory.Create(layout, "sword", 68);
+        exploredFirst.map.slothChapterOnly = false;
         exploredFirst.map.clearedNodes.Add(tutorialId);
         exploredFirst.map.defeatedBossNodes.Add(sloth.nodeId);
         int initialRemnant = exploredFirst.world.sinRemnant;
@@ -840,14 +854,54 @@ static class Program
             "equipment can initialize a legacy state with missing player and inventory");
         Check(!EquipmentRules.TryEquip(null, 0, "sword") && !EquipmentRules.TrySelectWeapon(null, "sword"),
             "equipment requests without a run are rejected");
+
+        var retired = NewRunFactory.Create(Layout(), "sword", 78);
+        retired.inventory.weapons = new List<string> { "dual_swords", "dual_swords" };
+        retired.inventory.seenWeaponIds = new List<string> { "dual_swords" };
+        retired.inventory.equippedWeaponIds = new List<string> { "", "dual_swords", "", "" };
+        retired.player.currentWeaponId = "dual_swords";
+        retired.world.time = 7; retired.world.sin = 64; retired.world.sinRemnant = 9;
+        retired.shop.availableWeaponIds.Add("dual_swords");
+        EquipmentRules.EnsureInitialized(retired);
+        ShopRules.EnsureStock(retired);
+        Check(retired.inventory.weapons.Count == 1 && retired.inventory.weapons[0] == "sword"
+            && retired.player.currentWeaponId == "sword" && retired.inventory.equippedWeaponIds[0] == "sword"
+            && !retired.inventory.seenWeaponIds.Contains("dual_swords")
+            && !retired.inventory.equippedWeaponIds.Contains("dual_swords")
+            && !retired.shop.availableWeaponIds.Contains("dual_swords"),
+            "a dual-sword-only legacy run migrates to an equipped sword and clears retired ownership, slots, notifications and stock");
+        Check(retired.world.time == 7 && retired.world.sin == 64 && retired.world.sinRemnant == 9,
+            "retiring a saved weapon does not change time, sin or currency");
+        string retiredSnapshot = JsonSerializer.Serialize(retired, Json);
+        EquipmentRules.EnsureInitialized(retired); ShopRules.EnsureStock(retired);
+        Check(JsonSerializer.Serialize(retired, Json) == retiredSnapshot, "retired-weapon migration is idempotent");
+        Check(!EquipmentRules.TryEquip(retired, 0, "dual_swords") && !EquipmentRules.TrySelectWeapon(retired, "dual_swords")
+            && !ShopRules.TryBuy(retired, "dual_swords", 0).ok && !ShopRules.TryBuy(retired, "dual_swords", 8).ok
+            && JsonSerializer.Serialize(retired, Json) == retiredSnapshot,
+            "stale callbacks cannot buy, equip or select dual swords even for free");
+        retired.inventory.weapons = new List<string> { "axe", "dual_swords", "hammer" };
+        retired.inventory.equippedWeaponIds = new List<string> { "dual_swords", "hammer", "", "" };
+        retired.player.currentWeaponId = "dual_swords";
+        EquipmentRules.EnsureInitialized(retired);
+        Check(string.Join(",", retired.inventory.weapons) == "axe,hammer"
+            && retired.player.currentWeaponId == "hammer" && retired.inventory.equippedWeaponIds[1] == "hammer",
+            "legacy migration preserves other owned and equipped weapons without granting a spare sword");
+        Check(WeaponTable.All.Length == 11 && WeaponTable.Find("dual_swords") == null
+            && !WeaponTable.IsSoldInShop("dual_swords") && Array.IndexOf(NewRunFactory.StartingWeapons, "dual_swords") < 0,
+            "dual swords are absent from the active catalogue, shop and starting choices");
+        bool rejectedRetiredStart = false;
+        try { NewRunFactory.Create(Layout(), "dual_swords", 79); }
+        catch (ArgumentException) { rejectedRetiredStart = true; }
+        Check(rejectedRetiredStart, "legacy new-game callbacks cannot start a dual-sword run");
     }
     static void CheckShop()
     {
         var state = NewRunFactory.Create(Layout(), "sword", 99);
         int sin = state.world.sin;
         Check(state.world.sinRemnant == 4 && !state.shop.availableWeaponIds.Contains("sword")
-            && state.shop.availableWeaponIds.Contains("axe") && state.shop.availableWeaponIds.Contains("heaven_fire"),
-            "shop stocks every weapon except the starting sword");
+            && state.shop.availableWeaponIds.Contains("axe") && state.shop.availableWeaponIds.Contains("poleaxe")
+            && !state.shop.availableWeaponIds.Contains("heaven_fire") && !state.shop.availableWeaponIds.Contains("flame_tongue"),
+            "shop stocks ordinary weapons and excludes the two question-event rewards");
         var poor = ShopRules.TryBuy(state, "greatsword", WeaponTable.PriceOf("greatsword"));
         Check(!poor.ok && state.world.sinRemnant == 4 && !state.inventory.weapons.Contains("greatsword"),
             "cannot buy an 8-cost weapon with 4 remnants");
@@ -865,12 +919,27 @@ static class Program
         ShopRules.EnsureStock(state);
         Check(!state.shop.availableWeaponIds.Contains("axe"), "reopening the shop does not restock");
         ShopRules.GrantRemnant(state.world, WeaponTable.BossRemnant);
-        var expensive = ShopRules.TryBuy(state, "heaven_fire", 12);
+        var expensive = ShopRules.TryBuy(state, "poleaxe", 12);
         Check(!expensive.ok && state.world.sinRemnant == 10, "12-cost weapon stays locked without enough remnants");
         ShopRules.GrantRemnant(state.world, WeaponTable.SmallMonsterRemnant * 2);
-        var unlocked = ShopRules.TryBuy(state, "heaven_fire", 12);
-        Check(unlocked.ok && state.world.sinRemnant == 0 && state.inventory.weapons.Contains("heaven_fire")
+        var unlocked = ShopRules.TryBuy(state, "poleaxe", 12);
+        Check(unlocked.ok && state.world.sinRemnant == 0 && state.inventory.weapons.Contains("poleaxe")
             && state.world.sin == sin, "boss plus two small monsters pays for a 12-cost weapon");
+        state.world.sinRemnant = 100;
+        foreach (string id in new[] { "heaven_fire", "flame_tongue" })
+        {
+            state.shop.availableWeaponIds.Add(id);
+            Check(!ShopRules.TryBuy(state, id, 0).ok && !ShopRules.TryBuy(state, id, 12).ok
+                && !state.inventory.weapons.Contains(id) && state.world.sinRemnant == 100,
+                "old stock and direct purchase cannot buy event weapon " + id);
+            state.inventory.weapons.Add(id);
+        }
+        ShopRules.EnsureStock(state);
+        Check(!state.shop.availableWeaponIds.Contains("heaven_fire") && !state.shop.availableWeaponIds.Contains("flame_tongue")
+            && !state.shop.availableWeaponIds.Contains("axe") && state.inventory.weapons.Contains("heaven_fire")
+            && state.inventory.weapons.Contains("flame_tongue"), "old shop migration preserves owned rewards and sold stock");
+        Check(EquipmentRules.TryEquip(state, 2, "heaven_fire") && EquipmentRules.TrySelectWeapon(state, "heaven_fire")
+            && EquipmentRules.TryEquip(state, 3, "flame_tongue"), "event weapons remain equipable after leaving the shop");
     }
 
     static void CheckWeaponPrices()
@@ -878,12 +947,12 @@ static class Program
         var expected = new Dictionary<string, int>
         {
             { "KBW01", 4 }, { "KBW05", 4 }, { "KBW07", 4 }, { "KBW09", 4 },
-            { "KBW02", 8 }, { "KBW03", 8 }, { "KBW04", 8 }, { "KBW06", 8 }, { "KBW08", 8 },
+            { "KBW02", 8 }, { "KBW03", 8 }, { "KBW06", 8 }, { "KBW08", 8 },
             { "KBW10", 12 }, { "KBW11", 12 }, { "KBW12", 12 },
         };
         var ids = new Dictionary<string, string>
         {
-            { "KBW01", "sword" }, { "KBW02", "greatsword" }, { "KBW03", "spear" }, { "KBW04", "dual_swords" },
+            { "KBW01", "sword" }, { "KBW02", "greatsword" }, { "KBW03", "spear" },
             { "KBW05", "axe" }, { "KBW06", "sickle" }, { "KBW07", "hammer" }, { "KBW08", "flail" },
             { "KBW09", "torch" }, { "KBW10", "poleaxe" }, { "KBW11", "flame_tongue" }, { "KBW12", "heaven_fire" },
         };

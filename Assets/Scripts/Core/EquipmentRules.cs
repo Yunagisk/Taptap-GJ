@@ -11,7 +11,16 @@ public static class EquipmentRules
         if (state.inventory == null) state.inventory = new InventoryState();
         if (state.inventory.weapons == null) state.inventory.weapons = new List<string>();
         if (state.player == null) state.player = new PlayerState();
+        state.player.NormalizeResolve();
         var slots = state.inventory.equippedWeaponIds;
+        // Retire the old weapon in saved runs as well as in the catalogue.
+        bool retiredEquipped = state.player.currentWeaponId == "dual_swords"
+            || slots != null && slots.Contains("dual_swords");
+        bool retiredOwned = state.inventory.weapons.RemoveAll(id => id == "dual_swords") > 0;
+        state.inventory.seenWeaponIds?.RemoveAll(id => id == "dual_swords");
+        // A run that started with only the retired weapon still needs a usable weapon.
+        if ((retiredOwned || retiredEquipped) && string.IsNullOrEmpty(FirstOwnedWeapon(state)))
+            state.inventory.weapons.Add("sword");
         bool migrate = slots == null || slots.Count == 0;
         if (slots == null) state.inventory.equippedWeaponIds = slots = new List<string>();
         if (slots.Count > SlotCount) slots.RemoveRange(SlotCount, slots.Count - SlotCount);
@@ -29,6 +38,8 @@ public static class EquipmentRules
             if (string.IsNullOrEmpty(id)) continue;
             if (!IsOwnedWeapon(state, id) || !equipped.Add(id)) slots[i] = string.Empty;
         }
+        if (retiredEquipped && string.IsNullOrEmpty(FirstEquippedWeapon(slots)))
+            slots[0] = FirstOwnedWeapon(state);
         if (!IsOwnedWeapon(state, state.player.currentWeaponId)
             || !slots.Contains(state.player.currentWeaponId))
             state.player.currentWeaponId = FirstEquippedWeapon(slots);

@@ -122,7 +122,7 @@ public static class MapPlayerPanelBuilder
         Label("PlayerName", window.transform, map.font, "旅人", new Vector2(136, -110), new Vector2(310, 40), 24);
         view.inventoryHealthText = Label("InventoryHealth", window.transform, map.font, "生命值  100 / 100", new Vector2(136, -150), new Vector2(310, 38), 20);
         view.inventoryHealthFill = HealthBar("InventoryHealthBar", window.transform, new Vector2(136, -194), 310, false);
-        view.resourcesText = Label("PlayerResources", window.transform, map.font, "决心  1 / 3\n提灯  2 / 2", new Vector2(36, -220), new Vector2(410, 80), 20);
+        view.resourcesText = Label("PlayerResources", window.transform, map.font, "决心  1 / " + StatusRules.DefaultMaxResolve + "\n提灯  2 / 2", new Vector2(36, -220), new Vector2(410, 80), 20);
         view.resourcesText.lineSpacing = 6;
         Label("WeaponHeading", window.transform, map.font, "武器", new Vector2(36, -318), new Vector2(410, 40), 22);
         view.weaponNames = new TMP_Text[4];

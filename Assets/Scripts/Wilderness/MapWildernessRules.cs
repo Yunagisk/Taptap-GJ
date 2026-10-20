@@ -11,6 +11,7 @@ public static class MapWildernessRules
         var catalog = new WildernessEventCatalog {
             templates = source.templates,
             enemyVariants = source.enemyVariants,
+            generationTemplateIds = source.generationTemplateIds,
             graph = new WildernessGraph { villageNodeId = layout.villageNodeId }
         };
         foreach (var node in layout.nodes)

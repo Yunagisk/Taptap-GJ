@@ -31,13 +31,13 @@ public sealed class BattleHudEnemyView : MonoBehaviour
     Vector2 moveFrom, moveTo;
     double moveStartedAt;
 
-    public void Bind(EnemyCombatant unit, int index, BattleHudView view)
+    public void Bind(EnemyCombatant unit, int index, BattleHudView view, string label)
     {
         enemy = unit; hud = view; resistance = unit.GetComponent<DamageResistance>();
         maximumHealth = unit.MaxHP;
         unit.OnDied += EnemyDied;
         hudCanvas = view.GetComponent<Canvas>();
-        enemyName.text = enemy.DisplayName + " " + index;
+        enemyName.text = label;
         portrait.sprite = BattleHudView.PortraitOf(unit);
         BattleHudView.OutlineNumber(healthText);
         select.onClick.AddListener(() => hud.SelectEnemy(enemy, true));
@@ -51,7 +51,7 @@ public sealed class BattleHudEnemyView : MonoBehaviour
         intent = (RectTransform)worldTag.Find("Intent");
         arrow = (RectTransform)worldTag.Find("Arrow");
         worldName = (RectTransform)worldTag.Find("Name");
-        worldName.GetComponent<TMP_Text>().text = enemy.DisplayName + " " + index;
+        worldName.GetComponent<TMP_Text>().text = label;
         BattleHudView.OutlineNumber(worldName.GetComponent<TMP_Text>());
         intentText = intent.Find("Amount").GetComponent<TMP_Text>();
         intentEffect = intent.Find("SpecialEffect").GetComponent<TMP_Text>();

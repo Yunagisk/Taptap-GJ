@@ -13,19 +13,19 @@ MonoBehaviour:
   m_Name: KBS02
   m_EditorClassIdentifier: 
   skillName: "\u9547\u538b"
-  skillDescription: "\u5355\u4f53\u7a7f\u523a29\uff1b\u4f24\u5bb3\u540e\u8870\u5f311\u5c42\uff0c\u7a7f\u523a\u514d\u75ab\u963b\u6b62\u8870\u5f31\u3002"
+  skillDescription: "单体挥砍29；伤害后衰弱1层，挥砍免疫阻止衰弱。"
   determinationCost: 3
   stages:
   - target: 0
     hitCount: 1
     damageComponents:
-    - damageType: 0
+    - damageType: 1
       damage: 29
   statusEffects:
   - applyToSelf: 0
     status: 4
     stacks: 1
-    requiredDamageType: 0
+    requiredDamageType: 1
   ignoreResistance: 0
   extraBreakOnWeakness: 0
   extraBreakDamageType: 0

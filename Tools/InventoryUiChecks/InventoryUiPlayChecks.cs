@@ -71,23 +71,26 @@ public sealed class InventoryUiPlayChecks : MonoBehaviour
         Check(layout.IsWeaponPickerOpen && layout.pickerVisibility.interactable, "clicking category opens the right picker");
         Check(layout.pickerTitle.text == "穿刺武器", "picker is titled with the selected category");
         var rows = layout.weaponContent.GetComponentsInChildren<InventoryEntryView>();
-        Check(rows.Length == 5 && rows.All(x => x.name != "Weapon_axe" && x.name != "Weapon_torch"), "picker filters to the primary damage category");
-        Check(layout.weaponContent.rect.height > layout.weaponScroll.viewport.rect.height, "long category lists can scroll");
+        Check(rows.Length == 3 && rows.All(x => x.name != "Weapon_axe" && x.name != "Weapon_torch"
+            && x.name != "Weapon_greatsword" && x.name != "Weapon_dual_swords"), "pierce picker excludes slash greatsword and retired dual swords");
         var parent = (RectTransform)layout.weaponPicker.parent;
         Check(Fits(layout.weaponPicker,parent), "picker stays inside parchment bounds");
         Check(!layout.categorySlots[0].newDot.gameObject.activeSelf && layout.categorySlots[1].newDot.gameObject.activeSelf,
             "viewing one category only clears its notification");
         Capture("inventory-picker-pierce.png");
-        rows.Single(x => x.name == "Weapon_greatsword").button.onClick.Invoke();
-        Check(root.state.inventory.equippedWeaponIds[0] == "greatsword" && root.state.player.currentWeaponId == "greatsword", "selecting candidate equips it and preserves the active category");
-        Check(!layout.IsWeaponPickerOpen && root.state.inventory.weapons.Count == 11, "selection closes picker without deleting inventory");
+        rows.Single(x => x.name == "Weapon_spear").button.onClick.Invoke();
+        Check(root.state.inventory.equippedWeaponIds[0] == "spear" && root.state.player.currentWeaponId == "spear", "selecting candidate equips it and preserves the active category");
+        Check(!layout.IsWeaponPickerOpen && root.state.inventory.weapons.Count == 10, "selection closes picker without deleting inventory");
         owner.Close(); yield return new WaitForSecondsRealtime(.8f); owner.Open(); yield return new WaitForSecondsRealtime(1);
         Check(!layout.categorySlots[0].newDot.gameObject.activeSelf, "cleared notification survives closing and reopening");
         root.state.inventory.weapons.Add("flame_tongue"); owner.Refresh();
         Check(layout.categorySlots[0].newDot.gameObject.activeSelf, "new purchase relights its category notification");
         layout.categorySlots[1].card.button.onClick.Invoke(); yield return new WaitForSecondsRealtime(.25f);
+        layout.weaponContent.GetComponentsInChildren<InventoryEntryView>().Single(x => x.name == "Weapon_greatsword").button.onClick.Invoke();
+        Check(root.state.inventory.equippedWeaponIds[1] == "greatsword" && root.state.player.currentWeaponId == "spear", "greatsword equips in the slash category without replacing the current pierce weapon");
+        layout.categorySlots[1].card.button.onClick.Invoke(); yield return new WaitForSecondsRealtime(.25f);
         layout.weaponContent.GetComponentsInChildren<InventoryEntryView>().Single(x => x.name == "Weapon_axe").button.onClick.Invoke();
-        Check(root.state.inventory.equippedWeaponIds[1] == "axe" && root.state.player.currentWeaponId == "greatsword", "other category equipment is independent of the current weapon");
+        Check(root.state.inventory.equippedWeaponIds[1] == "axe" && root.state.player.currentWeaponId == "spear", "other category equipment is independent of the current weapon");
         owner.selectWeaponButton.onClick.Invoke();
         Check(root.state.player.currentWeaponId == "axe", "set-current button still works");
         layout.categorySlots[3].card.button.onClick.Invoke(); yield return new WaitForSecondsRealtime(.25f);
@@ -115,18 +118,21 @@ public sealed class InventoryUiPlayChecks : MonoBehaviour
         var hudPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/UI/CombatHUD.prefab");
         var hud = Instantiate(hudPrefab).GetComponent<BattleHudView>(); hud.Bind(flow,null,null);
         yield return null;
-        var tag=hud.transform.Find("WorldTag_1/Intent");
-        Check(tag.Find("Icon")==null,"ordinary enemy damage has no type icon");
+        var tag=hud.Root.Find("WorldTag_1/Intent");
+        Check(tag != null, "bound enemy creates its world intent tag");
+        Check(tag.Find("DamageType") != null,"compact intent includes a damage type icon");
         Check(tag.Find("Amount").GetComponent<TMP_Text>().text=="18×2", "damage and hit count remain visible");
-        Check(!tag.Find("SpecialEffect").gameObject.activeSelf, "ordinary damage has no special-effect line");
+        var rowView = hud.EnemyRows.Single();
+        Check(!rowView.IntentExpanded, "intent details begin collapsed");
         Set(action,"applyStatus",true); Set(action,"statusOnHit",StatusId.Ignite); Set(action,"statusStacks",2);
-        foreach(var row in hud.GetComponentsInChildren<BattleHudEnemyView>()) row.Refresh();
-        Check(tag.Find("SpecialEffect").gameObject.activeSelf && tag.Find("SpecialEffect").GetComponent<TMP_Text>().text=="点燃 × 2", "flame rider is shown on its own line");
+        rowView.SetIntentHovered(true);
+        Check(rowView.IntentExpanded && tag.Find("Details/SpecialEffect").GetComponent<TMP_Text>().text.Contains("点燃"), "hover reveals the status rider in intent details");
         Check(tag.Find("Amount").GetComponent<TMP_Text>().text=="18×2", "special effect does not alter displayed direct damage");
         Capture("battle-numeric-intent.png");
         enemy.Break.TryAdd(100,1);
         foreach(var row in hud.GetComponentsInChildren<BattleHudEnemyView>()) row.Refresh();
-        Check(tag.Find("Amount").GetComponent<TMP_Text>().text=="跳过" && !tag.Find("SpecialEffect").gameObject.activeSelf, "break skip suppresses attack effects");
+        Check(!tag.gameObject.activeSelf && hud.Root.Find("WorldTag_1/BreakDizzy").gameObject.activeSelf,
+            "break replaces the attack intent with its dizzy indicator");
         yield return null;
         Check(errors==0,"native interaction produced no runtime errors");
     }

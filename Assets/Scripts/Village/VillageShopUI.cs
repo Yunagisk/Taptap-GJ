@@ -105,7 +105,8 @@ public sealed class VillageShopUI : MonoBehaviour
         foreach (string id in state.shop.availableWeaponIds) shownWeapons.Add(id);
         visible.Clear();
         foreach (var offer in offers)
-            if (offer != null && offer.consumable == items && (items || shownWeapons.Contains(offer.id))) visible.Add(offer);
+            if (offer != null && offer.consumable == items && (items
+                || WeaponTable.IsSoldInShop(offer.id) && shownWeapons.Contains(offer.id))) visible.Add(offer);
         page = Mathf.Clamp(page, 0, Mathf.Max(0, (visible.Count - 1) / cards.Length));
         int start = page * cards.Length;
         Offer chosen = null;

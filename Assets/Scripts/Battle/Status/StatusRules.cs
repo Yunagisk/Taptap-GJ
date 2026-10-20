@@ -3,6 +3,7 @@ using System;
 public static class StatusRules
 {
     public const int DefaultMaxResolve = 3;
+    public static int ClampResolve(int value) => Math.Max(0, Math.Min(DefaultMaxResolve, value));
     public const int DefaultCap = 3;
     public const int ConfuseCap = 2;
 
@@ -132,6 +133,7 @@ public static class StatusRules
     // 基础决心先入池。额外的 1 点也能放下才消耗坚定。疲惫把收益直接变成 0。
     public static ResolveGrant GrantResolve(int current, int max, int baseAmount, bool exhausted, int steadfastStacks)
     {
+        max = ClampResolve(max);
         ResolveGrant result = new ResolveGrant();
         if (baseAmount <= 0 || exhausted || current >= max)
             return result;

@@ -6321,8 +6321,6 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: e510fc59be324d5280420580f544f470, type: 3}
   - id: spear
     sprite: {fileID: 21300000, guid: f2dcfcbba2474a789b25a38694ca81b5, type: 3}
-  - id: dual_swords
-    sprite: {fileID: 21300000, guid: 29143454acdd466c9b82cfebe18daf71, type: 3}
   - id: sickle
     sprite: {fileID: 21300000, guid: c217bdc7e1804afba8e9bfc56ff5a535, type: 3}
   - id: flail

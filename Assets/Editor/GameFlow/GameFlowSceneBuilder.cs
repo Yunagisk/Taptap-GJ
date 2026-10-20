@@ -92,8 +92,8 @@ public static class GameFlowSceneBuilder
         var choices = Rect("WeaponContent", weaponPage.transform);
         Box(choices, Vector2.one * 0.5f, Vector2.zero, new Vector2(1040, 640), Vector2.one * 0.5f);
         Label("WeaponTitle", choices, "初始武器", new Vector2(0, -10), new Vector2(900, 80), 40, Color.white);
-        flow.weaponOptions = new Image[4];
-        for (int i = 0; i < 4; i++)
+        flow.weaponOptions = new Image[NewRunFactory.StartingWeapons.Length];
+        for (int i = 0; i < NewRunFactory.StartingWeapons.Length; i++)
         {
             string id = NewRunFactory.StartingWeapons[i];
             var button = Button("Choose_" + id, choices, "", new Vector2(i * 264, -140), new Vector2(248, 240), null);
@@ -332,18 +332,11 @@ public static class GameFlowSceneBuilder
             for (int x = 0; x < 32; x++)
             {
                 Color32 color = new Color32(0, 0, 0, 0);
-                if (id == "sword" || id == "dual_swords")
+                if (id == "sword")
                 {
-                    int offset = id == "dual_swords" ? 5 : 0;
-                    if (x >= 14 - offset && x <= 17 - offset && y >= 12 && y < 29) color = new Color32(110, 123, 138, 255);
-                    if (x >= 10 - offset && x <= 21 - offset && y >= 10 && y <= 12) color = new Color32(151, 51, 64, 255);
-                    if (x >= 14 - offset && x <= 17 - offset && y >= 3 && y < 10) color = new Color32(56, 64, 74, 255);
-                    if (id == "dual_swords")
-                    {
-                        if (x >= 21 && x <= 24 && y >= 12 && y < 29) color = new Color32(110, 123, 138, 255);
-                        if (x >= 18 && x <= 27 && y >= 10 && y <= 12) color = new Color32(151, 51, 64, 255);
-                        if (x >= 21 && x <= 24 && y >= 3 && y < 10) color = new Color32(56, 64, 74, 255);
-                    }
+                    if (x >= 14 && x <= 17 && y >= 12 && y < 29) color = new Color32(110, 123, 138, 255);
+                    if (x >= 10 && x <= 21 && y >= 10 && y <= 12) color = new Color32(151, 51, 64, 255);
+                    if (x >= 14 && x <= 17 && y >= 3 && y < 10) color = new Color32(56, 64, 74, 255);
                 }
                 else
                 {

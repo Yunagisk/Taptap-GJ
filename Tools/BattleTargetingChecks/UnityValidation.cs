@@ -235,7 +235,7 @@ public static class BattleTargetingValidation
                 Require(Time.timeScale == 0, "death effect and card reflow complete while gameplay is paused");
                 Require(((RectTransform)survivingRow.transform).anchoredPosition == Vector2.zero,
                     "second rat smoothly fills the first card's empty slot");
-                Require(survivingRow.enemyName.text == "老鼠 2" && survivingRow.Enemy.CurrentHP == survivingHp
+                Require(survivingRow.enemyName.text == "瘟鼠 2" && survivingRow.Enemy.CurrentHP == survivingHp
                     && survivingRow.portrait.sprite == survivingPortrait,
                     "moving the card preserves monster identity, health and portrait");
                 Require(hud.transform.Find("WorldTag_1") == null && NameTag(survivingRow, hud).transform.parent.gameObject.activeSelf,

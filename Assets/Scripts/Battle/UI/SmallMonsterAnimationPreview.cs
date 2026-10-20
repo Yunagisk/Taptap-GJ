@@ -75,7 +75,7 @@ public sealed class SmallMonsterAnimationPreview : MonoBehaviour
             button = new GUIStyle(GUI.skin.button) { font = font, fontSize = 17 };
         }
         GUI.Label(new Rect(20, 15, 850, 32), "敌人动作预览 · 30 FPS · 原画颜色", label);
-        if (GUI.Button(new Rect(20, 55, 110, 36), "老鼠", button)) { species = 0; ResetActor(); }
+        if (GUI.Button(new Rect(20, 55, 110, 36), "瘟鼠", button)) { species = 0; ResetActor(); }
         if (GUI.Button(new Rect(140, 55, 110, 36), "怨影", button)) { species = 1; ResetActor(); }
         if (slothPrefab != null && GUI.Button(new Rect(260, 55, 110, 36), "懒惰", button)) { species = 2; ResetActor(); }
         if (GUI.Button(new Rect(20, 102, 100, 36), "待机 / 重置", button)) ResetActor();

@@ -15,6 +15,11 @@ public sealed class MapFastTravelUI : MonoBehaviour
     TMP_Text title, cost, arrival, departure;
     readonly Dictionary<MapSceneRoad, Color> roadColors = new Dictionary<MapSceneRoad, Color>();
     readonly List<GameObject> endpoints = new List<GameObject>();
+    readonly Vector2[] cardPositions = new Vector2[6];
+    int cardPlacement;
+    CanvasGroup timeDial;
+    float timeDialAlpha;
+    bool timeDialHidden;
     GameObject previousFocus;
     bool hiding;
     public Button ConfirmButton { get; private set; }
@@ -47,7 +52,7 @@ public sealed class MapFastTravelUI : MonoBehaviour
         ui.cost = ui.Label("Cost", new Vector2(24, -86), new Vector2(280, 30), 23);
         ui.arrival = ui.Label("Arrival", new Vector2(310, -86), new Vector2(356, 30), 23);
         var hint = ui.Label("Hint", new Vector2(24, -124), new Vector2(642, 26), 17);
-        hint.text = "仅经过已到访且已完成的节点 · 不会重进战斗或事件";
+        hint.text = "途中仅经过已完成节点 · 未完成的目标抵达后正常进入";
         ui.CancelButton = ui.Button("Cancel", "取消", new Vector2(-106, 34));
         ui.ConfirmButton = ui.Button("Confirm", "确认移动", new Vector2(106, 34));
         ui.CancelButton.onClick.AddListener(controller.CancelFastTravel);
@@ -59,6 +64,7 @@ public sealed class MapFastTravelUI : MonoBehaviour
     {
         if (view == null || view.viewport == null || plan == null) return false;
         ClearInk();
+        cardPlacement = 0;
         bool found = false;
         Rect bounds = default;
         foreach (string id in plan.NodeIds)
@@ -91,6 +97,14 @@ public sealed class MapFastTravelUI : MonoBehaviour
         arrival.text = "抵达：" + WorldResourceRules.TimeLabel(plan.ArrivalTime);
         if (EventSystem.current != null) previousFocus = EventSystem.current.currentSelectedGameObject;
         transform.SetAsLastSibling(); gameObject.SetActive(true); FitWindow();
+        var dial = view.canvas.GetComponentInChildren<MapTimeDialView>(true);
+        if (dial != null)
+        {
+            timeDial = dial.GetComponent<CanvasGroup>();
+            if (timeDial == null) timeDial = dial.gameObject.AddComponent<CanvasGroup>();
+            timeDialAlpha = timeDial.alpha; timeDialHidden = true;
+            timeDial.alpha = 0;
+        }
         if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(CancelButton.gameObject);
         return gameObject.activeInHierarchy;
     }
@@ -128,6 +142,7 @@ public sealed class MapFastTravelUI : MonoBehaviour
         if (hiding) return;
         hiding = true;
         ClearInk();
+        RestoreTimeDial();
         if (view != null && view.viewport != null) view.viewport.EndTravelPreview(restoreView);
         gameObject.SetActive(false);
         if (restoreView && previousFocus != null && previousFocus.activeInHierarchy && EventSystem.current != null)
@@ -148,7 +163,6 @@ public sealed class MapFastTravelUI : MonoBehaviour
     }
     void LateUpdate()
     {
-        FitWindow();
         if (view == null || view.mapContent == null) return;
         float scale = Mathf.Max(.01f, Mathf.Abs(view.mapContent.localScale.x));
         foreach (var endpoint in endpoints)
@@ -158,15 +172,60 @@ public sealed class MapFastTravelUI : MonoBehaviour
             label.rectTransform.localScale = Vector3.one / scale;
             label.rectTransform.anchoredPosition = new Vector2(0, ((RectTransform)endpoint.transform).sizeDelta.y * .5f + 22 / scale);
         }
+        FitWindow();
     }
     void OnDisable() { if (!hiding && controller != null) controller.CancelFastTravel(); }
-    void OnDestroy() => ClearInk();
+    void OnDestroy() { RestoreTimeDial(); ClearInk(); }
+    void RestoreTimeDial()
+    {
+        if (timeDialHidden && timeDial != null) timeDial.alpha = timeDialAlpha;
+        timeDialHidden = false;
+    }
     void FitWindow()
     {
         if (window == null || view == null || view.canvas == null) return;
         var area = ((RectTransform)view.canvas.transform).rect.size;
         window.localScale = Vector3.one * Mathf.Min(1, Mathf.Max(.1f, (area.x - 48) / window.sizeDelta.x),
             Mathf.Max(.1f, area.y * .29f / window.sizeDelta.y));
+        Vector2 size = window.sizeDelta * window.localScale.x;
+        float side = Mathf.Max(0, (area.x - size.x) * .5f - 24);
+        float top = Mathf.Max(24, area.y - size.y - 24);
+        cardPositions[0] = new Vector2(0, 24);
+        cardPositions[1] = new Vector2(side, top);
+        cardPositions[2] = new Vector2(-side, top);
+        cardPositions[3] = new Vector2(side, 24);
+        cardPositions[4] = new Vector2(-side, 24);
+        cardPositions[5] = new Vector2(0, top);
+        var root = (RectTransform)transform;
+        float best = CardOverlap(cardPositions[cardPlacement], size, root);
+        // Keep a clear placement stable while the camera animates. At the map's
+        // zoom-out limit, move the card instead of moving beyond the artwork.
+        if (best > 0)
+            for (int i = 0; i < cardPositions.Length; i++)
+            {
+                float overlap = CardOverlap(cardPositions[i], size, root);
+                if (overlap >= best) continue;
+                best = overlap; cardPlacement = i;
+                if (best == 0) break;
+            }
+        window.anchoredPosition = cardPositions[cardPlacement];
+    }
+    float CardOverlap(Vector2 position, Vector2 size, RectTransform root)
+    {
+        Rect area = root.rect;
+        var card = new Rect(area.center.x + position.x - size.x * .5f, area.yMin + position.y, size.x, size.y);
+        float overlap = 0;
+        foreach (var endpoint in endpoints)
+        {
+            if (endpoint == null) continue;
+            Rect target = MapUITransform.Bounds((RectTransform)endpoint.transform, root);
+            var label = endpoint.GetComponentInChildren<TMP_Text>();
+            if (label != null) target = Union(target, MapUITransform.Bounds(label.rectTransform, root));
+            target = Rect.MinMaxRect(target.xMin - 18, target.yMin - 18, target.xMax + 18, target.yMax + 18);
+            overlap += Mathf.Max(0, Mathf.Min(card.xMax, target.xMax) - Mathf.Max(card.xMin, target.xMin))
+                * Mathf.Max(0, Mathf.Min(card.yMax, target.yMax) - Mathf.Max(card.yMin, target.yMin));
+        }
+        return overlap;
     }
     TMP_Text Label(string name, Vector2 position, Vector2 size, float fontSize)
     {

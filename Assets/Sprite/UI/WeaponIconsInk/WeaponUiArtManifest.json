@@ -48,13 +48,6 @@
                         "hudSprite":  "Hud/WeaponSpear.png"
                     },
                     {
-                        "id":  "dual_swords",
-                        "name":  "双剑",
-                        "sprite":  "WeaponDualSwords.png",
-                        "angle":  0,
-                        "hudSprite":  "Hud/WeaponDualSwords.png"
-                    },
-                    {
                         "id":  "axe",
                         "name":  "斧",
                         "sprite":  "WeaponAxe.png",

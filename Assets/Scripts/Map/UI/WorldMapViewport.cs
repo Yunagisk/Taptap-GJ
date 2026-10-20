@@ -13,6 +13,7 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     [Header("Navigation UI (authored in the map prefab)")]
     [SerializeField] Transform controls;
     [SerializeField] Button focusButton;
+    [SerializeField] Button inventoryButton;
     [SerializeField] Button overviewButton;
     [SerializeField] TMP_Text overviewLabel;
     Vector2 mapSize, center, fromCenter, targetCenter, lastPointer;
@@ -24,19 +25,16 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     bool bossCloseup, returningFromBoss;
     Vector2 beforeBossCenter;
     float beforeBossZoom, moveDuration;
-    bool bossTravelHandoff;
     public const float BossFocusDuration = .55f;
     public static readonly Color PaperColor = new Color32(231, 226, 213, 255);
     public bool IsBossCloseup => bossCloseup;
     bool travelPreview, returningFromTravel;
     Vector2 beforeTravelCenter, travelWindowSize;
-    float beforeTravelZoom, travelMinimumZoom;
+    float beforeTravelZoom;
     Rect travelBounds;
     Color beforeTravelSurface;
     public bool IsTravelPreview => travelPreview;
-    float MinimumZoom => travelPreview
-        ? Mathf.Min(travelMinimumZoom, MapViewportMath.MinimumZoom(window.rect.size, mapSize, baseScale))
-        : MapViewportMath.MinimumZoom(window.rect.size, mapSize, baseScale);
+    float MinimumZoom => MapViewportMath.MinimumZoom(window.rect.size, mapSize, baseScale);
 
     public static WorldMapViewport Configure(WorldMapSceneView view)
     {
@@ -64,8 +62,7 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         instance.window.offsetMin = instance.window.offsetMax = Vector2.zero;
         instance.window.localScale = Vector3.one;
         var surface = instance.GetComponent<Image>();
-        // This surface stays screen-sized while the painted map pans and zooms.
-        // Travel previews can legitimately extend beyond the artwork's edges.
+        // Keep a screen-sized backing underneath the bounded painted map.
         surface.color = PaperColor;
         surface.raycastTarget = true;
         instance.content = view.mapContent;
@@ -130,7 +127,6 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             if (phase >= 1)
             {
                 moving = false;
-                bossTravelHandoff = false;
                 if (returningFromBoss) { bossCloseup = false; returningFromBoss = false; SetNavigationEnabled(true); }
                 if (returningFromTravel)
                 { travelPreview = returningFromTravel = false; GetComponent<Image>().color = beforeTravelSurface; SetNavigationEnabled(true); }
@@ -143,12 +139,11 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     {
         if (window == null || content == null || window.rect.width < 1 || window.rect.height < 1) return;
         baseScale = MapViewportMath.BaseScale(window.rect.size, mapSize);
+        zoom = Mathf.Clamp(zoom, MinimumZoom, bossCloseup ? 3f : 1.5f);
         float scale = baseScale * zoom;
-        // A boss shot obeys the same painted-map bounds as exploration, including
-        // each intermediate zoom and window resize. Only an existing wide travel
-        // preview may ease in from outside; the opaque paper covers that margin.
-        if (!travelPreview && !(bossTravelHandoff && moving))
-            center = MapViewportMath.ClampCenter(center, mapSize, window.rect.size / scale);
+        // Every pose must cover the viewport, including travel previews, animated
+        // handoffs and the first frame after a window resize.
+        center = MapViewportMath.ClampCenter(center, mapSize, window.rect.size / scale);
         Vector3 nextScale = Vector3.one * scale;
         Vector2 nextPosition = -center * scale;
         if (content.localScale != nextScale) content.localScale = nextScale;
@@ -205,7 +200,7 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         if (window == null || window.rect.width < 1 || window.rect.height < 1) return;
         baseScale = MapViewportMath.BaseScale(window.rect.size, mapSize);
         nextZoom = Mathf.Clamp(nextZoom, MinimumZoom, bossCloseup ? 3 : 1.5f);
-        targetCenter = travelPreview ? point : MapViewportMath.ClampCenter(point, mapSize, window.rect.size / (baseScale * nextZoom));
+        targetCenter = MapViewportMath.ClampCenter(point, mapSize, window.rect.size / (baseScale * nextZoom));
         targetZoom = nextZoom;
         fromCenter = center;
         fromZoom = zoom;
@@ -259,7 +254,6 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         // Hand off a travel preview from its current pose, and return to exploration afterwards.
         beforeBossCenter = travelPreview ? beforeTravelCenter : moving ? targetCenter : center;
         beforeBossZoom = travelPreview ? beforeTravelZoom : moving ? targetZoom : zoom;
-        bossTravelHandoff = travelPreview;
         if (travelPreview) { travelPreview = returningFromTravel = false; GetComponent<Image>().color = beforeTravelSurface; }
         bossCloseup = true;
         dragging = false;
@@ -278,7 +272,7 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         MoveTo(beforeBossCenter, beforeBossZoom, immediate);
         if (immediate)
         {
-            bossCloseup = returningFromBoss = bossTravelHandoff = false;
+            bossCloseup = returningFromBoss = false;
             SetNavigationEnabled(true);
             ApplyPose();
         }
@@ -287,6 +281,7 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     void SetNavigationEnabled(bool value)
     {
         if (focusButton != null) focusButton.interactable = value;
+        if (inventoryButton != null) inventoryButton.interactable = value;
         if (overviewButton != null) overviewButton.interactable = value;
     }
 
@@ -296,8 +291,6 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         if (initialFocusPending) FocusPlayer(true);
         beforeTravelCenter = center; beforeTravelZoom = zoom;
         if (!travelPreview) beforeTravelSurface = GetComponent<Image>().color;
-        // The camera can frame a route beyond the paper's normal pan limits.
-        // Keep those margins on parchment instead of exposing the camera clear.
         GetComponent<Image>().color = PaperColor;
         travelPreview = true; returningFromTravel = false;
         dragging = framePending = false;
@@ -311,15 +304,14 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     {
         travelWindowSize = window.rect.size;
         baseScale = MapViewportMath.BaseScale(travelWindowSize, mapSize);
-        // Keep the route above the portrait and confirmation panel. A travel
-        // preview may zoom out beyond the normal pan limit to fit both endpoints.
+        // Frame the route above the confirmation panel while keeping the artwork
+        // large enough to cover the entire viewport.
         var padding = new Vector2(Mathf.Min(110, travelWindowSize.x * .12f), Mathf.Min(90, travelWindowSize.y * .1f));
         float bottom = Mathf.Min(330, travelWindowSize.y * .34f);
         float scale = MapViewportMath.TravelScale(travelBounds, travelWindowSize, padding.x, padding.y, bottom);
-        float nextZoom = Mathf.Min(.8f, scale / baseScale);
-        travelMinimumZoom = Mathf.Max(.01f, nextZoom);
+        float nextZoom = Mathf.Clamp(Mathf.Min(.8f, scale / baseScale), MinimumZoom, 1.5f);
         Vector2 safeCenter = new Vector2(0, (bottom - padding.y) * .5f);
-        MoveTo(travelBounds.center - safeCenter / (baseScale * travelMinimumZoom), travelMinimumZoom, false);
+        MoveTo(travelBounds.center - safeCenter / (baseScale * nextZoom), nextZoom, false);
     }
 
     public void EndTravelPreview(bool restore, bool immediate = false)
@@ -343,6 +335,7 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         if (controls == null) controls = transform.Find("MapNavigation");
         if (controls == null) return;
         if (focusButton == null) focusButton = controls.Find("Focus")?.GetComponent<Button>();
+        if (inventoryButton == null) inventoryButton = controls.Find("Inventory")?.GetComponent<Button>();
         if (overviewButton == null) overviewButton = controls.Find("Overview")?.GetComponent<Button>();
         if (overviewLabel == null && overviewButton != null) overviewLabel = overviewButton.GetComponentInChildren<TMP_Text>(true);
         if (focusButton != null)
@@ -355,25 +348,43 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             overviewButton.onClick.RemoveListener(ToggleOverview);
             overviewButton.onClick.AddListener(ToggleOverview);
         }
+        if (inventoryButton != null)
+        {
+            inventoryButton.onClick.RemoveListener(OpenInventory);
+            inventoryButton.onClick.AddListener(OpenInventory);
+        }
     }
+
+    void OpenInventory() => FindObjectOfType<GameFlowController>()?.OpenInventory();
 
     // Only the authoring tools create default controls. Runtime binding preserves
     // the positions, fonts and styling saved by the artist in the prefab.
 #if UNITY_EDITOR
-    void CreateControls(TMP_FontAsset font)
+    public void CreateControls(TMP_FontAsset font)
     {
         controls = transform.Find("MapNavigation");
-        if (controls != null) return;
-        var obj = new GameObject("MapNavigation", typeof(RectTransform));
-        obj.layer = gameObject.layer;
-        controls = obj.transform;
-        controls.SetParent(transform, false);
+        if (controls == null)
+        {
+            var obj = new GameObject("MapNavigation", typeof(RectTransform));
+            obj.layer = gameObject.layer;
+            controls = obj.transform;
+            controls.SetParent(transform, false);
+        }
         var rect = (RectTransform)controls;
-        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(1, 0);
-        rect.sizeDelta = new Vector2(310, 92);
-        rect.anchoredPosition = new Vector2(-24, 24);
-        var label = ButtonControl("Focus", "定位", new Vector2(-62, 24), font);
-        GameFlowMenuStyle.StyleButton(label.GetComponentInParent<Button>());
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
+        rect.sizeDelta = new Vector2(232, 42);
+        rect.anchoredPosition = new Vector2(24, -24);
+        inventoryButton = ButtonControl("Inventory", "背包", new Vector2(54, -21), font).GetComponentInParent<Button>();
+        focusButton = ButtonControl("Focus", "定位", new Vector2(178, -21), font).GetComponentInParent<Button>();
+        inventoryButton.transform.SetAsFirstSibling();
+        foreach (var button in new[] { inventoryButton, focusButton })
+        {
+            GameFlowMenuStyle.StyleButton(button);
+            button.image.color = new Color32(239, 232, 214, 255);
+            var colors = button.colors;
+            colors.disabledColor = new Color32(220, 213, 199, 255);
+            button.colors = colors;
+        }
     }
 
     TMP_Text ButtonControl(string name, string caption, Vector2 position, TMP_FontAsset font)
@@ -387,11 +398,11 @@ public class WorldMapViewport : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             child.SetParent(controls, false);
         }
         var rect = (RectTransform)child;
-        rect.anchorMin = rect.anchorMax = new Vector2(1, 0);
+        rect.anchorMin = rect.anchorMax = new Vector2(0, 1);
         rect.pivot = Vector2.one * 0.5f;
         rect.sizeDelta = new Vector2(108, 42);
         rect.anchoredPosition = position;
-        child.GetComponent<Image>().color = new Color32(239, 232, 214, 245);
+        child.GetComponent<Image>().color = new Color32(239, 232, 214, 255);
         var outline = child.GetComponent<Outline>();
         outline.effectColor = new Color32(68, 68, 57, 180);
         outline.effectDistance = new Vector2(1, -1);

@@ -31,6 +31,13 @@ public class PlayerState
     public int nextDirectHitReductionPercent;
     public int nextAttackBonusPercent;
     public int nextCampRecoveryBonusPercent;
+
+    // Old serialized caps are migrated to the game's shared three-point limit.
+    public void NormalizeResolve()
+    {
+        maxResolve = StatusRules.DefaultMaxResolve;
+        resolve = StatusRules.ClampResolve(resolve);
+    }
 }
 
 //背包状态
@@ -71,6 +78,8 @@ public class WorldState
 [Serializable]
 public class MapState
 {
+    // The submission chapter keeps the existing map/time rules but hides unfinished bosses.
+    public bool slothChapterOnly;
     public string currentNodeId = "village";                                // 当前节点ID
     public List<string> clearedNodes = new List<string>();                  // 已清理的节点
     public List<string> visitedNodes = new List<string>() { "village" };    // 已访问的节点
@@ -103,6 +112,7 @@ public enum StoryDialogueEffect { None, VillageIntroduction, AcceptCommission, T
     GuideEquipmentReady, GuideOutsideReady, GuideComplete }
 
 public enum GuideReward { None, Supplies, SwordAndLantern, Axe, Hammer, Torch }
+public enum SlothFate { Undecided, Spared, Killed }
 [Flags]
 public enum GuideLesson { None = 0, Switch = 1, Lantern = 2, Resolve = 4, Break = 8, Items = 16 }
 
@@ -120,6 +130,12 @@ public class MainStoryState
     public List<string> guideRewards = new List<string>();
     public string tutorialNodeId;
     public string slothNodeId;
+    public string villageNodeId = "village";
+    public bool slothHookSeen;
+    public bool slothInvestigated;
+    public bool slothConfronted;
+    public SlothFate slothFate;
+    public bool slothEndingSeen;
     public List<string> completedDialogueIds = new List<string>();
 }
 

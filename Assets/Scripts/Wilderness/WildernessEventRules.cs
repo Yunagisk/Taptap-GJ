@@ -9,6 +9,8 @@ public class WildernessEventCatalog
     public List<WildernessEnemyVariant> enemyVariants = new List<WildernessEnemyVariant>();
     public WildernessGraph graph = new WildernessGraph();
     public List<string> questionNodeIds = new List<string>();
+    // Empty means the original full pool. Retained definitions can still settle older generated runs.
+    public List<string> generationTemplateIds = new List<string>();
 }
 
 [Serializable]
@@ -40,6 +42,16 @@ public class WildernessOutcomeDefinition
     public int campRecoveryBonusPercent;
     public bool encounter;
     public bool repairBridge;
+    public string narrative;
+    public int damageAmount;
+    public int remnantDelta;
+    public int resolveDelta;
+    public string itemId;
+    public int itemCount;
+    public bool cleanseDebuffs;
+    public int directHitReductionPercent;
+    public int attackBonusPercent;
+    public string weaponId;
 }
 
 [Serializable]
@@ -153,14 +165,35 @@ public static class WildernessEventRules
                 foreach (var outcome in choice.outcomes)
                 {
                     Require(outcome != null && outcome.weight > 0 && outcome.healAmount >= 0
-                        && outcome.campRecoveryBonusPercent >= 0, "选项结果配置无效。");
+                        && outcome.campRecoveryBonusPercent >= 0 && outcome.damageAmount >= 0
+                        && outcome.directHitReductionPercent >= 0 && outcome.directHitReductionPercent <= 100
+                        && outcome.attackBonusPercent >= 0 && outcome.attackBonusPercent <= 100
+                        && outcome.itemCount >= 0, "选项结果配置无效。");
+                    Require(HasText(outcome.itemId)
+                        ? ItemTable.Find(outcome.itemId) != null && !ItemTable.Find(outcome.itemId).battleOnly
+                            && outcome.itemCount > 0 && outcome.itemCount <= ItemTable.Find(outcome.itemId).carryLimit
+                        : outcome.itemCount == 0, "道具奖励必须是有效的可携带物品，且不得超过携带上限。");
                     Require(!outcome.encounter || !outcome.repairBridge, "隐藏遭遇不能同时修桥。");
+                    Require(!HasText(outcome.weaponId) || WeaponTable.Find(outcome.weaponId) != null,
+                        "武器奖励必须是有效的武器。");
                     outcomeWeight += outcome.weight;
                 }
                 Require(outcomeWeight <= int.MaxValue, "选项结果权重溢出。");
             }
         }
         Require(totalWeight <= int.MaxValue, "模板总权重溢出。");
+        if (catalog.generationTemplateIds != null && catalog.generationTemplateIds.Count > 0)
+        {
+            var generatedIds = new HashSet<string>();
+            foreach (string id in catalog.generationTemplateIds)
+            {
+                Require(ids.Contains(id) && generatedIds.Add(id), "新局事件池包含缺失或重复的模板。");
+                var definition = FindDefinition(catalog, id);
+                Require(definition.choices.Exists(choice => choice.outcomes.Exists(HasActualEffect)),
+                    "每个新支线至少需要一个具有实际奖惩的结果。");
+            }
+            Require(generatedIds.Count >= questionIds.Count, "新局事件池的模板数量不足。");
+        }
 
         var graph = catalog.graph;
         Require(graph != null && HasText(graph.villageNodeId) && graph.nodes != null
@@ -214,7 +247,8 @@ public static class WildernessEventRules
         var bridgeCandidates = RepairCandidates(level, catalog);
         var pool = new List<WildernessEventDefinition>();
         foreach (var template in catalog.templates)
-            if (!HasBridgeOutcome(template) || bridgeCandidates.Count > 0) pool.Add(template);
+            if (IsGenerationTemplate(catalog, template.id)
+                && (!HasBridgeOutcome(template) || bridgeCandidates.Count > 0)) pool.Add(template);
         var questionIds = QuestionIds(catalog);
         Require(pool.Count >= questionIds.Count, "排除无法修复的断桥后，问号模板数量不足。");
 
@@ -436,9 +470,19 @@ public static class WildernessEventRules
             return Fail("世界时间或时间记录已达上限，无法结算。");
 
         // All validation completes before any mutation, and the chosen flag is set before payment.
+        resources.player.NormalizeResolve();
         node.chosenIndex = choiceIndex;
         node.resolved = true;
-        WorldResourceRules.SpendTime(resourceLayout, resources.map, resources.world, (int)cost, false);
+        WorldResourceRules.SpendTime(resourceLayout, resources.map, resources.world, (int)cost, false,
+            saved => CompleteChoice(saved.map.wildernessEvents, definition, choice, outcome, enemy, saved, resourceLayout));
+        return CompleteChoice(level, definition, choice, outcome, enemy, resources, resourceLayout);
+    }
+
+    static WildernessChoiceResult CompleteChoice(WildernessLevelState level, WildernessEventDefinition definition,
+        WildernessChoiceDefinition choice, WildernessOutcomeDefinition outcome, WildernessEnemyVariant enemy,
+        GameState resources, MapLayout resourceLayout)
+    {
+        var node = FindNode(level, level.activeNodeId);
         WorldResourceRules.ChangeSin(resourceLayout, resources.map, resources.world, outcome.sinDelta);
         int healed = WorldResourceRules.Heal(resources.player, outcome.healAmount);
         if (outcome.campRecoveryBonusPercent > 0)
@@ -450,6 +494,7 @@ public static class WildernessEventRules
         if (outcome.sinDelta != 0) parts.Add("事件罪恶 " + Signed(outcome.sinDelta));
         if (healed > 0) parts.Add("恢复 " + healed + " 生命");
         else if (outcome.healAmount > 0) parts.Add("生命已满");
+        ApplySidequestOutcome(resources, outcome, parts);
         if (outcome.campRecoveryBonusPercent > 0)
             parts.Add("下次营地恢复 +" + outcome.campRecoveryBonusPercent + "%（同类只保留最高值）");
         if (outcome.repairBridge)
@@ -466,6 +511,8 @@ public static class WildernessEventRules
         else parts.Add("事件已结束");
         parts.Add("当前时间 " + resources.world.time + "，罪恶 " + resources.world.sin
             + "，生命 " + resources.player.hp + "/" + resources.player.maxHp);
+        // Keep the history title prefix stable for old saves; place story feedback before the mechanical receipt.
+        if (HasText(outcome.narrative)) parts.Insert(1, "\n" + outcome.narrative + "\n");
         string message = string.Join("\n", parts.ToArray());
         level.history.Add(message);
         return new WildernessChoiceResult { success = true, message = message, encounterPending = node.encounterPending };
@@ -546,7 +593,11 @@ public static class WildernessEventRules
                 && resources.world.sinRemnant >= 0 && resources.world.stage > 0
                 && resources.map.sinRollCount >= 0 && resources.player.nextCampRecoveryBonusPercent >= 0
                 && resources.player.maxHp > 0 && resources.player.hp >= 0
-                && resources.player.hp <= resources.player.maxHp, "世界资源数值无效。");
+                && resources.player.hp <= resources.player.maxHp
+                && resources.player.maxResolve >= 0 && resources.player.resolve >= 0
+                && resources.player.resolve <= resources.player.maxResolve, "世界资源数值无效。");
+            Require(resources.inventory != null && resources.inventory.weapons != null
+                && resources.inventory.items != null, "背包状态无效。");
             Require(resources.map.spawnedBossNodes != null && resources.map.revealedNodes != null
                 && resources.map.defeatedBossNodes != null, "资源地图状态无效。");
         }
@@ -605,6 +656,95 @@ public static class WildernessEventRules
     static bool ValidLevelLists(WildernessLevelState level)
     {
         return level != null && level.nodes != null && level.repairedRoads != null && level.history != null;
+    }
+
+    public static bool IsGenerationTemplate(WildernessEventCatalog catalog, string id)
+    {
+        return catalog.generationTemplateIds == null || catalog.generationTemplateIds.Count == 0
+            || catalog.generationTemplateIds.Contains(id);
+    }
+
+    public static int GenerationTemplateCount(WildernessEventCatalog catalog)
+    {
+        if (catalog == null || catalog.templates == null) return 0;
+        return catalog.templates.FindAll(value => value != null && IsGenerationTemplate(catalog, value.id)).Count;
+    }
+
+    public static bool HasActualEffect(WildernessOutcomeDefinition outcome)
+    {
+        return outcome != null && (outcome.sinDelta != 0 || outcome.healAmount > 0 || outcome.damageAmount > 0
+            || outcome.remnantDelta != 0 || outcome.resolveDelta != 0 || outcome.itemCount > 0
+            || outcome.cleanseDebuffs || outcome.directHitReductionPercent > 0 || outcome.attackBonusPercent > 0
+            || outcome.campRecoveryBonusPercent > 0 || HasText(outcome.weaponId) || outcome.encounter || outcome.repairBridge);
+    }
+
+    static void ApplySidequestOutcome(GameState state, WildernessOutcomeDefinition outcome, List<string> receipt)
+    {
+        if (outcome.damageAmount > 0)
+        {
+            // These small roadside mishaps can wound, but cannot bypass the game's battle defeat/revival flow.
+            int lost = Math.Min(outcome.damageAmount, Math.Max(0, state.player.hp - 1));
+            state.player.hp -= lost;
+            receipt.Add(lost > 0 ? "损失 " + lost + " 生命" : "你已十分虚弱，未再扣除生命");
+        }
+        if (outcome.remnantDelta != 0)
+        {
+            int before = state.world.sinRemnant;
+            state.world.sinRemnant = (int)Math.Max(0L, Math.Min(int.MaxValue, (long)before + outcome.remnantDelta));
+            int delta = state.world.sinRemnant - before;
+            receipt.Add(delta != 0 ? "罪骸 " + Signed(delta) : outcome.remnantDelta > 0 ? "罪骸已达上限" : "没有可失去的罪骸");
+        }
+        if (outcome.resolveDelta != 0)
+        {
+            int before = state.player.resolve;
+            state.player.resolve = (int)Math.Max(0L, Math.Min(Math.Max(0, state.player.maxResolve), (long)before + outcome.resolveDelta));
+            int delta = state.player.resolve - before;
+            receipt.Add(delta != 0 ? "决心 " + Signed(delta) : outcome.resolveDelta > 0 ? "决心已满" : "决心已为 0");
+        }
+        if (outcome.cleanseDebuffs)
+        {
+            var statuses = new StatusSet(); statuses.RestoreSnapshot(state.player.ordinaryStatuses);
+            int count = statuses.PurgeAllDebuffs();
+            if (state.player.ordinaryStatuses == null) state.player.ordinaryStatuses = new List<StatusSnapshot>();
+            statuses.WriteSnapshot(state.player.ordinaryStatuses);
+            receipt.Add(count > 0 ? "已净化 " + count + " 种普通负面状态" : "当前没有需要净化的普通负面状态");
+        }
+        if (HasText(outcome.itemId))
+        {
+            var result = ItemRules.TryGrant(state, outcome.itemId, outcome.itemCount);
+            receipt.Add(result.ok ? result.message : "未领取：" + result.message);
+        }
+        if (HasText(outcome.weaponId))
+        {
+            string name = WeaponTable.NameOf(outcome.weaponId);
+            if (state.inventory.weapons.Contains(outcome.weaponId))
+                receipt.Add(name + "已拥有，未重复领取");
+            else if (state.inventory.weapons.Count >= WeaponTable.Capacity)
+                receipt.Add("未领取" + name + "：武器背包已满");
+            else
+            {
+                state.inventory.weapons.Add(outcome.weaponId);
+                receipt.Add("获得武器「" + name + "」，已放入武器背包，可在背包中装备");
+            }
+        }
+        if (outcome.directHitReductionPercent > 0)
+        {
+            state.player.nextDirectHitReductionPercent = Math.Max(state.player.nextDirectHitReductionPercent, outcome.directHitReductionPercent);
+            receipt.Add("下次直接受击减伤 " + state.player.nextDirectHitReductionPercent + "%（同类保留最高值）");
+        }
+        if (outcome.attackBonusPercent > 0)
+        {
+            state.player.nextAttackBonusPercent = Math.Max(state.player.nextAttackBonusPercent, outcome.attackBonusPercent);
+            receipt.Add("下次攻击伤害 +" + state.player.nextAttackBonusPercent + "%（同类保留最高值）");
+        }
+    }
+
+    public static string DescribeChoice(WildernessChoiceDefinition choice)
+    {
+        // Only disclose the action's time cost. Story consequences appear after choosing.
+        return choice.label + "\n" + (choice.timeCost > 0
+            ? "额外消耗 " + choice.timeCost + " 单位时间"
+            : "直接结束事件");
     }
 
     static bool HasBridgeOutcome(WildernessEventDefinition definition)

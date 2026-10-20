@@ -5372,7 +5372,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 94ab79681b69bf54e8034dbcf057ce56, type: 2}
   - {fileID: 11400000, guid: 485fda56e96029140a2b513e5cf54c6e, type: 2}
   - {fileID: 11400000, guid: 11f14815c4188a741887bc43121b14fa, type: 2}
-  - {fileID: 11400000, guid: a1329da6784a69d4e8b4228021dcf104, type: 2}
+  - {fileID: 0}
   weaponLibrary: {fileID: 11400000, guid: e5d4c3b2a1908476f5e4d3c2b1a09876, type: 2}
 --- !u!4 &1546645679
 Transform:
@@ -7028,6 +7028,7 @@ MonoBehaviour:
   ratPrefab: {fileID: 2022034366, guid: a7005f7af0d654489bf2c898f0321477, type: 3}
   crowPrefab: {fileID: 883956277496593012, guid: bf9426c56e0353119e6f0c93586b4baa, type: 3}
   wraithPrefab: {fileID: 2022034366, guid: 9fc16bf3d6ae5cdea4c4d933edee39fd, type: 3}
+  slothPrefab: {fileID: 1859371728394112153, guid: 6ae0910209785ef7a05852c2b478078b, type: 3}
 --- !u!1 &917550001
 GameObject:
   m_ObjectHideFlags: 0

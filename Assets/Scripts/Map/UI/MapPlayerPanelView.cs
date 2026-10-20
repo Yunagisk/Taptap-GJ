@@ -120,6 +120,7 @@ public class MapPlayerPanelView : MonoBehaviour
         if (GameRoot.I == null || GameRoot.I.state == null) return;
         var state = GameRoot.I.state;
         var player = state.player;
+        player.NormalizeResolve();
         if (healthAppearance == null && hudHealthFill != null)
         {
             healthAppearance = hudHealthFill.GetComponent<Graphic>();

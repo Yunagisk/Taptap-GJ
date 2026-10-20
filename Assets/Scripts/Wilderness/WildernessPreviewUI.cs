@@ -41,6 +41,8 @@ public class WildernessPreviewUI : MonoBehaviour
     MapLayout resourceLayout;
     UnityAction[] nodeActions, choiceActions;
     bool initialized;
+    ScrollRect storyScroll;
+    string renderedStory;
     string message = "选择相邻地点开始探索。这里的进度与正式游戏分开保存。";
 
     void OnEnable()
@@ -123,7 +125,7 @@ public class WildernessPreviewUI : MonoBehaviour
         try
         {
             BuildRun(seed);
-            message = "已生成新的独立关卡：从 10 个模板不放回抽取 7 个地点。";
+            message = "已生成新的独立关卡：从 " + WildernessEventRules.GenerationTemplateCount(catalog) + " 个模板不放回抽取 7 个地点。";
         }
         catch (Exception error) { Fail(error); }
         Refresh();
@@ -306,7 +308,8 @@ public class WildernessPreviewUI : MonoBehaviour
         bool expanded = currentNode == null || currentNode.resolved || currentNode.abandoned;
         if (eventDescription != null)
         {
-            var descriptionRect = eventDescription.rectTransform;
+            EnsureStoryScroll();
+            var descriptionRect = (RectTransform)storyScroll.transform;
             descriptionRect.sizeDelta = new Vector2(descriptionRect.sizeDelta.x, expanded ? 390 : 110);
         }
         if (eventMeta != null) eventMeta.gameObject.SetActive(!expanded);
@@ -314,11 +317,11 @@ public class WildernessPreviewUI : MonoBehaviour
             ? "从左侧选择相邻的问号地点。\n\n每条道路移动消耗 1 单位时间；选择的额外耗时另算。\n往返不会重新生成或重开事件。"
             : currentNode.resolved ? CurrentResultText(definition, currentNode)
             : currentNode.abandoned ? definition.description + "\n\n你已离开这次事件，选项不会再次开放。" : definition.description;
-        if (eventMeta != null) eventMeta.text = currentNode == null ? "7 个问号 · 10 个模板 · 每关不重复"
+        if (eventMeta != null) eventMeta.text = currentNode == null ? "7 个问号 · " + WildernessEventRules.GenerationTemplateCount(catalog) + " 个模板 · 每关不重复"
             : pending ? "隐藏遭遇：单只小怪。攻击、受击与道具效果以文字展示。"
             : currentNode.resolved ? "已完成：本地点不再开放选项。"
             : currentNode.abandoned ? "已离开：本地点不再开放选项。"
-            : active == currentNode ? "以下为可能结果；实际结果在首次进入前已经固定。" : "此地点已探索。";
+            : active == currentNode ? "请选择你的行动。" : "此地点已探索。";
         if (active == currentNode && definition != null && !currentNode.resolved && !currentNode.abandoned && !pending)
         {
             for (int i = 0; i < choiceButtons.Length && i < definition.choices.Count; i++)
@@ -326,7 +329,7 @@ public class WildernessPreviewUI : MonoBehaviour
                 if (choiceButtons[i] == null) continue;
                 choiceButtons[i].gameObject.SetActive(true);
                 choiceButtons[i].interactable = true;
-                if (i < choiceLabels.Length && choiceLabels[i] != null) choiceLabels[i].text = ChoiceSummary(definition.choices[i]);
+                if (i < choiceLabels.Length && choiceLabels[i] != null) choiceLabels[i].text = WildernessEventRules.DescribeChoice(definition.choices[i]);
             }
         }
         if (leaveButton != null) leaveButton.interactable = active != null && !pending;
@@ -337,6 +340,12 @@ public class WildernessPreviewUI : MonoBehaviour
             if (eventDescription != null) eventDescription.text = CurrentResultText(definition, currentNode) + "\n\n遭遇：" + enemyName + " × 1\n使用下方按钮模拟胜负，暂不进入正式战斗。";
             if (victoryButton != null) victoryButton.gameObject.SetActive(true);
             if (defeatButton != null) defeatButton.gameObject.SetActive(true);
+        }
+        if (storyScroll != null && renderedStory != eventDescription.text)
+        {
+            renderedStory = eventDescription.text;
+            Canvas.ForceUpdateCanvases();
+            storyScroll.verticalNormalizedPosition = 1;
         }
         if (roadsText != null) roadsText.text = RoadsSummary();
         if (historyText != null)
@@ -418,28 +427,24 @@ public class WildernessPreviewUI : MonoBehaviour
         return id;
     }
 
-    static string ChoiceSummary(WildernessChoiceDefinition choice)
+    void EnsureStoryScroll()
     {
-        var text = new StringBuilder(choice.label).Append("  ·  额外 ").Append(choice.timeCost).Append(" 单位时间\n");
-        int total = 0;
-        foreach (var outcome in choice.outcomes) total += outcome.weight;
-        for (int i = 0; i < choice.outcomes.Count; i++)
-        {
-            var outcome = choice.outcomes[i];
-            if (i != 0) text.Append(" / ");
-            if (choice.outcomes.Count > 1) text.Append(Math.Round(outcome.weight * 100d / total)).Append("% ");
-            if (outcome.sinDelta != 0) text.Append("罪恶 ").Append(outcome.sinDelta > 0 ? "+" : "").Append(outcome.sinDelta).Append("  ");
-            if (outcome.healAmount > 0) text.Append("恢复 ").Append(outcome.healAmount).Append(" 生命  ");
-            if (!string.IsNullOrEmpty(outcome.rewardText)) text.Append(outcome.rewardText).Append("  ");
-            if (!string.IsNullOrEmpty(outcome.effectText)) text.Append(outcome.effectText).Append("  ");
-            if (outcome.campRecoveryBonusPercent > 0) text.Append("下次营地恢复 +").Append(outcome.campRecoveryBonusPercent).Append("%  ");
-            if (outcome.repairBridge) text.Append("开放横路  ");
-            if (outcome.encounter) text.Append("普通遭遇（另耗时 1）");
-            else if (outcome.sinDelta == 0 && outcome.healAmount == 0 && string.IsNullOrEmpty(outcome.rewardText)
-                && string.IsNullOrEmpty(outcome.effectText) && !outcome.repairBridge && outcome.campRecoveryBonusPercent == 0)
-                text.Append("无额外战斗");
-        }
-        return text.ToString().TrimEnd();
+        if (storyScroll != null) return;
+        var textRect = eventDescription.rectTransform;
+        var go = new GameObject("StoryScroll", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
+        var rect = (RectTransform)go.transform;
+        rect.SetParent(textRect.parent, false); rect.SetSiblingIndex(textRect.GetSiblingIndex());
+        rect.anchorMin = textRect.anchorMin; rect.anchorMax = textRect.anchorMax;
+        rect.pivot = textRect.pivot; rect.anchoredPosition = textRect.anchoredPosition; rect.sizeDelta = textRect.sizeDelta;
+        go.GetComponent<Image>().color = new Color(0, 0, 0, .001f);
+        storyScroll = go.GetComponent<ScrollRect>(); storyScroll.horizontal = false;
+        storyScroll.movementType = ScrollRect.MovementType.Clamped; storyScroll.scrollSensitivity = 35;
+        storyScroll.viewport = rect; storyScroll.content = textRect;
+        textRect.SetParent(rect, false); textRect.anchorMin = new Vector2(0, 1); textRect.anchorMax = Vector2.one;
+        textRect.pivot = new Vector2(.5f, 1); textRect.anchoredPosition = Vector2.zero; textRect.sizeDelta = Vector2.zero;
+        eventDescription.overflowMode = TextOverflowModes.Overflow;
+        var fit = eventDescription.GetComponent<ContentSizeFitter>() ?? eventDescription.gameObject.AddComponent<ContentSizeFitter>();
+        fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
     }
 
     void Fail(Exception error)

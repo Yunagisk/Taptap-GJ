@@ -19,19 +19,22 @@ public static class ShopRules
         for (int i = 0; i < WeaponTable.All.Length; i++)
         {
             string id = WeaponTable.All[i].id;
-            if (id != startingWeaponId) shop.availableWeaponIds.Add(id);
+            if (WeaponTable.IsSoldInShop(id) && id != startingWeaponId) shop.availableWeaponIds.Add(id);
         }
         shop.stocked = true;
     }
 
     public static void EnsureStock(GameState state)
     {
-        if (state == null || state.shop.stocked) return;
+        if (state == null) return;
+        // Remove retired shop offers from existing runs without restocking anything already sold.
+        state.shop.availableWeaponIds.RemoveAll(id => !WeaponTable.IsSoldInShop(id));
+        if (state.shop.stocked) return;
         state.shop.availableWeaponIds.Clear();
         for (int i = 0; i < WeaponTable.All.Length; i++)
         {
             string id = WeaponTable.All[i].id;
-            if (!state.inventory.weapons.Contains(id)) state.shop.availableWeaponIds.Add(id);
+            if (WeaponTable.IsSoldInShop(id) && !state.inventory.weapons.Contains(id)) state.shop.availableWeaponIds.Add(id);
         }
         state.shop.stocked = true;
     }
@@ -40,7 +43,7 @@ public static class ShopRules
     {
         if (state == null) return new PurchaseResult(false, "没有进行中的局。");
         var offer = WeaponTable.Find(weaponId);
-        if (offer == null) return new PurchaseResult(false, "商店没有这把武器。");
+        if (offer == null || !offer.availableInShop) return new PurchaseResult(false, "商店没有这把武器。");
         EnsureStock(state);
         if (state.inventory.weapons.Contains(weaponId))
             return new PurchaseResult(false, offer.displayName + "已经解锁。");

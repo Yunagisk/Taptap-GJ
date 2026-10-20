@@ -62,9 +62,11 @@ public class TavernEventBrowserUI : MonoBehaviour
     WorldMapTemplate loadedTemplate;
     MapLayout cachedLayout;
     bool layoutLoadAttempted;
+    bool readableLayoutApplied;
 
     void OnEnable()
     {
+        ApplyReadableLayout();
         loadedTemplate = null;
         cachedLayout = null;
         layoutLoadAttempted = false;
@@ -96,6 +98,58 @@ public class TavernEventBrowserUI : MonoBehaviour
         selectedEventIndex = Mathf.Clamp(selectedEventIndex, 0, 2);
         nextRefresh = 0;
         Refresh();
+    }
+
+    void ApplyReadableLayout()
+    {
+        if (readableLayoutApplied) return;
+        readableLayoutApplied = true;
+        foreach (var label in GetComponentsInChildren<TMP_Text>(true))
+        {
+            label.enableAutoSizing = false;
+            label.fontSize = Mathf.Max(24, label.fontSize);
+        }
+        foreach (var button in GetComponentsInChildren<Button>(true))
+            if (button.targetGraphic is Image paper) paper.pixelsPerUnitMultiplier = 12;
+        foreach (var button in eventButtons) ReadableEventRow(button);
+        ReadableEventRow(timedEventTemplate);
+        if (detailMetaText != null) detailMetaText.rectTransform.sizeDelta = new Vector2(605, 32);
+        if (detailDescription != null)
+        {
+            detailDescription.fontSize = 24;
+            detailDescription.rectTransform.sizeDelta = new Vector2(404, 120);
+            ScrollableTextRegion.Ensure(detailDescription);
+        }
+        if (detailPortrait != null) detailPortrait.rectTransform.sizeDelta = new Vector2(184, 120);
+        if (story != null && story.messageText != null) ScrollableTextRegion.Ensure(story.messageText);
+        if (story != null && story.questText != null)
+        {
+            story.questText.rectTransform.anchoredPosition = new Vector2(46, -784);
+            story.questText.rectTransform.sizeDelta = new Vector2(1025, 64);
+            ScrollableTextRegion.Ensure(story.questText);
+        }
+        for (int i = 0; i < choiceButtons.Length; i++)
+        {
+            if (choiceButtons[i] == null) continue;
+            var rect = (RectTransform)choiceButtons[i].transform;
+            rect.anchoredPosition = new Vector2(26, -244 - i * 90);
+            rect.sizeDelta = new Vector2(612, 88);
+        }
+    }
+
+    static void ReadableEventRow(Button button)
+    {
+        if (button == null) return;
+        var layout = button.GetComponent<LayoutElement>();
+        if (layout != null) layout.minHeight = layout.preferredHeight = 108;
+        var title = Child<TMP_Text>(button, "EventTitle");
+        if (title != null) title.rectTransform.sizeDelta = new Vector2(234, 34);
+        var summary = Child<TMP_Text>(button, "EventSummary");
+        if (summary != null)
+        {
+            summary.rectTransform.anchoredPosition = new Vector2(85, -48);
+            summary.rectTransform.sizeDelta = new Vector2(236, 56);
+        }
     }
 
     void OnDisable()
@@ -193,11 +247,17 @@ public class TavernEventBrowserUI : MonoBehaviour
         var state = CurrentState();
         var layout = Layout();
         bool canInteract = CanInteract();
+        var active = state != null && layout != null
+            ? VillageEventRules.GetActiveEvents(state, layout) : new List<VillageEventOccurrence>();
+        var selectedOccurrence = active.Find(item => item.id == selectedOccurrenceId);
+        bool selectionEnded = !string.IsNullOrEmpty(selectedOccurrenceId) && selectedOccurrence == null;
+        // Completion, expiry and reopening must all release the old detail and its choices.
+        if (selectionEnded) selectedOccurrenceId = "";
         var stage = state != null && state.story != null ? state.story.stage : MainStoryStage.ArrivedVillage;
         string mainTitle, mainSummary, mainDescription;
         DescribeMainEvent(stage, out mainTitle, out mainSummary, out mainDescription);
         Sprite mainPortrait = stage == MainStoryStage.ArrivedVillage ? villagerPortrait : chiefPortrait;
-        bool timedSelected = !string.IsNullOrEmpty(selectedOccurrenceId);
+        bool timedSelected = selectedOccurrence != null;
         for (int i = 0; i < 3; i++)
         {
             SetText(At(eventTitles, i), i == 0 ? mainTitle : i == 1 ? "村民闲谈" : "酒馆见闻");
@@ -209,8 +269,6 @@ public class TavernEventBrowserUI : MonoBehaviour
             var button = At(eventButtons, i);
             if (button != null) button.interactable = canInteract;
         }
-        var active = state != null && layout != null
-            ? VillageEventRules.GetActiveEvents(state, layout) : new List<VillageEventOccurrence>();
         RefreshTimedRows(active, canInteract);
         if (waitButton != null) waitButton.interactable = canInteract && state != null && layout != null;
         if (state != null && state.world != null && state.player != null)
@@ -221,7 +279,7 @@ public class TavernEventBrowserUI : MonoBehaviour
             SetText(rewardHistoryText, "");
             SetActive(rewardHistoryText, false);
         }
-        if (timedSelected) RefreshTimedDetail(state, active, canInteract);
+        if (timedSelected) RefreshTimedDetail(state, selectedOccurrence, canInteract);
         else
         {
             SetActive(actionButton, true);
@@ -241,6 +299,7 @@ public class TavernEventBrowserUI : MonoBehaviour
         }
         if (layout == null) SetText(detailMetaText, "酒馆配置暂不可用，请稍后重新打开。");
         if (villageScreen != null) villageScreen.RefreshStatus();
+        if (selectionEnded && canInteract) FocusPreferredControl();
     }
 
     void RefreshTimedRows(List<VillageEventOccurrence> active, bool canInteract)
@@ -279,27 +338,28 @@ public class TavernEventBrowserUI : MonoBehaviour
         for (int i = active.Count; i < rows.Count; i++) SetActive(rows[i].button, false);
     }
 
-    void RefreshTimedDetail(GameState state, List<VillageEventOccurrence> active, bool canInteract)
+    void RefreshTimedDetail(GameState state, VillageEventOccurrence occurrence, bool canInteract)
     {
         SetActive(actionButton, false);
-        var occurrence = active.Find(item => item.id == selectedOccurrenceId);
-        bool available = occurrence != null;
-        if (occurrence == null && state != null && state.world != null && state.world.villageEvents != null)
-            occurrence = state.world.villageEvents.occurrences != null
-                ? state.world.villageEvents.occurrences.Find(item => item != null && item.id == selectedOccurrenceId) : null;
         var definition = occurrence != null ? VillageEventRules.FindDefinition(occurrence.definitionId) : null;
         SetText(detailTitle, definition != null ? definition.title : "限时事件");
         SetText(detailDescription, definition != null ? definition.description : "该事件当前不可用。");
-        SetText(detailMetaText, available ? ExpiryLabel(occurrence)
-            : occurrence != null && occurrence.resolved ? "这件事已经结束。" : "事件已失效");
+        SetText(detailMetaText, ExpiryLabel(occurrence));
         SetPortrait(detailPortrait, definition != null && definition.id == "v13" ? travelerPortrait : villagerPortrait);
+        float choiceHeight = definition != null && definition.choices.Length <= 2 ? 112 : 88;
         for (int i = 0; i < 3; i++)
         {
             bool exists = definition != null && definition.choices != null && i < definition.choices.Length;
             var button = At(choiceButtons, i);
             SetActive(button, exists);
-            if (button != null) button.interactable = exists && available && canInteract;
-            if (exists) SetText(At(choiceLabels, i), ChoiceLabel(definition.choices[i]));
+            if (button != null)
+            {
+                var rect = (RectTransform)button.transform;
+                rect.anchoredPosition = new Vector2(26, -244 - i * (choiceHeight + 2));
+                rect.sizeDelta = new Vector2(612, choiceHeight);
+            }
+            if (button != null) button.interactable = exists && canInteract;
+            if (exists) SetText(At(choiceLabels, i), ChoiceLabel(definition.choices[i], state));
         }
     }
 
@@ -322,7 +382,7 @@ public class TavernEventBrowserUI : MonoBehaviour
             && state.map.currentNodeId == layout.villageNodeId
             && string.IsNullOrEmpty(state.map.pendingRequestId) && string.IsNullOrEmpty(state.map.pendingNodeId)
             && isActiveAndEnabled && story != null && story.isActiveAndEnabled
-            && (villageScreen == null || !villageScreen.IsLoading)
+            && (villageScreen == null || villageScreen.CanUseFacilities)
             && story.dialogueManager != null && !story.dialogueManager.IsPlaying
             && (story.eventListRoot == null || story.eventListRoot.activeInHierarchy);
     }
@@ -412,7 +472,7 @@ public class TavernEventBrowserUI : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(target);
     }
 
-    static string ChoiceLabel(VillageEventChoice choice)
+    static string ChoiceLabel(VillageEventChoice choice, GameState state)
     {
         string text = choice.label + "\n" + choice.timeCost + " 单位时间 · 罪恶 "
             + (choice.sinDelta >= 0 ? "+" : "") + choice.sinDelta;
@@ -420,6 +480,13 @@ public class TavernEventBrowserUI : MonoBehaviour
         if (choice.nextDirectHitReductionPercent > 0) text += " · 首次直接受击 -" + choice.nextDirectHitReductionPercent + "%";
         if (choice.nextAttackBonusPercent > 0) text += " · 下次完整攻击 +" + choice.nextAttackBonusPercent + "%";
         if (choice.nextCampRecoveryBonusPercent > 0) text += " · 下次营地恢复 +" + choice.nextCampRecoveryBonusPercent + "%";
+        if (!string.IsNullOrEmpty(choice.itemId))
+        {
+            var item = ItemTable.Find(choice.itemId);
+            bool full = item != null && ItemRules.Count(state?.inventory, choice.itemId) >= item.carryLimit;
+            text += "\n" + choice.rewardText + (full ? "（携带已满，无法领取）" : "");
+        }
+        if (choice.resolveGain > 0) text += "\n" + choice.rewardText + "（上限 3）";
         return text;
     }
 
@@ -443,7 +510,11 @@ public class TavernEventBrowserUI : MonoBehaviour
 
     static void SetText(TMP_Text target, string value)
     {
-        if (target != null && target.text != value) target.text = value;
+        if (target != null && target.text != value)
+        {
+            target.text = value;
+            ScrollableTextRegion.Reset(target);
+        }
     }
 
     static void SetActive(Component target, bool active)
@@ -473,9 +544,9 @@ public class TavernEventBrowserUI : MonoBehaviour
                 description = "村长仍在等候清剿的消息。\n\n先前往村外的战场，完成第一次清剿。若对委托还有疑问，可以再与他交谈。";
                 break;
             case MainStoryStage.TutorialCompleted:
-                title = "懒惰的阴影";
-                summary = "第一次清剿之后，威胁仍在。";
-                description = "你已经完成第一次清剿。\n\n村长看到了你的能力，但笼罩村庄的阴影还没有散去。继续探索，寻找懒惰的踪迹。";
+                title = "教堂的求救";
+                summary = "西奥多让求医的人明天再来。";
+                description = "有人正在等一碗药，西奥多却带着信徒跪在暮林的祭所。\n\n听哈罗德与埃德蒙神父说说事情的原委，再去见那个不肯站起来的人。";
                 break;
             case MainStoryStage.SlothDefeated:
                 title = "归来的消息";
@@ -483,9 +554,9 @@ public class TavernEventBrowserUI : MonoBehaviour
                 description = "懒惰已经倒下。\n\n把这个消息带给村长，让村庄知道你在外面完成了什么。这次交谈将交付清剿委托。";
                 break;
             case MainStoryStage.CommissionTurnedIn:
-                title = "新的旅途";
-                summary = "委托已交付，听听接下来的消息。";
-                description = "村庄终于得到片刻喘息。\n\n与村长再聊几句，了解村庄接下来的打算，然后继续寻找下一段旅途。";
+                title = "懒惰篇·完";
+                summary = "村庄重新有人挑水、生火。";
+                description = "懒惰的故事已结束。\n\n感谢游玩，后续更新敬请期待。";
                 break;
             default:
                 title = "初来村庄";

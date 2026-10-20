@@ -9,21 +9,21 @@ public static class VillageEventChecks
     static readonly JsonSerializerOptions Json = new JsonSerializerOptions { IncludeFields = true };
 
     // id | earliest day | lifetime days | weight | choices:
-    // time, sin, healing, first-hit reduction, complete-attack bonus, camp-recovery bonus, text-only item.
+    // time, sin, healing, first-hit reduction, complete-attack bonus, camp-recovery bonus, reward.
     static readonly string[] Expected =
     {
         "v01|1|3|3|1,-15,0,0,0,0,;1,20,0,0,0,0,绷带",
         "v02|1|2|3|1,-12,10,0,0,0,;1,15,0,15,0,0,",
-        "v03|3|3|2|2,-20,0,0,0,0,净化剂;1,20,0,0,0,0,绷带",
+        "v03|3|3|2|2,-20,0,0,0,0,圣水;1,20,0,0,0,0,绷带",
         "v04|4|3|2|1,-15,0,0,0,0,绷带;1,15,25,0,0,0,",
         "v05|6|2|2|1,-15,0,0,0,0,;1,20,0,0,15,0,",
-        "v06|7|3|2|2,-20,0,0,0,0,坚定药剂;1,15,0,0,0,0,",
+        "v06|7|3|2|2,-20,0,0,0,0,决心;1,15,0,0,0,0,",
         "v07|9|2|2|1,-15,10,0,0,0,;1,20,25,0,0,0,",
-        "v08|10|2|2|2,-20,0,0,0,0,浓缩药剂;1,25,0,0,0,0,",
-        "v09|12|3|1|1,-18,0,0,0,0,绷带;1,20,0,0,0,0,浓缩药剂",
+        "v08|10|2|2|2,-20,0,0,0,0,绷带;1,25,0,0,0,0,",
+        "v09|12|3|1|1,-18,0,0,0,0,绷带;1,20,0,0,0,0,绷带",
         "v10|14|4|1|2,-20,0,0,0,20,;1,12,0,0,0,0,",
-        "v11|16|3|1|1,-15,0,0,0,0,净化剂;1,15,0,0,0,0,绷带",
-        "v12|20|4|1|2,-25,0,0,0,0,浓缩药剂;1,20,0,0,15,0,",
+        "v11|16|3|1|1,-15,0,0,0,0,圣水;1,15,0,0,0,0,绷带",
+        "v12|20|4|1|2,-25,0,0,0,0,绷带;1,20,0,0,15,0,",
         "v13|1|2|2|1,-15,0,0,0,0,;1,0,0,0,0,0,;1,20,0,0,0,0,"
     };
 
@@ -32,6 +32,7 @@ public static class VillageEventChecks
         if (loadLayout == null || check == null) throw new ArgumentNullException();
         var suite = new Suite(loadLayout, check);
         suite.AllChoices();
+        suite.RewardLimits();
         suite.OneTimeBonuses();
         suite.ClockAndSin();
         suite.GenerationAndPersistence();
@@ -58,7 +59,9 @@ public static class VillageEventChecks
 
         GameState Fresh(MapLayout layout, int seed = 24680)
         {
-            return NewRunFactory.Create(layout, "sword", seed);
+            var state = NewRunFactory.Create(layout, "sword", seed);
+            state.map.slothChapterOnly = false; // This suite also exercises the generic three-boss rules.
+            return state;
         }
 
         // Fixtures supply an actual appeared occurrence, then exercise production settlement.
@@ -116,7 +119,7 @@ public static class VillageEventChecks
                         && choice.nextCampRecoveryBonusPercent == camp, name + " exact one-use bonus");
                     Check(string.IsNullOrEmpty(item) ? string.IsNullOrEmpty(choice.rewardText)
                         : choice.rewardText != null && choice.rewardText.Contains(item) && choice.rewardText.Contains("1"),
-                        name + " exact text-only item reward");
+                        name + " exact reward preview");
                     Check(!string.IsNullOrWhiteSpace(choice.label), name + " has a selectable label");
 
                     var layout = loadLayout();
@@ -135,14 +138,17 @@ public static class VillageEventChecks
                     Check(state.player.nextDirectHitReductionPercent == hit
                         && state.player.nextAttackBonusPercent == attack
                         && state.player.nextCampRecoveryBonusPercent == camp, name + " stores only the specified bonus");
-                    Check(state.world.sinRemnant == remnant && Snapshot(state.inventory) == inventoryBefore,
-                        name + " does not exchange sin for currency or grant actual items");
+                    Check(state.world.sinRemnant == remnant, name + " does not exchange sin for currency");
+                    string itemId = item == "绷带" ? "bandage" : item == "圣水" ? "holy_water" : null;
+                    Check(itemId != null ? ItemRules.Count(state.inventory, itemId) == 1
+                        : Snapshot(state.inventory) == inventoryBefore, name + " grants the specified inventory reward only");
+                    Check(state.player.resolve == (item == "决心" ? 2 : 1), name + " restores the specified resolve only");
                     Check(state.world.villageEvents.rewardTexts.Count == (item.Length == 0 ? 0 : 1),
-                        name + " records each item reward only as text");
+                        name + " records each reward receipt once");
                     if (item.Length > 0)
                         Check(state.world.villageEvents.rewardTexts[0].Contains(item)
-                            && !result.message.Contains(item),
-                            name + " retains legacy reward data without promising an ungranted item");
+                            && result.message.Contains(item),
+                            name + " displays the actual reward receipt");
                     string after = Snapshot(state);
                     Check(!VillageEventRules.TryChoose(state, layout, occurrence.id, index).success
                         && Snapshot(state) == after, name + " duplicate click changes no state");
@@ -158,6 +164,25 @@ public static class VillageEventChecks
             Check(choiceCount == 27, "all 27 choices across 12 ordinary events and the 3-choice conditional event were covered");
             Check(VillageEventRules.FindDefinition(null) == null && VillageEventRules.FindDefinition("not-an-event") == null,
                 "unknown definitions are not invented");
+        }
+
+        public void RewardLimits()
+        {
+            var layout = loadLayout();
+            foreach (var pair in new[] { new[] { "v01", "1", "bandage" }, new[] { "v03", "0", "holy_water" } })
+            {
+                var state = WithEvent(layout, pair[0]);
+                Check(ItemRules.TryGrant(state, pair[2]).ok, "reward limit fixture fills the bag");
+                var result = VillageEventRules.TryChoose(state, layout, "test:" + pair[0], int.Parse(pair[1]));
+                Check(result.success && ItemRules.Count(state.inventory, pair[2]) == 1
+                    && result.message.Contains("未领取奖励") && result.message.Contains("携带上限"),
+                    "full reward leaves inventory capped and gives honest feedback");
+            }
+            var full = WithEvent(layout, "v06");
+            full.player.resolve = 3;
+            var capped = VillageEventRules.TryChoose(full, layout, "test:v06", 0);
+            Check(capped.success && full.player.resolve == 3 && capped.message.Contains("决心已满"),
+                "resolve reward respects its shared cap");
         }
 
         public void OneTimeBonuses()
@@ -463,7 +488,7 @@ public static class VillageEventChecks
             var layout = loadLayout();
             var state = WithEvent(layout, "v01");
             Check(VillageEventRules.TryChoose(state, layout, "test:v01", 1).success,
-                "pre-death event can settle a text-only reward");
+                "pre-death event grants its actual reward");
             var progression = new MapProgression(layout, state.map, state.world, 7);
             string next = layout.nodes.First(node => node.id == layout.villageNodeId).neighbors
                 .First(id => layout.nodes.Any(node => node.id == id && node.kind == MapNodeKind.Battle));

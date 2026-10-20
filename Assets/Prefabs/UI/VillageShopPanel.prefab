@@ -6722,7 +6722,7 @@ MonoBehaviour:
       y: 0.13134766
       width: 0.19628906
       height: 0.7363281
-    description: "\u6C89\u91CD\u7684\u53CC\u624B\u5927\u5251\uFF0C\u4EE5\u5F3A\u529B\u7A81\u523A\u538B\u57AE\u654C\u4EBA\u7684\u9632\u7EBF\u3002"
+    description: "\u6C89\u91CD\u7684\u53CC\u624B\u5927\u5251\uFF0C\u4EE5\u5F3A\u529B\u6325\u780D\u538B\u57AE\u654C\u4EBA\u7684\u9632\u7EBF\u3002"
   - id: spear
     consumable: 0
     artwork: {fileID: 21300000, guid: 886fda18d1e34b06b158c0dcaf9a65b3, type: 3}
@@ -6733,16 +6733,6 @@ MonoBehaviour:
       width: 0.07763672
       height: 0.8144531
     description: "\u4FEE\u957F\u7684\u77DB\u5C16\u76F4\u6307\u8981\u5BB3\uFF0C\u523A\u4E2D\u5F31\u70B9\u65F6\u66F4\u6613\u51FB\u6E83\u654C\u4EBA\u3002"
-  - id: dual_swords
-    consumable: 0
-    artwork: {fileID: 21300000, guid: 32df288ea5054bf6b929f3f1191bac8b, type: 3}
-    artworkUv:
-      serializedVersion: 2
-      x: 0.47265625
-      y: 0.31347656
-      width: 0.08984375
-      height: 0.48388672
-    description: "\u53CC\u5203\u4EA4\u9519\u8FDE\u523A\uFF0C\u4EE5\u8FDE\u7EED\u547D\u4E2D\u6495\u5F00\u654C\u4EBA\u7684\u9632\u7EBF\u3002"
   - id: sickle
     consumable: 0
     artwork: {fileID: 21300000, guid: c1cc9da1dd73d0048bec3a361fd7a1ac, type: 3}
@@ -6773,26 +6763,6 @@ MonoBehaviour:
       width: 0.16064453
       height: 0.81689453
     description: "\u957F\u67C4\u5C06\u5C16\u5203\u4E0E\u65A7\u5203\u5408\u4E3A\u4E00\u4F53\uFF0C\u517C\u5177\u7A81\u523A\u4E0E\u6A2A\u626B\u3002"
-  - id: flame_tongue
-    consumable: 0
-    artwork: {fileID: 21300000, guid: 7bcad0ca75313d744b2c7a45256b0015, type: 3}
-    artworkUv:
-      serializedVersion: 2
-      x: 0.40722656
-      y: 0.19677734
-      width: 0.1850586
-      height: 0.60498047
-    description: "\u8D64\u70ED\u7684\u5251\u950B\u5410\u51FA\u706B\u820C\uFF0C\u5728\u523A\u51FB\u4E2D\u91CD\u71C3\u6301\u5251\u8005\u7684\u610F\u5FD7\u3002"
-  - id: heaven_fire
-    consumable: 0
-    artwork: {fileID: 21300000, guid: b09fd20d2af2bcb4b9219c9afe19dadd, type: 3}
-    artworkUv:
-      serializedVersion: 2
-      x: 0.3828125
-      y: 0.17138672
-      width: 0.23486328
-      height: 0.6699219
-    description: "\u7194\u706B\u5728\u9524\u5934\u88C2\u9699\u4E2D\u6D41\u6DCC\uFF0C\u91CD\u51FB\u517C\u5177\u7834\u7532\u4E0E\u707C\u70E7\u4E4B\u529B\u3002"
   - id: bandage
     consumable: 1
     artwork: {fileID: 0}

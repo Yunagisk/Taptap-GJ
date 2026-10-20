@@ -161,21 +161,22 @@ static class Program
 
     static void TestResolve()
     {
-        ResolveGrant full = StatusRules.GrantResolve(4, 4, 1, false, 1);
+        ResolveGrant full = StatusRules.GrantResolve(3, 3, 1, false, 1);
         Eq(full.Granted, 0, "满决心不加");
         Eq(full.ConsumeSteadfast ? 1 : 0, 0, "满决心不消耗坚定");
 
-        ResolveGrant exact = StatusRules.GrantResolve(3, 4, 1, false, 1);
+        ResolveGrant exact = StatusRules.GrantResolve(2, 3, 1, false, 1);
         Eq(exact.Granted, 1, "基础恰好到上限");
         Eq(exact.ConsumeSteadfast ? 1 : 0, 0, "恰好到上限不消耗坚定");
 
-        ResolveGrant extra = StatusRules.GrantResolve(2, 4, 1, false, 1);
+        ResolveGrant extra = StatusRules.GrantResolve(1, 3, 1, false, 1);
         Eq(extra.Granted, 2, "坚定多 1 点");
         Eq(extra.ConsumeSteadfast ? 1 : 0, 1, "额外点数进池才消耗");
 
-        ResolveGrant tired = StatusRules.GrantResolve(0, 4, 1, true, 2);
+        ResolveGrant tired = StatusRules.GrantResolve(0, 3, 1, true, 2);
         Eq(tired.Granted, 0, "疲惫收益为 0");
         Eq(tired.ConsumeSteadfast ? 1 : 0, 0, "疲惫不消耗坚定");
+        Eq(StatusRules.GrantResolve(2, 4, 1, false, 1).Granted, 1, "旧四点上限也不能超过三点");
     }
 
     static void TestBreakGauge()

@@ -40,10 +40,12 @@ public class GameFlowController : MonoBehaviour
     bool settingsFromPause;
     bool confirmQuit;
     TMP_FontAsset runtimeFont;
+    Button loadDayButton;
 
     void Start()
     {
         if (GameRoot.I == null) new GameObject("GameRoot").AddComponent<GameRoot>();
+        BindLoadButtons();
         GameFlowMenuStyle.Apply(this);
         Set(settingsOverlay, false);
         Set(pauseOverlay, false);
@@ -58,11 +60,12 @@ public class GameFlowController : MonoBehaviour
             }
             Set(mainPage, true);
             Set(weaponPage, false);
-            continueButton.interactable = false;
+            RefreshSaveAvailability();
         }
         else
         {
-            bool village = GameRoot.I.enterVillageOnLoad;
+            bool village = GameRoot.I.enterVillageOnLoad || SlothChapterRules.CanEndAtVillage(GameRoot.I.state)
+                || SlothChapterRules.IsFinished(GameRoot.I.state);
             GameRoot.I.enterVillageOnLoad = false;
             if (village) ShowVillage();
             else ShowMap();
@@ -85,15 +88,16 @@ public class GameFlowController : MonoBehaviour
 
     public void HandleBack()
     {
+        if (SlothChapterPresentation.IsBlocking || !isMainMenu && SlothChapterRules.IsFinished(GameRoot.I?.state)) return;
         var guide = FindObjectOfType<GuideDialogueView>();
         if (guide != null && guide.IsOpen) return;
-        if (MapSceneTransition.IsBusy) return;
+        if (MapSceneTransition.IsBusy || DayStartLoadTransition.IsBusy) return;
         var map = worldMapGroup != null ? worldMapGroup.GetComponent<WorldMapController>() : null;
         if (map == null) map = FindObjectOfType<WorldMapController>();
         if (map != null && map.IsFastTravelConfirmationOpen) { map.CancelFastTravel(); return; }
         if (wildernessEventUI != null && wildernessEventUI.IsOpen)
         {
-            wildernessEventUI.controller.CloseWildernessEvent();
+            wildernessEventUI.HandleBack();
             return;
         }
         if (villageEntryConfirmation != null && villageEntryConfirmation.IsOpen)
@@ -124,8 +128,8 @@ public class GameFlowController : MonoBehaviour
         if (IsLoading || Array.IndexOf(NewRunFactory.StartingWeapons, id) < 0) return;
         SelectedWeapon = id;
         selectedWeaponText.text = "已选：" + NewRunFactory.WeaponName(id);
-        for (int i = 0; i < weaponOptions.Length; i++)
-            weaponOptions[i].color = NewRunFactory.StartingWeapons[i] == id
+        for (int i = 0; i < weaponOptions.Length && i < NewRunFactory.StartingWeapons.Length; i++)
+            if (weaponOptions[i] != null) weaponOptions[i].color = NewRunFactory.StartingWeapons[i] == id
                 ? new Color32(196, 222, 207, 255) : new Color32(237, 239, 243, 255);
         startButton.interactable = true;
     }
@@ -148,6 +152,8 @@ public class GameFlowController : MonoBehaviour
                 throw new InvalidOperationException("The map scene is missing from Build Settings.");
             if (!Application.CanStreamedLevelBeLoaded(VillageScene))
                 throw new InvalidOperationException("The village scene is missing from Build Settings.");
+            if (!GameRoot.I.SaveMorning(fresh, template.Load()))
+                throw new InvalidOperationException(GameRoot.I.LastSaveError);
             var previous = GameRoot.I.state;
             bool previousEntry = GameRoot.I.enterVillageOnLoad;
             var previousTemplate = GameRoot.I.villageMapTemplate;
@@ -229,11 +235,69 @@ public class GameFlowController : MonoBehaviour
         worldMapGroup.interactable = worldMapGroup.blocksRaycasts = visible;
     }
 
-    public void OpenInventory() { playerPanel.OpenInventory(); }
+    public void OpenInventory()
+    {
+        if (!SlothChapterPresentation.IsBlocking && !SlothChapterRules.IsFinished(GameRoot.I?.state))
+            playerPanel.OpenInventory();
+    }
 
     public void OpenPause()
     {
-        if (!IsLoading) Set(pauseOverlay, true);
+        if (!IsLoading && !SlothChapterPresentation.IsBlocking && !SlothChapterRules.IsFinished(GameRoot.I?.state))
+        {
+            RefreshSaveAvailability();
+            Set(pauseOverlay, true);
+        }
+    }
+
+    void BindLoadButtons()
+    {
+        if (isMainMenu && continueButton != null) continueButton.onClick.AddListener(ContinueGame);
+        if (isMainMenu || pauseOverlay == null) return;
+        var resume = pauseOverlay.transform.Find("Window/Btn_Resume")?.GetComponent<Button>();
+        if (resume == null) return;
+        loadDayButton = Instantiate(resume, resume.transform.parent);
+        loadDayButton.name = "Btn_LoadDay";
+        loadDayButton.onClick = new Button.ButtonClickedEvent();
+        loadDayButton.onClick.AddListener(ContinueGame);
+        loadDayButton.GetComponentInChildren<TMP_Text>().text = "回到今天早晨";
+    }
+
+    void RefreshSaveAvailability()
+    {
+        GameState morning = null;
+        string error = "暂无可用存档";
+        bool available = false;
+        try { available = template != null && GameRoot.I.SaveSlot.TryLoad(template.Load(), out morning, out error); }
+        catch (Exception exception) { error = "存档无法读取：" + exception.Message; }
+        if (loadDayButton != null) loadDayButton.interactable = available;
+        if (!isMainMenu || continueButton == null) return;
+        continueButton.interactable = available;
+        foreach (var label in mainPage.GetComponentsInChildren<TMP_Text>(true))
+            if (label.name == "ContinueStatus")
+            {
+                label.text = available ? "第 " + WorldResourceRules.Day(morning.world) + " 天早晨 · 自动存档"
+                    : error == "暂无可用存档" ? error : "存档无法读取";
+                label.enableAutoSizing = true;
+                label.fontSizeMin = 20;
+                label.fontSizeMax = 22;
+            }
+        var continueText = continueButton.GetComponentInChildren<TMP_Text>();
+        var newGameText = continueButton.transform.parent.Find("Btn_NewGame")?.GetComponentInChildren<TMP_Text>();
+        if (continueText != null && newGameText != null)
+            continueText.color = available ? newGameText.color : new Color32(145, 151, 162, 255);
+    }
+
+    public void ContinueGame()
+    {
+        if (IsLoading || DayStartLoadTransition.IsBusy || MapSceneTransition.IsBusy) return;
+        bool started = DayStartLoadTransition.TryBegin(template, error =>
+        {
+            IsLoading = false;
+            if (errorText != null) errorText.text = error;
+            Debug.LogWarning(error, this);
+        });
+        if (started) IsLoading = true;
     }
 
     public void ClosePause() { Set(pauseOverlay, false); }
@@ -265,14 +329,14 @@ public class GameFlowController : MonoBehaviour
     public void AskReturnToTitle()
     {
         confirmQuit = false;
-        confirmationText.text = "本局进度不会保留，返回主菜单？";
+        confirmationText.text = "进度已保留至今天早晨，之后的行动不会保存。返回主菜单？";
         Set(confirmOverlay, true);
     }
 
     public void AskQuit()
     {
         confirmQuit = true;
-        confirmationText.text = isMainMenu ? "退出游戏？" : "本局进度不会保留，退出游戏？";
+        confirmationText.text = isMainMenu ? "退出游戏？" : "进度已保留至今天早晨，之后的行动不会保存。退出游戏？";
         Set(confirmOverlay, true);
     }
 

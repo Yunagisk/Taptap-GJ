@@ -55,7 +55,8 @@ static class GuideQuestChecks
                 "saved guide progression retains rewards and the report objective");
             check(MainStoryRules.TryCompleteDialogue(state, "report", StoryDialogueEffect.GuideComplete)
                 && !MainStoryRules.TryCompleteDialogue(state, "report", StoryDialogueEffect.GuideComplete)
-                && !VillageIntroRules.IsRestricted(state) && MainStoryRules.GoalText(state).Contains("懒惰"),
+                && !VillageIntroRules.IsRestricted(state) && state.story.stage == MainStoryStage.TutorialCompleted
+                && MainStoryRules.GoalText(state).Contains("祭所"),
                 "the report unlocks free exploration and hands off to the sloth story exactly once");
         }
         var legacy = NewRunFactory.Create(load(), "axe", 911);

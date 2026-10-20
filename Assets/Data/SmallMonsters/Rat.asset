@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rat
   m_EditorClassIdentifier:
   kind: 0
-  displayName: 老鼠
+  displayName: 瘟鼠
   maxHp: 36
   breakThreshold: 2
   lowHealthGuardWeight: 30
