@@ -32,7 +32,12 @@ public class PlayerCombatant : Combatant
         var root = GameRoot.I;
         runPlayer = root != null && root.state != null ? root.state.player : null;
         restoringStatuses = true;
-        maxDetermination = runPlayer != null ? Mathf.Max(0, runPlayer.maxResolve) : StandaloneMaxDetermination;
+        maxDetermination = StandaloneMaxDetermination;
+        if (runPlayer != null)
+        {
+            runPlayer.maxResolve = maxDetermination;
+            runPlayer.resolve = StatusRules.ClampResolve(runPlayer.resolve);
+        }
         currentDetermination = runPlayer != null
             ? Mathf.Clamp(runPlayer.resolve, 0, maxDetermination) : 0;
         IsDefending = false;

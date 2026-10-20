@@ -1,6 +1,7 @@
 using System;
 namespace UnityEngine { } // Selector only imports this namespace; tests use no Unity runtime.
-public class EnemyAttackData { }
+public enum EnemyActionKind { Attack, Charge, Guard }
+public class EnemyAttackData { public EnemyActionKind Kind; public EnemyAttackData FollowUp; }
 static class Program
 {
     static int checks;

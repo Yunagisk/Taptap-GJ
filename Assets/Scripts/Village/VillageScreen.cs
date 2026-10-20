@@ -46,10 +46,13 @@ public class VillageScreen : MonoBehaviour
     public bool CanUseFacilities => !IsLoading && !IsResting && FacilitiesAvailable;
     public bool IsLoading { get; private set; }
     public VillageIntroController Introduction { get; private set; }
+    public SlothChapterPresentation SlothChapter { get; private set; }
     public Canvas UICanvas => panelRoot != null ? panelRoot.GetComponentInParent<Canvas>(true)
         : GetComponentInChildren<Canvas>(true);
 
-    bool FacilitiesAvailable => !VillageIntroRules.IsRestricted(GameRoot.I != null ? GameRoot.I.state : null)
+    bool FacilitiesAvailable => !DayStartLoadTransition.IsBusy
+        && !VillageIntroRules.IsRestricted(GameRoot.I != null ? GameRoot.I.state : null)
+        && !SlothChapterPresentation.BlocksVillage
         && (Introduction == null || !Introduction.IsOpen);
 
     void Awake()
@@ -89,6 +92,7 @@ public class VillageScreen : MonoBehaviour
         ClosePanels();
         RefreshStatus();
         Introduction = VillageIntroController.Attach(this);
+        SlothChapter = SlothChapterPresentation.Attach(this);
     }
 
     public void RefreshStatus()
@@ -106,8 +110,9 @@ public class VillageScreen : MonoBehaviour
     void Update()
     {
         RefreshStatus();
+        if (SlothChapterPresentation.BlocksVillage) return;
         if (Introduction != null && Introduction.IsOpen) return;
-        if (IsLoading || IsResting || !Input.GetKeyDown(KeyCode.Escape)) return;
+        if (IsLoading || IsResting || DayStartLoadTransition.IsBusy || !Input.GetKeyDown(KeyCode.Escape)) return;
         if (panelConflict != null && panelConflict.activeSelf) CloseConflict();
         else if (panelRoot != null && panelRoot.activeSelf && !ReturnToTavernEvents()) ClosePanels();
     }
@@ -133,7 +138,8 @@ public class VillageScreen : MonoBehaviour
 
     public void OpenBag()
     {
-        if (IsLoading || IsResting || VillageIntroRules.IsPending(GameRoot.I != null ? GameRoot.I.state : null)
+        if (IsLoading || IsResting || SlothChapterPresentation.BlocksVillage
+            || VillageIntroRules.IsPending(GameRoot.I != null ? GameRoot.I.state : null)
             || Introduction != null && Introduction.IsOpen) return;
         Show(panelBag, focusSlot);
         var equipment = panelBag != null ? panelBag.GetComponent<EquipmentPanelView>() : null;
@@ -173,6 +179,7 @@ public class VillageScreen : MonoBehaviour
 
     public void ClosePanels()
     {
+        if (SlothChapter != null && (SlothChapter.IsOpen || SlothChapter.IsEndingOpen)) return;
         if (IsResting) return;
         var equipment = panelBag != null && panelBag.activeInHierarchy
             ? panelBag.GetComponent<EquipmentPanelView>() : null;
@@ -186,6 +193,13 @@ public class VillageScreen : MonoBehaviour
                 return;
             }
         }
+        FinishClosingPanels();
+    }
+
+    // Story takes exclusive focus immediately; a bag roll-up must not select a
+    // village button after the modal dialogue has already opened.
+    public void PrepareStoryPresentation()
+    {
         FinishClosingPanels();
     }
 
@@ -203,7 +217,7 @@ public class VillageScreen : MonoBehaviour
 
     public void OpenConflict()
     {
-        if (IsResting || IsLoading) return;
+        if (IsResting || IsLoading || SlothChapterPresentation.BlocksVillage) return;
         if (panelConflict != null)
             panelConflict.SetActive(true);
         SetBagButtons(false);
@@ -212,6 +226,7 @@ public class VillageScreen : MonoBehaviour
 
     public void CloseConflict()
     {
+        if (SlothChapterPresentation.BlocksVillage) return;
         if (panelConflict != null)
             panelConflict.SetActive(false);
         SetBagButtons(true);
@@ -245,36 +260,42 @@ public class VillageScreen : MonoBehaviour
 
     public void ConfirmBuy()
     {
+        if (SlothChapterPresentation.BlocksVillage) return;
         if (Shop != null) Shop.Purchase();
     }
 
     public void ConfirmOptionA()
     {
+        if (SlothChapterPresentation.BlocksVillage) return;
         Say("已作出选择。");
         ClosePanels();
     }
 
     public void ConfirmOptionB()
     {
+        if (SlothChapterPresentation.BlocksVillage) return;
         Say("已作出选择。");
         ClosePanels();
     }
 
     public void ConfirmUseItem()
     {
+        if (SlothChapterPresentation.BlocksVillage) return;
         var equipment = panelBag != null ? panelBag.GetComponent<EquipmentPanelView>() : null;
         if (equipment != null) equipment.UseSelectedItem();
     }
 
     public void ConfirmConflict()
     {
+        if (SlothChapterPresentation.BlocksVillage) return;
         Say("已更换装备。");
         CloseConflict();
     }
 
     public void LeaveToMap()
     {
-        if (IsLoading || IsResting || Introduction != null && Introduction.IsOpen
+        if (IsLoading || IsResting || SlothChapterPresentation.BlocksVillage
+            || Introduction != null && Introduction.IsOpen
             || !VillageIntroRules.CanLeaveVillage(GameRoot.I != null ? GameRoot.I.state : null)) return;
         var state = GameRoot.I != null ? GameRoot.I.state : null;
         if (VillageIntroRules.IsRestricted(state))

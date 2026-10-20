@@ -1,17 +1,19 @@
 using System;
 
-// 商店表。价格以 WeaponData.price 为准，这里是同一份全局档位，供开局库存和没有 SO 时回退。
+// 武器目录。availableInShop 区分商店与事件奖励；价格供没有 SO 时回退。
 public sealed class WeaponOffer
 {
     public readonly string id;
     public readonly string displayName;
     public readonly int price;
+    public readonly bool availableInShop;
 
-    public WeaponOffer(string id, string displayName, int price)
+    public WeaponOffer(string id, string displayName, int price, bool availableInShop = true)
     {
         this.id = id;
         this.displayName = displayName;
         this.price = price;
+        this.availableInShop = availableInShop;
     }
 }
 
@@ -30,12 +32,11 @@ public static class WeaponTable
         new WeaponOffer("torch", "火把", 4),
         new WeaponOffer("greatsword", "大剑", 8),
         new WeaponOffer("spear", "长矛", 8),
-        new WeaponOffer("dual_swords", "双剑", 8),
         new WeaponOffer("sickle", "镰刀", 8),
         new WeaponOffer("flail", "链枷", 8),
         new WeaponOffer("poleaxe", "斧枪", 12),
-        new WeaponOffer("flame_tongue", "焰舌", 12),
-        new WeaponOffer("heaven_fire", "天火", 12),
+        new WeaponOffer("flame_tongue", "焰舌", 12, false),
+        new WeaponOffer("heaven_fire", "天火", 12, false),
     };
 
     public static WeaponOffer Find(string id)
@@ -51,6 +52,8 @@ public static class WeaponTable
         var offer = Find(id);
         return offer != null ? offer.price : 0;
     }
+
+    public static bool IsSoldInShop(string id) => Find(id)?.availableInShop == true;
 
     public static string NameOf(string id)
     {

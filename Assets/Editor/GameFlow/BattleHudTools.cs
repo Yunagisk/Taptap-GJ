@@ -25,7 +25,7 @@ public static class BattleHudTools
         var view = asset.GetComponent<BattleHudView>();
         Require(view != null && view.wheel != null && view.enemyTemplate != null && view.worldTagTemplate != null, "HUD templates are missing.");
         Require(view.playerPortrait != null && view.playerPortrait.sprite != null && view.playerHealth != null && view.healthText != null, "Player UI is incomplete.");
-        Require(view.resolve.Length == 4 && view.resolve.All(x => x != null), "Four resolve diamonds are required.");
+        Require(view.resolve.Length >= StatusRules.DefaultMaxResolve && view.resolve.All(x => x != null), "Three resolve diamonds are required.");
         Require(view.turnSlots.Length == 5 && view.turnSlots.All(x => x.frame != null && x.portrait != null), "Turn order slots are incomplete.");
         Require(view.damageIcons.Length == 4 && view.damageIcons.All(x => x != null), "Four damage-category icons are required.");
         Require(view.attack != null && view.defend != null && view.skill != null && view.items != null && view.closePopup != null, "Action button missing.");
@@ -42,7 +42,7 @@ public static class BattleHudTools
         var row = view.enemyTemplate;
         Require(row.health != null && row.healthText != null && row.select != null && row.frame != null && row.weaknesses.Length == 4, "Enemy card is incomplete.");
         Directory.CreateDirectory(Output);
-        File.WriteAllText(Path.Combine(Output, "unity-validation.json"), "{\"passed\":true,\"weaponIcons\":12,\"resolveSlots\":4,\"turnSlots\":5,\"prefabReferencesValid\":true}");
+        File.WriteAllText(Path.Combine(Output, "unity-validation.json"), "{\"passed\":true,\"weaponIcons\":12,\"resolveSlots\":" + StatusRules.DefaultMaxResolve + ",\"turnSlots\":5,\"prefabReferencesValid\":true}");
         Debug.Log("Battle HUD prefab: all bindings and twelve weapon icons validated.");
     }
 

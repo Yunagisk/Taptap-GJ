@@ -42,6 +42,7 @@ public sealed class InventoryLayoutView : MonoBehaviour
     float pickerPhase;
     Vector2 pickerPosition;
     Color normalHealthColor;
+    string previousWeaponDetails, previousItemDetails;
 
     public void Bind(EquipmentPanelView panel, TMP_FontAsset font)
     {
@@ -63,12 +64,69 @@ public sealed class InventoryLayoutView : MonoBehaviour
             useItemButton.GetComponentInChildren<TMP_Text>().text = "使用道具";
         }
         else if (useItemButton != null) useItemButton.onClick.AddListener(panel.UseSelectedItem);
+        ApplyReadableLayout();
+    }
+
+    void ApplyReadableLayout()
+    {
+        // The parchment is scaled to fit a 4:3 window. A 26-unit baseline keeps
+        // essential labels above fourteen screen pixels at 1024 x 768.
+        foreach (var label in GetComponentsInChildren<TMP_Text>(true))
+        {
+            label.enableAutoSizing = false;
+            label.fontSize = Mathf.Max(26, label.fontSize);
+        }
+        for (int i = 0; categorySlots != null && i < categorySlots.Length; i++)
+        {
+            var card = categorySlots[i].card;
+            if (card == null) continue;
+            Place(card.title.rectTransform, new Vector2(8, -142), new Vector2(168, 34));
+            Place(card.annotation.rectTransform, new Vector2(4, -178), new Vector2(176, 32));
+            var size = card.icon.rectTransform.sizeDelta;
+            card.icon.rectTransform.sizeDelta = new Vector2(size.x, Mathf.Min(size.y, 128));
+        }
+        if (weaponTemplate != null)
+            weaponTemplate.annotation.rectTransform.sizeDelta = new Vector2(204, 34);
+        if (weaponPicker != null)
+            Place(weaponPicker.Find("PickerHint") as RectTransform, new Vector2(16, -46), new Vector2(300, 32));
+        var window = owner.window;
+        if (window == null) return;
+        Place(window.Find("WeaponDetailsFrame") as RectTransform, new Vector2(16, -664), new Vector2(784, 184));
+        Place(window.Find("ItemDetailsFrame") as RectTransform, new Vector2(848, -664), new Vector2(736, 184));
+        Place(window.Find("WeaponDetailsTitle") as RectTransform, new Vector2(32, -674), new Vector2(360, 40));
+        Place(window.Find("ItemDetailsTitle") as RectTransform, new Vector2(864, -674), new Vector2(500, 40));
+        Place(owner.unequipButton != null ? owner.unequipButton.transform as RectTransform : null,
+            new Vector2(482, -674), new Vector2(120, 40));
+        Place(owner.selectWeaponButton != null ? owner.selectWeaponButton.transform as RectTransform : null,
+            new Vector2(612, -674), new Vector2(172, 40));
+        Place(useItemButton != null ? useItemButton.transform as RectTransform : null,
+            new Vector2(1400, -674), new Vector2(168, 40));
+        Place(weaponDetails != null ? weaponDetails.rectTransform : null, new Vector2(32, -720), new Vector2(752, 126));
+        Place(itemDetails != null ? itemDetails.rectTransform : null, new Vector2(864, -720), new Vector2(704, 126));
+        if (itemScroll != null)
+        {
+            var rect = (RectTransform)itemScroll.transform;
+            rect.sizeDelta = new Vector2(rect.sizeDelta.x, 328);
+        }
+        if (owner.messageText != null)
+            Place(owner.messageText.rectTransform, new Vector2(20, -852), new Vector2(1560, 28));
+        ScrollableTextRegion.Ensure(weaponDetails);
+        ScrollableTextRegion.Ensure(itemDetails);
+    }
+
+    static void Place(RectTransform rect, Vector2 position, Vector2 size)
+    {
+        if (rect == null) return;
+        rect.anchorMin = rect.anchorMax = new Vector2(0, 1);
+        rect.pivot = new Vector2(0, 1);
+        rect.anchoredPosition = position; rect.sizeDelta = size;
     }
 
     public void Refresh(GameState state)
     {
         if(owner==null || state==null)return;
         var player=state.player;
+        player.NormalizeResolve();
         if(healthReadout!=null)healthReadout.text="血量  " + player.hp + " / " + player.maxHp;
         if(healthFill!=null)healthFill.fillAmount=player.maxHp>0?Mathf.Clamp01((float)player.hp/player.maxHp):0;
         if(healthFill!=null)healthFill.color=StatusAppearance.HealthTint(player.ordinaryStatuses,normalHealthColor);
@@ -105,6 +163,10 @@ public sealed class InventoryLayoutView : MonoBehaviour
         if(!items.Exists(entry=>entry.id==selectedItem))selectedItem=items.Count>0?items[0].id:null;
         UpdateItemRows(state);
         UpdateItemDetails(state);
+        if (weaponDetails != null && previousWeaponDetails != weaponDetails.text)
+        { previousWeaponDetails = weaponDetails.text; ScrollableTextRegion.Reset(weaponDetails); }
+        if (itemDetails != null && previousItemDetails != itemDetails.text)
+        { previousItemDetails = itemDetails.text; ScrollableTextRegion.Reset(itemDetails); }
     }
 
     IReadOnlyList<DamageComponent> Damage(string id)
@@ -341,7 +403,7 @@ public sealed class InventoryLayoutView : MonoBehaviour
             +(selectedItem==ItemTable.Lantern?"   ·   剩余次数：":"   ·   持有数量：")+items[at].count
             +"\n"+(string.IsNullOrEmpty(info.description)?"暂无效果说明":info.description)
             +(check.ok?"":"\n"+check.message);
-        itemDetails.enableAutoSizing=true;itemDetails.fontSizeMin=12;itemDetails.fontSizeMax=20;
+        itemDetails.enableAutoSizing=false;itemDetails.fontSize=26;
     }
 
     InventoryEntryView Create(InventoryEntryView template,RectTransform parent)

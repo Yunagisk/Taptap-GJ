@@ -14,7 +14,10 @@ public sealed class GuideMapController : MonoBehaviour
     public static GuideMapController Attach(WorldMapController map)
     {
         if (!VillageIntroRules.IsRestricted(GameRoot.I.state)) return null;
-        var controller = map.gameObject.AddComponent<GuideMapController>(); controller.owner = map;
+        // This presentation must not inherit the map Canvas's scaled coordinate space.
+        var host = new GameObject("GuideMapPresentation");
+        UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(host, map.gameObject.scene);
+        var controller = host.AddComponent<GuideMapController>(); controller.owner = map;
         controller.content = Resources.Load<VillageIntroContent>(VillageIntroController.ContentResource);
         controller.View = GuideDialogueView.Create(controller.transform, controller.content);
         var canvas = GuideUI.Canvas(controller.transform, "GuideMapObjective", 40);

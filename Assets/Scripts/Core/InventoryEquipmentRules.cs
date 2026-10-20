@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 // The backpack presents one equipped weapon for each primary damage category.
-// Old saves retain every owned weapon; only competing equipment is resolved.
+// Old saves retain active owned weapons; competing equipment is resolved by category.
 public static class InventoryEquipmentRules
 {
     public static void Normalize(GameState state, Func<string, int> categoryOf)

@@ -291,11 +291,14 @@ public class WorldMapSceneView : MonoBehaviour
         if (hpText != null) hpText.text = player.hp + " / " + player.maxHp;
         if (timeText != null) timeText.text = MapTimeDialMotion.FormatLabel(map.World.time);
         if (sinText != null) sinText.text = "罪恶 " + map.World.sin + " / " + map.Layout.sinThreshold;
-        if (bossCountText != null) bossCountText.text = "原罪 " + map.State.defeatedBossNodes.Count + " / 3";
+        if (bossCountText != null) bossCountText.text = map.State.slothChapterOnly
+            ? (GameRoot.I.state.story.stage >= MainStoryStage.SlothDefeated ? "懒惰已平息 · 返回村庄" : "主线 · 懒惰")
+            : "原罪 " + map.State.defeatedBossNodes.Count + " / 3";
         if (noticeText != null) noticeText.text = controller.Notice;
         var request = map.GetPendingRequest();
         bool showPlaceholder = request != null && request.kind != MapNodeKind.Battle
             && request.kind != MapNodeKind.Camp
+            && !SlothChapterRules.IsSlothRequest(request)
             && !(request.kind == MapNodeKind.Event && controller.WildernessCatalog != null)
             && !controller.IsWaitingToEnter;
         displayedRequestId = showPlaceholder ? request.requestId : null;

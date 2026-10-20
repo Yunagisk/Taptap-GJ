@@ -124,7 +124,7 @@ public static class BattleSimulatorValidation
             simulator.weaponLibrary = library; simulator.roundPrefab = AssetDatabase.LoadAssetAtPath<BattleSimulatorRound>(Folder + "/Round.prefab");
             simulator.hudPrefab = hud; simulator.font = font;
             simulator.enemies = new[] { "Crow", "Rat", "Wraith", "Sloth" }.Select((name, i) => new BattleSimulator.EnemyOption {
-                label = new[] { "腐鸦", "老鼠", "怨影", "懒惰" }[i], prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/" + name + ".prefab") }).ToArray();
+                label = new[] { "腐鸦", "瘟鼠", "怨影", "懒惰" }[i], prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/" + name + ".prefab") }).ToArray();
             EditorSceneManager.SaveScene(scene, "Assets/Scenes/BattleSimulator.unity"); AssetDatabase.SaveAssets();
             Check(simulator.enemies.All(e => e.prefab != null) && simulator.roundPrefab != null && !simulator.roundPrefab.gameObject.activeSelf,
                 "simulator scene has four enemy choices and an inactive fully linked round template");

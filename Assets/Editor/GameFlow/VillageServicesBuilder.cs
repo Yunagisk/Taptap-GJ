@@ -172,16 +172,15 @@ public static class VillageServicesBuilder
 
     static VillageShopUI.Offer[] Offers()
     {
-        string[] ids = { "sword", "axe", "hammer", "torch", "greatsword", "spear", "dual_swords", "sickle", "flail", "poleaxe", "flame_tongue", "heaven_fire" };
-        string[] art = { "Sword", "Axe", "Hammer", "Torch", "Greatsword", "Spear", "DualSwords", "Sickle", "Flail", "Poleaxe", "FlameTongue", "HeavenFire" };
+        string[] ids = { "sword", "axe", "hammer", "torch", "greatsword", "spear", "sickle", "flail", "poleaxe", "flame_tongue", "heaven_fire" };
+        string[] art = { "Sword", "Axe", "Hammer", "Torch", "Greatsword", "Spear", "Sickle", "Flail", "Poleaxe", "FlameTongue", "HeavenFire" };
         string[] descriptions = {
             "轻巧的直剑，锋利的剑尖适合精准穿刺。",
             "厚重的斧刃横向挥砍，能同时劈向面前的敌人。",
             "沉实的铁锤以钝击砸碎敌人的护甲。",
             "摇曳的火焰灼烧敌人，留下持续燃烧的余烬。",
-            "沉重的双手大剑，以强力突刺压垮敌人的防线。",
+            "沉重的双手大剑，以强力挥砍压垮敌人的防线。",
             "修长的矛尖直指要害，刺中弱点时更易击溃敌人。",
-            "双刃交错连刺，以连续命中撕开敌人的防线。",
             "弯曲的镰刃连续收割，对破防的敌人尤为致命。",
             "铁链牵动沉重锤头，在连击中削弱敌人的力量。",
             "长柄将尖刃与斧刃合为一体，兼具突刺与横扫。",
@@ -191,6 +190,7 @@ public static class VillageServicesBuilder
         var offers = new List<VillageShopUI.Offer>();
         for (int i = 0; i < ids.Length; i++)
         {
+            if (!WeaponTable.IsSoldInShop(ids[i])) continue;
             var sprite = Load<Sprite>("Assets/Sprite/Items/WeaponIllustrations/" + art[i] + ".png");
             offers.Add(new VillageShopUI.Offer { id = ids[i], artwork = sprite,
                 artworkUv = ArtworkBounds(sprite), description = descriptions[i] });

@@ -12,6 +12,7 @@ public static class MainStoryRules
             state.story.completedDialogueIds = new List<string>();
         if (layout != null)
         {
+            state.story.villageNodeId = layout.villageNodeId;
             var sloth = layout.regions != null
                 ? layout.regions.Find(region => region != null && region.bossKey == "sloth") : null;
             state.story.slothNodeId = sloth != null ? sloth.bossNodeId : null;
@@ -76,6 +77,8 @@ public static class MainStoryRules
                 stage = MainStoryStage.CommissionAccepted;
                 break;
             case StoryDialogueEffect.TurnInCommission:
+                // The submission ends through the automatic homecoming, after the final choice.
+                if (state.map != null && state.map.slothChapterOnly) return false;
                 if (stage != MainStoryStage.SlothDefeated) return false;
                 stage = MainStoryStage.CommissionTurnedIn;
                 break;
@@ -114,9 +117,12 @@ public static class MainStoryRules
         {
             state.story.stage = MainStoryStage.TutorialCompleted;
         }
-        else if (state.story.stage == MainStoryStage.TutorialCompleted
+        else if (!VillageIntroRules.IsRestricted(state)
             && request.kind == MapNodeKind.Boss
-            && string.Equals(request.bossKey, "sloth", StringComparison.Ordinal))
+            && string.Equals(request.bossKey, "sloth", StringComparison.Ordinal)
+            && state.map != null && state.map.defeatedBossNodes.Contains(request.nodeId)
+            && state.map.clearedNodes.Contains(request.nodeId)
+            && state.story.stage != MainStoryStage.CommissionTurnedIn)
         {
             state.story.stage = MainStoryStage.SlothDefeated;
         }
@@ -136,9 +142,11 @@ public static class MainStoryRules
             case MainStoryStage.ArrivedVillage: return "前往酒馆，与村民交谈，了解村庄。";
             case MainStoryStage.VillageIntroductionComplete: return "前往酒馆，与村长交谈，接受清剿委托。";
             case MainStoryStage.CommissionAccepted: return "前往村外的战场，完成首次清剿。";
-            case MainStoryStage.TutorialCompleted: return "探索地图，击败懒惰。";
-            case MainStoryStage.SlothDefeated: return "返回村庄酒馆，向村长交付委托。";
-            case MainStoryStage.CommissionTurnedIn: return "委托已交付，继续探索下一原罪。";
+            case MainStoryStage.TutorialCompleted: return state.story.slothInvestigated
+                ? "前往暮林中的祭所，阻止西奥多。"
+                : "向村长与神父了解求救之事，或前往暮林中的祭所调查。";
+            case MainStoryStage.SlothDefeated: return "返回埃尔南多，向哈罗德复命。";
+            case MainStoryStage.CommissionTurnedIn: return "懒惰篇已完成。感谢游玩。";
             default: return "前往酒馆，确认当前目标。";
         }
     }

@@ -10,6 +10,7 @@ public class DialogueManager : MonoBehaviour
     public bool IsPlaying { get; private set; }
     public string CurrentNodeId => currentNode != null ? currentNode.id : null;
     public event Action<DialogueData> DialogueCompleted;
+    public event Action<DialogueNode> NodeShown;
 
     private void Awake()
     {
@@ -39,6 +40,7 @@ public class DialogueManager : MonoBehaviour
         if (GameRoot.I != null && data != null)
             VillageIntroRules.ApplyReward(GameRoot.I.state, data.dialogueId + ":" + currentNode.id, currentNode.guideReward);
         ui.ShowDialogue(currentNode);
+        NodeShown?.Invoke(currentNode);
     }
 
     public void Next()

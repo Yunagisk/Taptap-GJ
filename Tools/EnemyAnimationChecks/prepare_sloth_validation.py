@@ -21,7 +21,7 @@ for folder in ['Assets/Scripts', 'Assets/Data/EnemyAnimations', 'Assets/Data/Ene
                'Assets/Data/Weapons', 'Assets/Data/Skills', 'Assets/Animation/Enemy',
                'Assets/Prefabs/Enemies', 'Assets/Sprite/Enemies/LanDuo', 'ProjectSettings']:
     copy(folder)
-for name in ['懒惰', '老鼠小怪', '怨影小怪']:
+for name in ['懒惰', '瘟鼠小怪', '怨影小怪']:
     copy(f'Assets/Sprite/Enemies/{name}.png')
     copy(f'Assets/Sprite/Enemies/{name}.png.meta')
 for relative in ['Assets/Scenes/TestScene.unity', 'Assets/Scenes/TestScene.unity.meta',

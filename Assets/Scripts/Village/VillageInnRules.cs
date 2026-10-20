@@ -20,7 +20,12 @@ public static class VillageInnRules
         { message = "生命和提灯次数已满，无需休息。"; return false; }
         int hp = Math.Max(0, state.player.maxHp - state.player.hp);
         int lantern = Math.Max(0, state.player.maxLanternCharges - state.player.lanternCharges);
-        WorldResourceRules.SpendTime(layout, state.map, state.world, TimeCost(departureTime), true);
+        WorldResourceRules.SpendTime(layout, state.map, state.world, TimeCost(departureTime), true, saved =>
+        {
+            saved.player.hp = saved.player.maxHp;
+            saved.player.lanternCharges = saved.player.maxLanternCharges;
+            ItemRules.EnsureShopStock(saved);
+        });
         state.player.hp = state.player.maxHp;
         state.player.lanternCharges = state.player.maxLanternCharges;
         ItemRules.EnsureShopStock(state);

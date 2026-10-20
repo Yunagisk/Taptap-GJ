@@ -6,6 +6,8 @@ using System.Text;
 // A single clock and sin balance shared by the village, map and combat settlement.
 public static class WorldResourceRules
 {
+    // The run owner copies its state at this boundary; completion settles an atomic action on that copy.
+    public static event Action<MapLayout, MapState, WorldState, Action<GameState>> DawnReached;
     public const int InitialSin = 40;
     public const int MaxSin = 100;
     public const int UnitsPerDay = 3;
@@ -36,7 +38,8 @@ public static class WorldResourceRules
     }
 
     // Returns the last newly spawned boss, if this action reaches the threshold.
-    public static string SpendTime(MapLayout layout, MapState map, WorldState world, int units, bool inVillage)
+    public static string SpendTime(MapLayout layout, MapState map, WorldState world, int units, bool inVillage,
+        Action<GameState> completeCheckpoint = null)
     {
         if (layout == null || map == null || world == null)
             throw new ArgumentNullException("Time spending requires the shared map and world.");
@@ -60,6 +63,8 @@ public static class WorldResourceRules
                 map.checkpointTime = world.time;
             }
             VillageEventRules.OnTimeAdvanced(world, map, layout);
+            if (world.time % UnitsPerDay == 0)
+                DawnReached?.Invoke(layout, map, world, completeCheckpoint);
         }
         return spawned;
     }
@@ -74,6 +79,9 @@ public static class WorldResourceRules
         if (map.revealedNodes == null) map.revealedNodes = new List<string>();
         foreach (var region in layout.regions)
         {
+            // A chapter cannot announce or consume its threshold on a boss that
+            // the current version deliberately excludes from exploration.
+            if (map.slothChapterOnly && region.bossKey != "sloth") continue;
             if (map.spawnedBossNodes.Contains(region.bossNodeId)) continue;
             map.spawnedBossNodes.Add(region.bossNodeId);
             if (!map.revealedNodes.Contains(region.bossNodeId)) map.revealedNodes.Add(region.bossNodeId);

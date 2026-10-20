@@ -108,7 +108,14 @@ public sealed class MapProgression
     {
         var node = GetNode(id);
         return node != null && State.revealedNodes.Contains(id)
-            && (node.kind != MapNodeKind.Boss || State.spawnedBossNodes.Contains(id));
+            && (node.kind != MapNodeKind.Boss || State.spawnedBossNodes.Contains(id)
+                && IsBossAvailable(id));
+    }
+
+    public bool IsBossAvailable(string id)
+    {
+        return !State.slothChapterOnly || Layout.regions.Exists(region =>
+            region.bossNodeId == id && region.bossKey == "sloth");
     }
 
     public bool IsRoadVisible(string from, string to)
@@ -134,7 +141,8 @@ public sealed class MapProgression
         var current = GetNode(State.currentNodeId);
         if (current != null && destinationId == current.id)
             return string.IsNullOrEmpty(State.pendingRequestId) && State.revivedAtCheckpoint
-                && current.id == State.checkpointNodeId && current.kind == MapNodeKind.Battle
+                && current.id == State.checkpointNodeId
+                && (current.kind == MapNodeKind.Battle || current.kind == MapNodeKind.Boss)
                 && !State.clearedNodes.Contains(current.id) && IsVisible(current.id);
         return current != null && string.IsNullOrEmpty(State.pendingRequestId)
             && (State.clearedNodes.Contains(current.id) || State.revivedAtCheckpoint)
@@ -146,12 +154,25 @@ public sealed class MapProgression
     {
         request = null;
         if (!CanMove(destinationId)) return false;
+        MoveTo(destinationId, out request);
+        return true;
+    }
+
+    void MoveTo(string destinationId, out MapNodeRequest request)
+    {
+        request = null;
         LastSpawnedBossId = null;
         bool retryCurrentBattle = destinationId == State.currentNodeId;
         State.revivedAtCheckpoint = false;
         State.currentNodeId = destinationId;
         if (State.wildernessEvents != null) State.wildernessEvents.currentNodeId = destinationId;
         AddOnce(State.visitedNodes, destinationId);
+        if (!State.clearedNodes.Contains(destinationId))
+        {
+            State.requestSequence++;
+            State.pendingNodeId = destinationId;
+            State.pendingRequestId = State.randomSeed.ToString() + ":" + State.requestSequence + ":" + destinationId;
+        }
         // Retrying at the checkpoint traverses no road.
         if (!retryCurrentBattle)
         {
@@ -160,12 +181,8 @@ public sealed class MapProgression
         }
         if (!State.clearedNodes.Contains(destinationId))
         {
-            State.requestSequence++;
-            State.pendingNodeId = destinationId;
-            State.pendingRequestId = State.randomSeed.ToString() + ":" + State.requestSequence + ":" + destinationId;
             request = GetPendingRequest();
         }
-        return true;
     }
 
     public bool CanFastTravel(string destinationId) => TryPlanFastTravel(destinationId, out _);
@@ -177,8 +194,9 @@ public sealed class MapProgression
         if (GetNode(origin) == null || origin == destinationId || !State.visitedNodes.Contains(origin)
             || !string.IsNullOrEmpty(State.pendingRequestId) || !string.IsNullOrEmpty(State.pendingNodeId)
             || !(State.clearedNodes.Contains(origin) || State.revivedAtCheckpoint)
-            || !CanTraverseKnownNode(destinationId)) return false;
-        // Every road costs one unit, so breadth-first search minimizes time.
+            || !IsVisible(destinationId) || GetNeighbors(origin).Contains(destinationId)) return false;
+        // Only the destination may be unfinished. Breadth-first search finds
+        // the shortest route through completed nodes without skipping encounters.
         // GetNeighbors also includes legitimate, already-repaired shortcuts.
         var previous = new Dictionary<string, string> { { origin, null } };
         var queue = new Queue<string>();
@@ -188,7 +206,8 @@ public sealed class MapProgression
             string current = queue.Dequeue();
             foreach (string next in GetNeighbors(current))
             {
-                if (previous.ContainsKey(next) || !CanTraverseKnownNode(next) || !IsRoadVisible(current, next)) continue;
+                if (previous.ContainsKey(next) || next != destinationId && !CanTraverseKnownNode(next)
+                    || !IsRoadVisible(current, next)) continue;
                 previous.Add(next, current);
                 queue.Enqueue(next);
             }
@@ -205,23 +224,24 @@ public sealed class MapProgression
     bool CanTraverseKnownNode(string id) => GetNode(id) != null && IsVisible(id)
         && State.visitedNodes.Contains(id) && State.clearedNodes.Contains(id);
 
-    public bool TryFastTravel(MapTravelPlan quote)
+    public bool TryFastTravel(MapTravelPlan quote) => TryFastTravel(quote, out _);
+
+    public bool TryFastTravel(MapTravelPlan quote, out MapNodeRequest request)
     {
+        request = null;
         // Revalidate the entire quote before spending anything. In particular,
         // stale confirmations cannot consume time or complete pending encounters.
         if (quote == null || quote.OriginId != State.currentNodeId
             || !TryPlanFastTravel(quote.DestinationId, out var current) || !quote.Matches(current)) return false;
-        LastSpawnedBossId = null;
-        State.revivedAtCheckpoint = false;
+        string spawnedBoss = null;
         for (int i = 1; i < quote.NodeIds.Count; i++)
         {
-            State.currentNodeId = quote.NodeIds[i];
-            if (State.wildernessEvents != null) State.wildernessEvents.currentNodeId = State.currentNodeId;
-            // Set location before advancing time, exactly as ordinary walking:
-            // dawn checkpoints record the node actually reached at that step.
-            string boss = WorldResourceRules.SpendTime(Layout, State, World, 1, false);
-            if (boss != null) LastSpawnedBossId = boss;
+            // Share ordinary movement, including arrival requests before a dawn
+            // save, visited-node tracking and wilderness position updates.
+            MoveTo(quote.NodeIds[i], out request);
+            if (LastSpawnedBossId != null) spawnedBoss = LastSpawnedBossId;
         }
+        LastSpawnedBossId = spawnedBoss;
         return true;
     }
 
@@ -247,7 +267,18 @@ public sealed class MapProgression
         if (string.IsNullOrEmpty(requestId) || requestId != State.pendingRequestId) return false;
         var node = GetNode(State.pendingNodeId);
         if (node == null || (node.kind == MapNodeKind.Event && State.wildernessEvents != null)) return false;
-        LastSpawnedBossId = WorldResourceRules.SpendTime(Layout, State, World, 1, false);
+        var completed = GetPendingRequest();
+        LastSpawnedBossId = WorldResourceRules.SpendTime(Layout, State, World, 1, false, saved =>
+        {
+            AddOnce(saved.map.clearedNodes, node.id);
+            if (node.kind == MapNodeKind.Boss) AddOnce(saved.map.defeatedBossNodes, node.id);
+            saved.map.pendingNodeId = null;
+            saved.map.pendingRequestId = null;
+            foreach (string neighbor in GetNeighbors(node.id)) AddOnce(saved.map.revealedNodes, neighbor);
+            MainStoryRules.OnNodeCompleted(saved, completed);
+            VillageEventRules.OnTimeAdvanced(saved.world, saved.map, Layout);
+            if (node.kind == MapNodeKind.Camp) WorldResourceRules.RecoverAtCamp(saved.player);
+        });
         AddOnce(State.clearedNodes, node.id);
         if (node.kind == MapNodeKind.Boss) AddOnce(State.defeatedBossNodes, node.id);
         State.pendingNodeId = null;
@@ -287,7 +318,7 @@ public sealed class MapProgression
     public bool TryReviveAtCheckpoint(string requestId)
     {
         var pending = GetPendingRequest();
-        if (pending == null || pending.kind != MapNodeKind.Battle
+        if (pending == null || (pending.kind != MapNodeKind.Battle && pending.kind != MapNodeKind.Boss)
             || pending.requestId != requestId || GetNode(State.checkpointNodeId) == null)
             return false;
         State.pendingNodeId = null;

@@ -5,6 +5,7 @@
     <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="SidequestBatchChecks.cs;SidequestPlayChecks.cs" />
     <Compile Include="../../Assets/Scripts/Core/GameState.cs" Link="Production/GameState.cs" />
     <Compile Include="../../Assets/Scripts/Battle/Damage/PlayerDamageType.cs" Link="Production/PlayerDamageType.cs" />
     <Compile Include="../../Assets/Scripts/Battle/Status/StatusId.cs" Link="Production/StatusId.cs" />
@@ -16,6 +17,8 @@
     <Compile Include="../../Assets/Scripts/Core/VillageIntroRules.cs" Link="Production/VillageIntroRules.cs" />
     <Compile Include="../../Assets/Scripts/Core/EquipmentRules.cs" Link="Production/EquipmentRules.cs" />
     <Compile Include="../../Assets/Scripts/Inventory/Weapons/WeaponTable.cs" Link="Production/WeaponTable.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Items/ItemDef.cs" Link="Production/ItemDef.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Items/ItemRules.cs" Link="Production/ItemRules.cs" />
     <Compile Include="../../Assets/Scripts/Map/Data/MapLayout.cs" Link="Production/MapLayout.cs" />
     <Compile Include="../../Assets/Scripts/Map/Logic/MapLayoutValidator.cs" Link="Production/MapLayoutValidator.cs" />
     <Compile Include="../../Assets/Scripts/Map/Logic/MapProgression.cs" Link="Production/MapProgression.cs" />
@@ -23,6 +26,7 @@
     <Compile Include="../../Assets/Scripts/Wilderness/MapWildernessRules.cs" Link="Production/MapWildernessRules.cs" />
     <Content Include="../../Assets/Data/EnemyAttacks/Maps/CenteredThreeSinWhitebox.json" Link="CenteredThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../../Assets/Data/Wilderness/WildernessEvents.json" Link="WildernessEvents.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Fixtures/LegacyWildernessEvents.json" Link="LegacyWildernessEvents.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../../Assets/Data/EnemyAttacks/Maps/ThreeSinWhitebox.json" Link="ThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

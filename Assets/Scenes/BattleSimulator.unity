@@ -224,7 +224,7 @@ MonoBehaviour:
   enemies:
   - label: "\u8150\u9E26"
     prefab: {fileID: 883956277496593012, guid: 95de9b6bff1020e489266ff913bc7b51, type: 3}
-  - label: "\u8001\u9F20"
+  - label: "\u761F\u9F20"
     prefab: {fileID: 7100736756440978092, guid: cfcedb0a54688fa42a011ac69156752b, type: 3}
   - label: "\u6028\u5F71"
     prefab: {fileID: 4803058887819445877, guid: 47cd715cf5113954b87204e0bc1c1d2a, type: 3}

@@ -3203,7 +3203,6 @@ MonoBehaviour:
       - sword
       - axe
       - hammer
-      - dual_swords
       itemStockDay: -1
       itemStock: []
     story:

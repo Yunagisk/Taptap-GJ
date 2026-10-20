@@ -210,7 +210,7 @@ public static class WorldMapUiPrefabBuilder
             "Current location marker must be a nested, non-interactive prefab in MapRoot.");
         var navigation = view.viewport.transform.Find("MapNavigation");
         Require(navigation != null && navigation.GetComponentsInChildren<Button>(true).Length == 2
-            && navigation.Find("Focus") != null && navigation.Find("Overview") != null, "Prefab navigation controls are missing.");
+            && navigation.Find("Focus") != null && navigation.Find("Inventory") != null, "Prefab navigation controls are missing.");
         Require(view.hpText == hud.hudHealthText && view.timeText != null && view.bossCountText != null
             && view.sinText != null && view.completeButton != null, "Map HUD or completion bindings are missing.");
         Require(hud.canvas == view.canvas && hud.mapController == map && hud.equipmentPanel != null

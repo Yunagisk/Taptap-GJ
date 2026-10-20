@@ -276,8 +276,6 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 2a178326971c462995d014217f9148d7, type: 3}
   - weaponId: spear
     sprite: {fileID: 21300000, guid: c40afd188e9441f69c001383b4605fdd, type: 3}
-  - weaponId: dual_swords
-    sprite: {fileID: 21300000, guid: 3c22e04a1b5a472ea85cce583c536529, type: 3}
   - weaponId: axe
     sprite: {fileID: 21300000, guid: ca3bcb1b62bf4da392b32f35c8789298, type: 3}
   - weaponId: sickle

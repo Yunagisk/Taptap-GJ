@@ -28,7 +28,7 @@ MonoBehaviour:
   - id: gain
     speaker: "系统提示"
     lineKind: 2
-    content: "普通攻击与防御可以积攒决心。\n消耗决心，可使用当前武器对应的技能。"
+    content: "普通攻击与防御可以积攒决心，上限为 3 点。\n消耗决心，可使用当前武器对应的技能。"
     guideReward: 0
     avatar: {fileID: 0}
     isProtagonist: 0

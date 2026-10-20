@@ -19,6 +19,7 @@ public static class SmallMonsterValidation
     static int stage, turns, remnantBefore;
     static bool finished;
     static readonly List<BossBattleResult> bossBattles = new List<BossBattleResult>();
+    static readonly List<MonsterAttackResult> monsterAttacks = new List<MonsterAttackResult>();
     static BattleFlowController flow;
     static string Output
     {
@@ -28,8 +29,9 @@ public static class SmallMonsterValidation
             return i >= 0 ? args[i + 1] : "native-result.json";
         }
     }
-    [Serializable] sealed class Result { public bool passed; public string[] checks; public string error; public int completedRounds; public BossBattleResult[] bossBattles; }
+    [Serializable] sealed class Result { public bool passed; public string[] checks; public string error; public int completedRounds; public BossBattleResult[] bossBattles; public MonsterAttackResult[] monsterAttacks; }
     [Serializable] sealed class BossBattleResult { public string weapon; public int startingHp, remainingHp, rounds, breaks; }
+    [Serializable] sealed class MonsterAttackResult { public string monster, action; public int undefended, defended; }
 
     static SmallMonsterValidation()
     {
@@ -87,6 +89,7 @@ public static class SmallMonsterValidation
                     enemy.GetComponent<DamageResistance>().RevealWeaknesses();
                 }
                 RuntimeRules();
+                ValidateMonsterAttacks();
                 ValidateBossBalance();
                 ValidateWeaknessLayout(hud, false);
                 Capture("two-monsters.png", hud);
@@ -169,7 +172,8 @@ public static class SmallMonsterValidation
             ForceAction(rat, rat.Definition.actions[2]); Drain(rat.TakeTurn(player));
             Require(rat.IsCharging, "charge spends a turn and creates a heavy follow-up");
             rat.PrepareIntent(player, new EnemyIntentBudget());
-            Require(rat.UpcomingAction.Damage == 4, "charge locks the configured four-damage heavy");
+            Require(rat.UpcomingAction == rat.Definition.actions[2].FollowUp,
+                "charge locks the exact configured heavy follow-up");
             int before = player.CurrentHP;
             rat.Break.TryAdd(2, rat.BattleRound); Drain(rat.TakeTurn(player));
             Require(!rat.IsCharging && player.CurrentHP == before, "breaking a charged monster cancels its heavy and skips damage");
@@ -210,6 +214,65 @@ public static class SmallMonsterValidation
         }
     }
 
+    // Execute every installed move through the actual enemy action and player
+    // defense path, including per-hit rounding on the crow's two-hit attack.
+    static void ValidateMonsterAttacks()
+    {
+        var root = GameRoot.I;
+        var saved = root.state;
+        var state = new GameState();
+        var hunterObject = new GameObject("SmallMonsterDamageHunter");
+        var enemyObject = new GameObject("SmallMonsterDamageEnemy");
+        try
+        {
+            root.state = state;
+            var hunter = hunterObject.AddComponent<PlayerCombatant>();
+            var enemy = enemyObject.AddComponent<EnemyCombatant>();
+            foreach (var kind in new[] { "Rat", "Crow", "Wraith" })
+            {
+                var data = AssetDatabase.LoadAssetAtPath<SmallMonsterData>("Assets/Data/SmallMonsters/" + kind + ".asset");
+                enemy.ConfigureGuide(data); enemy.Initialize();
+                var attacks = data.actions.Where(a => a.Kind == EnemyActionKind.Attack)
+                    .Concat(data.actions.Where(a => a.Kind == EnemyActionKind.Charge).Select(a => a.FollowUp)).Distinct();
+                foreach (var attack in attacks)
+                {
+                    int[] losses = new int[2];
+                    for (int defend = 0; defend < 2; defend++)
+                    {
+                        state.player.hp = state.player.maxHp = 100;
+                        state.player.ordinaryStatuses.Clear(); hunter.Initialize();
+                        if (defend == 1) hunter.StartDefense();
+                        Drain(new EnemyAttackAction().Execute(enemy, hunter, attack));
+                        losses[defend] = 100 - hunter.CurrentHP;
+                        int perHit = defend == 0 ? attack.Damage
+                            : Mathf.FloorToInt(attack.Damage * hunter.DefenseDamageRate);
+                        Require(losses[defend] == perHit * attack.AttackCount,
+                            kind + " " + attack.AttackName + " settles every hit through real defense; defended=" + defend);
+                    }
+                    if (attack.Damage > 0)
+                        Require(losses[1] > 0 && losses[1] < losses[0],
+                            kind + " " + attack.AttackName + " keeps chip damage while defense remains useful");
+                    monsterAttacks.Add(new MonsterAttackResult { monster = kind, action = attack.AttackName,
+                        undefended = losses[0], defended = losses[1] });
+                }
+            }
+            var guide = AssetDatabase.LoadAssetAtPath<SmallMonsterData>("Assets/Data/SmallMonsters/GuideWraith.asset");
+            var content = Resources.Load<VillageIntroContent>(VillageIntroController.ContentResource);
+            Require(guide != null && content.tutorialEnemy == guide && guide.actions.Length == 1
+                && guide.actions[0].Damage == 2 && guide.actions[0].AttackCount == 1,
+                "mandatory teaching encounter retains its separate two-damage action");
+            Require(guide.actions[0] != AssetDatabase.LoadAssetAtPath<EnemyAttackData>(
+                "Assets/Data/EnemyAttacks/SmallMonsters/WraithBasic.asset"),
+                "overworld buffs cannot change the teaching action through a shared asset");
+        }
+        finally
+        {
+            root.state = saved;
+            UnityEngine.Object.DestroyImmediate(enemyObject);
+            UnityEngine.Object.DestroyImmediate(hunterObject);
+        }
+    }
+
     // Execute the production player actions, enemy cycle, status clocks, damage
     // rounding and break rules. No simulator health bonus, healing or buffs.
     static void ValidateBossBalance()
@@ -237,17 +300,20 @@ public static class SmallMonsterValidation
             }
             finally { UnityEngine.Object.DestroyImmediate(actor); }
         }
-        for (int i = 1; i <= 13; i++)
+        var library = AssetDatabase.LoadAssetAtPath<WeaponLibrary>("Assets/Data/Weapons/WeaponLibrary.asset");
+        var currentWeapons = WeaponTable.All.Select(offer => library.Find(offer.id)).ToList();
+        currentWeapons.Add(library.Find("sword")); // Also exercise a wounded starting state.
+        for (int i = 0; i < currentWeapons.Count; i++)
         {
-            int weaponNumber = i == 13 ? 1 : i;
-            int startingHp = i == 13 ? 60 : 100;
-            var weapon = AssetDatabase.LoadAssetAtPath<WeaponData>($"Assets/Data/Weapons/KBW{weaponNumber:00}.asset");
+            int startingHp = i == currentWeapons.Count - 1 ? 60 : 100;
+            var weapon = currentWeapons[i];
+            Require(weapon != null, "current weapon catalogue resolves to an installed gameplay asset");
             var hunterObject = new GameObject("BalanceHunter");
             var bossObject = UnityEngine.Object.Instantiate(prefab);
             try
             {
                 root.state.player.hp = startingHp; root.state.player.maxHp = 100;
-                root.state.player.resolve = 1; root.state.player.maxResolve = 3;
+                root.state.player.resolve = 1; root.state.player.maxResolve = StatusRules.DefaultMaxResolve;
                 root.state.player.nextAttackBonusPercent = root.state.player.nextDirectHitReductionPercent = 0;
                 root.state.player.ordinaryStatuses.Clear();
                 var hunter = hunterObject.AddComponent<PlayerCombatant>(); hunter.Initialize(); hunter.EquipWeapon(weapon);
@@ -384,7 +450,7 @@ public static class SmallMonsterValidation
         if (finished) return;
         finished = true; SessionState.SetBool(Pending, false); EditorApplication.update -= Tick;
         Directory.CreateDirectory(Path.GetDirectoryName(Output));
-        File.WriteAllText(Output, JsonUtility.ToJson(new Result { passed = error == null, checks = checks.ToArray(), error = error?.ToString(), completedRounds = turns, bossBattles = bossBattles.ToArray() }, true));
+        File.WriteAllText(Output, JsonUtility.ToJson(new Result { passed = error == null, checks = checks.ToArray(), error = error?.ToString(), completedRounds = turns, bossBattles = bossBattles.ToArray(), monsterAttacks = monsterAttacks.ToArray() }, true));
         EditorApplication.Exit(error == null ? 0 : 1);
     }
 }

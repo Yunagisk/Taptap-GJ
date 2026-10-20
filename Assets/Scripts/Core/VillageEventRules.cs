@@ -12,7 +12,7 @@ public sealed class VillageEventState
     public int lastProcessedTime = -1;
     // Retain all occurrences, including expired and resolved ones: each definition appears only once per run.
     public List<VillageEventOccurrence> occurrences = new List<VillageEventOccurrence>();
-    // Temporary item rewards are descriptive records, never actual inventory grants.
+    // Receipt history, including rewards blocked by the carrying limit.
     public List<string> rewardTexts = new List<string>();
 }
 
@@ -47,6 +47,8 @@ public sealed class VillageEventChoice
     public int sinDelta;
     public int healAmount;
     public string rewardText;
+    public string itemId;
+    public int resolveGain;
     public int nextDirectHitReductionPercent;
     public int nextAttackBonusPercent;
     public int nextCampRecoveryBonusPercent;
@@ -71,39 +73,39 @@ public static class VillageEventRules
     {
         Define("v01", "粮仓分配", "粮仓前排起了长队，有限的补给需要重新分配。", 1, 3, 3,
             Choice("协助分配", 1, -15),
-            Choice("独占补给", 1, 20, reward: "绷带 ×1")),
+            Choice("独占补给", 1, 20, item: "bandage")),
         Define("v02", "告解争执", "求助的人与村民争执不下，双方都希望有人出面。", 1, 2, 3,
             Choice("耐心调解", 1, -12, heal: 10),
             Choice("驱逐求助者", 1, 15, directHitReduction: 15)),
         Define("v03", "安葬无名者", "一名无人认领的死者仍停留在村边，尚未得到安葬。", 3, 3, 2,
-            Choice("协助安葬", 2, -20, reward: "净化剂 ×1"),
-            Choice("夺取遗物", 1, 20, reward: "绷带 ×1")),
+            Choice("协助安葬", 2, -20, item: "holy_water"),
+            Choice("夺取遗物", 1, 20, item: "bandage")),
         Define("v04", "药房求援", "药房人手不足，救济药品还没有分发给需要的人。", 4, 3, 2,
-            Choice("整理救济药品", 1, -15, reward: "绷带 ×1"),
+            Choice("整理救济药品", 1, -15, item: "bandage"),
             Choice("优先获得自己用药", 1, 15, heal: 25)),
         Define("v05", "邻里告密", "一则未经证实的传言，让邻里间的猜疑越来越深。", 6, 2, 2,
             Choice("查清谣言", 1, -15),
             Choice("附和指控", 1, 20, attackBonus: 15)),
         Define("v06", "守夜缺席", "今晚的守夜人没有到场，村口还缺一个值守的人。", 7, 3, 2,
-            Choice("承担守夜", 2, -20, reward: "坚定药剂 ×1"),
+            Choice("承担守夜", 2, -20, resolve: 1),
             Choice("推诿他人", 1, 15)),
         Define("v07", "宴席余粮", "宴席散去后还剩下一些食物，门外有人仍在挨饿。", 9, 2, 2,
             Choice("分给饥饿者", 1, -15, heal: 10),
             Choice("独自享用", 1, 20, heal: 25)),
         Define("v08", "替罪羊", "惊恐的村民围住一名被指控的人，却没有拿出证据。", 10, 2, 2,
-            Choice("保护被指控者", 2, -20, reward: "浓缩药剂 ×1"),
+            Choice("保护被指控者", 2, -20, item: "bandage"),
             Choice("任由围攻", 1, 25)),
         Define("v09", "封闭的仓门", "仓门紧闭，囤积的物资迟迟没有分给村民。", 12, 3, 1,
-            Choice("说服囤积者", 1, -18, reward: "绷带 ×1"),
-            Choice("抢取材料", 1, 20, reward: "浓缩药剂 ×1")),
+            Choice("说服囤积者", 1, -18, item: "bandage"),
+            Choice("抢取材料", 1, 20, item: "bandage")),
         Define("v10", "破损的钟绳", "村中的警钟绳索已经破损，需要有人花时间修复。", 14, 4, 1,
             Choice("修复钟绳", 2, -20, campRecoveryBonus: 20),
             Choice("放弃修复", 1, 12)),
         Define("v11", "未寄的家书", "一封没有寄出的家书与几件遗物，被留在酒馆的角落。", 16, 3, 1,
-            Choice("送还遗物", 1, -15, reward: "净化剂 ×1"),
-            Choice("取走药布", 1, 15, reward: "绷带 ×1")),
+            Choice("送还遗物", 1, -15, item: "holy_water"),
+            Choice("取走药布", 1, 15, item: "bandage")),
         Define("v12", "最后的互助", "村民希望设立临时救济点，但仅存的人手和物资都很有限。", 20, 4, 1,
-            Choice("建立救济点", 2, -25, reward: "浓缩药剂 ×1"),
+            Choice("建立救济点", 2, -25, item: "bandage"),
             Choice("只顾自己", 1, 20, attackBonus: 15)),
         Define("v13", "酒馆密谋", "有人在酒馆里商量趁乱抢劫。懒惰首领仍在，恐惧正让人们失去克制。", 1, 2, 2,
             Choice("阻止两人", 1, -15),
@@ -222,7 +224,15 @@ public static class VillageEventRules
         occurrence.resolved = true;
         occurrence.chosenIndex = choiceIndex;
         result.spawnedBossId = WorldResourceRules.SpendTime(layout, state.map, state.world,
-            choice.timeCost, true);
+            choice.timeCost, true, saved => CompleteChoice(saved, layout, choice, definition,
+                new VillageEventChoiceResult { occurrenceId = occurrenceId }));
+        return CompleteChoice(state, layout, choice, definition, result);
+    }
+
+    // The same settlement completes a dawn snapshot if this choice crosses into a new day.
+    static VillageEventChoiceResult CompleteChoice(GameState state, MapLayout layout,
+        VillageEventChoice choice, VillageEventDefinition definition, VillageEventChoiceResult result)
+    {
         string spawnedByChoice = WorldResourceRules.ChangeSin(layout, state.map, state.world, choice.sinDelta);
         if (!string.IsNullOrEmpty(spawnedByChoice)) result.spawnedBossId = spawnedByChoice;
         int healed = WorldResourceRules.Heal(state.player, choice.healAmount);
@@ -247,11 +257,25 @@ public static class VillageEventRules
         if (choice.nextCampRecoveryBonusPercent > 0)
             message.Append("；下次营地恢复 +").Append(choice.nextCampRecoveryBonusPercent).Append("%");
         message.Append("。");
-        if (!string.IsNullOrEmpty(choice.rewardText))
+        string receipt = null;
+        if (!string.IsNullOrEmpty(choice.itemId))
+        {
+            var grant = ItemRules.TryGrant(state, choice.itemId);
+            receipt = grant.ok ? grant.message : "未领取奖励：" + grant.message;
+        }
+        if (choice.resolveGain > 0)
+        {
+            state.player.NormalizeResolve();
+            int restored = Math.Min(choice.resolveGain, state.player.maxResolve - state.player.resolve);
+            state.player.resolve += restored;
+            receipt = restored > 0 ? "恢复决心 " + restored + "。" : "决心已满。";
+        }
+        if (!string.IsNullOrEmpty(receipt))
         {
             string reward = WorldResourceRules.TimeLabel(state.world) + " · " + definition.title
-                + "：" + choice.rewardText;
+                + "：" + receipt;
             state.world.villageEvents.rewardTexts.Add(reward);
+            message.Append("\n").Append(receipt);
         }
         if (!string.IsNullOrEmpty(result.spawnedBossId))
             message.Append("\n罪恶达到 100，新的原罪首领已经出现，罪恶归零。");
@@ -360,12 +384,14 @@ public static class VillageEventRules
         return (int)(value % (uint)exclusiveMax);
     }
 
-    static VillageEventChoice Choice(string label, int time, int sin, int heal = 0, string reward = null,
+    static VillageEventChoice Choice(string label, int time, int sin, int heal = 0, string item = null, int resolve = 0,
         int directHitReduction = 0, int attackBonus = 0, int campRecoveryBonus = 0)
     {
         return new VillageEventChoice
         {
-            label = label, timeCost = time, sinDelta = sin, healAmount = heal, rewardText = reward,
+            label = label, timeCost = time, sinDelta = sin, healAmount = heal,
+            itemId = item, resolveGain = resolve,
+            rewardText = item != null ? ItemTable.Find(item).displayName + " ×1" : resolve > 0 ? "决心 +" + resolve : null,
             nextDirectHitReductionPercent = directHitReduction,
             nextAttackBonusPercent = attackBonus,
             nextCampRecoveryBonusPercent = campRecoveryBonus

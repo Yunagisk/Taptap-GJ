@@ -58,7 +58,8 @@ public class WorldMapController : MonoBehaviour
     public bool IsWaitingToEnter => IsEnteringNode && !entryDispatched;
     public GuideMapController Guide { get; private set; }
     public bool GuideAllowsNode(string nodeId) => VillageIntroRules.CanMoveTo(GameRoot.I != null ? GameRoot.I.state : null,
-        Progression != null ? Progression.Layout : null, nodeId) && (Guide == null || !Guide.IsOpen);
+        Progression != null ? Progression.Layout : null, nodeId) && (Guide == null || !Guide.IsOpen)
+        && !SlothChapterPresentation.IsBlocking && !SlothChapterRules.IsFinished(GameRoot.I?.state);
     public void RefreshGuide() { StateChanged?.Invoke(); }
     public void EnterPreparedGuideBattle(MapNodeRequest request)
     {
@@ -73,12 +74,14 @@ public class WorldMapController : MonoBehaviour
         try
         {
             int mapSeed = seed == 0 ? Guid.NewGuid().GetHashCode() : seed;
+            GameRoot.I.state.map.slothChapterOnly = true;
             Progression = new MapProgression(template.Load(), GameRoot.I.state.map, GameRoot.I.state.world, mapSeed);
             MainStoryRules.EnsureInitialized(GameRoot.I.state, Progression.Layout);
             EquipmentRules.EnsureInitialized(GameRoot.I.state);
             VillageEventRules.InitializeForRun(GameRoot.I.state, Progression.Layout);
             InitializeWilderness();
-            Notice = "懒惰已出现";
+            Notice = GameRoot.I.state.story.stage == MainStoryStage.SlothDefeated
+                ? "懒惰已平息 · 返回埃尔南多，向哈罗德复命。" : "懒惰已出现";
         }
         catch (Exception error) { Debug.LogException(error, this); enabled = false; }
     }
@@ -87,13 +90,15 @@ public class WorldMapController : MonoBehaviour
     {
         Guide = GuideMapController.Attach(this);
         var pending = Progression?.GetPendingRequest();
-        if (pending != null && (pending.kind == MapNodeKind.Battle || pending.kind == MapNodeKind.Event || pending.kind == MapNodeKind.Camp))
+        if (pending != null && (pending.kind == MapNodeKind.Battle || pending.kind == MapNodeKind.Event
+            || pending.kind == MapNodeKind.Camp || SlothChapterRules.IsSlothRequest(pending)))
             BeginEntry(pending);
     }
 
     AsyncOperation EnterBattle(MapNodeRequest request)
     {
-        if (isLoadingBattle) return null;
+        if (isLoadingBattle || request == null
+            || Progression?.GetPendingRequest()?.requestId != request.requestId) return null;
         if (!Application.CanStreamedLevelBeLoaded(BattleScene))
         {
             Debug.LogError("CombatScene is missing from Build Settings.", this);
@@ -133,68 +138,20 @@ public class WorldMapController : MonoBehaviour
             StateChanged?.Invoke();
             return;
         }
+        var destination = Progression.GetNode(nodeId);
         if (Progression.TryPlanFastTravel(nodeId, out var travel))
         {
-            RequestFastTravel(travel);
+            if (Progression.State.clearedNodes.Contains(nodeId) || PrepareNodeEntry(destination))
+                RequestFastTravel(travel);
             return;
         }
-        if (entryTransitionPrefab == null)
-        {
-            Notice = "节点进入转场尚未配置。";
-            Debug.LogError("Assign the map scene transition prefab before entering nodes.", this);
-            StateChanged?.Invoke();
-            return;
-        }
-        var destination = Progression.GetNode(nodeId);
-        if (destination != null && destination.kind == MapNodeKind.Camp
-            && !Progression.State.clearedNodes.Contains(nodeId) && !EnsureCampUI())
-        {
-            Notice = "火堆休息界面尚未就绪。";
-            StateChanged?.Invoke();
-            return;
-        }
-        if (destination != null && destination.kind == MapNodeKind.Event
-            && !Progression.State.clearedNodes.Contains(nodeId)
-            && (!HasWildernessContext() || wildernessEventUI == null || !wildernessEventUI.CanShow()))
-        {
-            Notice = "野外事件界面尚未就绪。";
-            StateChanged?.Invoke();
-            return;
-        }
-        if (destination != null && destination.kind == MapNodeKind.Village
-            && !Application.CanStreamedLevelBeLoaded(GameFlowController.VillageScene))
-        {
-            Notice = "村庄场景未加入构建列表";
-            Debug.LogError("Village is missing from Build Settings.", this);
-            StateChanged?.Invoke();
-            return;
-        }
-        if (!villageConfirmed && destination != null && destination.kind == MapNodeKind.Village
+        if (!PrepareNodeEntry(destination)) return;
+        if (!villageConfirmed && destination.kind == MapNodeKind.Village
             && !Progression.CanReenterVillage(nodeId))
         {
             if (!Progression.CanMove(nodeId)) return;
             RequestVillageEntry(nodeId, destination.displayName);
             return;
-        }
-        if (destination != null && destination.kind == MapNodeKind.Battle
-            && !Progression.State.clearedNodes.Contains(nodeId)
-            && !Application.CanStreamedLevelBeLoaded(BattleScene))
-        {
-            Notice = "战斗场景未加入构建列表";
-            Debug.LogError("CombatScene is missing from Build Settings.", this);
-            StateChanged?.Invoke();
-            return;
-        }
-        if (destination != null && destination.kind == MapNodeKind.Battle
-            && !Progression.State.clearedNodes.Contains(nodeId))
-        {
-            EquipmentRules.EnsureInitialized(GameRoot.I.state);
-            if (GameRoot.I.state.inventory.equippedWeaponIds.TrueForAll(string.IsNullOrEmpty))
-            {
-                Notice = "\u8bf7\u5148\u5728\u80cc\u5305\u4e2d\u88c5\u5907\u81f3\u5c11\u4e00\u628a\u6b66\u5668";
-                StateChanged?.Invoke();
-                return;
-            }
         }
         if (Progression.CanReenterVillage(nodeId))
         {
@@ -203,12 +160,67 @@ public class WorldMapController : MonoBehaviour
             return;
         }
         if (!Progression.TryMove(nodeId, out var request)) return;
-        var node = Progression.GetNode(nodeId);
-        Notice = node.displayName;
-        if (Progression.LastSpawnedBossId != null)
+        Notice = destination.displayName;
+        if (Progression.LastSpawnedBossId != null && Progression.IsBossAvailable(Progression.LastSpawnedBossId))
             Notice += " · " + Progression.GetNode(Progression.LastSpawnedBossId).displayName + "已出现";
         // Cleared nodes only move the location marker; there is no encounter to fade into.
-        BeginEntry(request, node.kind == MapNodeKind.Village);
+        BeginEntry(request, destination.kind == MapNodeKind.Village);
+    }
+
+    bool PrepareNodeEntry(MapNodeDefinition destination)
+    {
+        if (destination == null) return false;
+        if (entryTransitionPrefab == null)
+        {
+            Notice = "节点进入转场尚未配置。";
+            Debug.LogError("Assign the map scene transition prefab before entering nodes.", this);
+            StateChanged?.Invoke();
+            return false;
+        }
+        if (destination.kind == MapNodeKind.Camp
+            && !Progression.State.clearedNodes.Contains(destination.id) && !EnsureCampUI())
+        {
+            Notice = "火堆休息界面尚未就绪。";
+            StateChanged?.Invoke();
+            return false;
+        }
+        if (destination.kind == MapNodeKind.Event
+            && !Progression.State.clearedNodes.Contains(destination.id)
+            && (!HasWildernessContext() || wildernessEventUI == null || !wildernessEventUI.CanShow()))
+        {
+            Notice = "野外事件界面尚未就绪。";
+            StateChanged?.Invoke();
+            return false;
+        }
+        if (destination.kind == MapNodeKind.Village
+            && !Application.CanStreamedLevelBeLoaded(GameFlowController.VillageScene))
+        {
+            Notice = "村庄场景未加入构建列表";
+            Debug.LogError("Village is missing from Build Settings.", this);
+            StateChanged?.Invoke();
+            return false;
+        }
+        if ((destination.kind == MapNodeKind.Battle || destination.kind == MapNodeKind.Boss)
+            && !Progression.State.clearedNodes.Contains(destination.id)
+            && !Application.CanStreamedLevelBeLoaded(BattleScene))
+        {
+            Notice = "战斗场景未加入构建列表";
+            Debug.LogError("CombatScene is missing from Build Settings.", this);
+            StateChanged?.Invoke();
+            return false;
+        }
+        if ((destination.kind == MapNodeKind.Battle || destination.kind == MapNodeKind.Boss)
+            && !Progression.State.clearedNodes.Contains(destination.id))
+        {
+            EquipmentRules.EnsureInitialized(GameRoot.I.state);
+            if (GameRoot.I.state.inventory.equippedWeaponIds.TrueForAll(string.IsNullOrEmpty))
+            {
+                Notice = "\u8bf7\u5148\u5728\u80cc\u5305\u4e2d\u88c5\u5907\u81f3\u5c11\u4e00\u628a\u6b66\u5668";
+                StateChanged?.Invoke();
+                return false;
+            }
+        }
+        return true;
     }
 
     void RequestFastTravel(MapTravelPlan plan)
@@ -234,11 +246,19 @@ public class WorldMapController : MonoBehaviour
         bool valid = isActiveAndEnabled && fastTravelUI != null && fastTravelUI.IsOpen
             && run != null && run == pendingTravelRun && run.player.hp > 0
             && run.map == Progression.State && run.world == Progression.World
-            && !IsVillageEntryConfirmationOpen && !IsWildernessEventOpen && !IsCampOpen;
+            && !IsVillageEntryConfirmationOpen && !IsWildernessEventOpen && !IsCampOpen
+            && GuideAllowsNode(quote.DestinationId);
         // Clear first so reentrant clicks and state-change callbacks cannot pay twice.
         pendingTravel = null;
         pendingTravelRun = null;
-        if (!valid || !Progression.TryFastTravel(quote))
+        if (valid && !Progression.State.clearedNodes.Contains(quote.DestinationId)
+            && !PrepareNodeEntry(Progression.GetNode(quote.DestinationId)))
+        {
+            ClearFastTravel(true);
+            StateChanged?.Invoke();
+            return;
+        }
+        if (!valid || !Progression.TryFastTravel(quote, out var request))
         {
             ClearFastTravel(true);
             Notice = "当前位置或路线已变化，请重新选择目的地。";
@@ -248,9 +268,11 @@ public class WorldMapController : MonoBehaviour
         ClearFastTravel(false);
         Notice = "已抵达" + Progression.GetNode(quote.DestinationId).displayName
             + " · 耗时 " + quote.TimeCost + " 单位 · " + WorldResourceRules.TimeLabel(Progression.World);
-        if (Progression.LastSpawnedBossId != null)
+        if (Progression.LastSpawnedBossId != null && Progression.IsBossAvailable(Progression.LastSpawnedBossId))
             Notice += " · " + Progression.GetNode(Progression.LastSpawnedBossId).displayName + "已出现";
-        StateChanged?.Invoke();
+        if (request != null) BeginEntry(request);
+        else if (SlothChapterRules.CanEndAtVillage(run)) BeginEntry(null, true);
+        else StateChanged?.Invoke();
     }
 
     public void CancelFastTravel()
@@ -311,7 +333,23 @@ public class WorldMapController : MonoBehaviour
                 onBattleEntered.Invoke(request); return EnterBattle(request);
             case MapNodeKind.Event: onEventEntered.Invoke(request); OpenWildernessEvent(request); break;
             case MapNodeKind.Camp: onCampEntered.Invoke(request); OpenCamp(request); break;
-            case MapNodeKind.Boss: onBossEntered.Invoke(request); break;
+            case MapNodeKind.Boss:
+                if (!SlothChapterRules.IsSlothRequest(request)) break;
+                onBossEntered.Invoke(request);
+                if (GameRoot.I.state.story.slothConfronted) return EnterBattle(request);
+                var run = GameRoot.I.state;
+                if (!SlothChapterPresentation.PlayConfrontation(transform, () =>
+                {
+                    if (this == null || GameRoot.I == null || GameRoot.I.state != run
+                        || Progression.GetPendingRequest()?.requestId != request.requestId) return;
+                    run.story.slothConfronted = true;
+                    EnterBattle(request);
+                }))
+                {
+                    Notice = "暂时无法开始对话，请重新进入地图。";
+                    StateChanged?.Invoke();
+                }
+                break;
         }
         return null;
     }
@@ -410,7 +448,7 @@ public class WorldMapController : MonoBehaviour
 
     public void ChooseWildernessEvent(int choiceIndex)
     {
-        if (!HasPendingWildernessEvent() || !IsWildernessEventOpen) return;
+        if (!HasPendingWildernessEvent() || !IsWildernessEventOpen || wildernessEventUI.IsLeaveConfirmationOpen) return;
         var result = WildernessEventRules.TryChoose(wildernessRun.map.wildernessEvents,
             WildernessCatalog, wildernessRun, Progression.Layout, choiceIndex);
         Notice = result.message;
@@ -421,7 +459,7 @@ public class WorldMapController : MonoBehaviour
 
     public void ResolveWildernessEncounter(bool victory)
     {
-        if (!HasPendingWildernessEvent() || !IsWildernessEventOpen) return;
+        if (!HasPendingWildernessEvent() || !IsWildernessEventOpen || wildernessEventUI.IsLeaveConfirmationOpen) return;
         var result = WildernessEventRules.ResolveEncounter(wildernessRun.map.wildernessEvents, wildernessRun, victory);
         Notice = result.message;
         wildernessEventUI.Refresh();
@@ -434,12 +472,33 @@ public class WorldMapController : MonoBehaviour
         var level = wildernessRun.map.wildernessEvents;
         var question = WildernessEventRules.FindNode(level, level.activeNodeId);
         if (question == null) return;
+        if (!question.resolved && !question.abandoned)
+        {
+            wildernessEventUI.LeaveWarning?.Show();
+            return;
+        }
         if (question.encounterPending)
         {
             Notice = "请先结算当前遭遇。";
             wildernessEventUI.Refresh();
             return;
         }
+        FinishDisplayedWildernessEvent(question);
+    }
+
+    public void ConfirmLeaveWildernessEvent()
+    {
+        if (!HasPendingWildernessEvent() || !IsWildernessEventOpen || !wildernessEventUI.IsLeaveConfirmationOpen
+            || !wildernessEventUI.LeaveWarning.MatchesCurrentEvent()) return;
+        var question = WildernessEventRules.FindNode(wildernessRun.map.wildernessEvents,
+            wildernessRun.map.wildernessEvents.activeNodeId);
+        if (question == null || question.resolved || question.abandoned || question.encounterPending) return;
+        FinishDisplayedWildernessEvent(question);
+    }
+
+    void FinishDisplayedWildernessEvent(WildernessNodeState question)
+    {
+        var level = wildernessRun.map.wildernessEvents;
         string requestId = Progression.State.pendingRequestId;
         WildernessEventRules.Leave(level);
         if (!FinishWildernessEvent(requestId)) return;
@@ -530,6 +589,8 @@ public class WorldMapController : MonoBehaviour
         if (Progression == null || IsWaitingToEnter) return;
         var completed = Progression.GetPendingRequest();
         if (completed != null && completed.kind == MapNodeKind.Camp && !restingAtCamp) return;
+        // Boss completion belongs to the real combat result, never the old debug panel.
+        if (completed != null && completed.kind == MapNodeKind.Boss && Progression.State.slothChapterOnly) return;
         var before = MapRevealTransition.Capture(Progression);
         if (!Progression.TryCompleteNode(requestId)) return;
         MainStoryRules.OnNodeCompleted(GameRoot.I.state, completed);

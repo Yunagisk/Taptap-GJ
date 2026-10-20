@@ -21,7 +21,6 @@
     { "id": "sword", "sprite": "Sword.png" },
     { "id": "greatsword", "sprite": "Greatsword.png" },
     { "id": "spear", "sprite": "Spear.png" },
-    { "id": "dual_swords", "sprite": "DualSwords.png" },
     { "id": "axe", "sprite": "Axe.png" },
     { "id": "sickle", "sprite": "Sickle.png" },
     { "id": "hammer", "sprite": "Hammer.png" },

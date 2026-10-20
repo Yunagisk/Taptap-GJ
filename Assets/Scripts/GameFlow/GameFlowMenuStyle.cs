@@ -27,10 +27,12 @@ public static class GameFlowMenuStyle
         if (pause != null)
         {
             Title(pause, "PauseTitle", 48);
-            Place(pause.Find("Btn_Resume"), new Vector2(92, -164), new Vector2(416, 66));
-            Place(pause.Find("Btn_PauseSettings"), new Vector2(92, -258), new Vector2(416, 66));
-            Place(pause.Find("Btn_ReturnTitle"), new Vector2(92, -352), new Vector2(416, 66));
-            Place(pause.Find("Btn_PauseQuit"), new Vector2(92, -446), new Vector2(416, 66));
+            bool hasLoad = pause.Find("Btn_LoadDay") != null;
+            Place(pause.Find("Btn_Resume"), new Vector2(92, hasLoad ? -154 : -164), new Vector2(416, 66));
+            Place(pause.Find("Btn_LoadDay"), new Vector2(92, -238), new Vector2(416, 66));
+            Place(pause.Find("Btn_PauseSettings"), new Vector2(92, hasLoad ? -322 : -258), new Vector2(416, 66));
+            Place(pause.Find("Btn_ReturnTitle"), new Vector2(92, hasLoad ? -406 : -352), new Vector2(416, 66));
+            Place(pause.Find("Btn_PauseQuit"), new Vector2(92, hasLoad ? -490 : -446), new Vector2(416, 66));
             Decoration(pause, "TitleRule", InventoryInkGraphic.Shape.Rule,
                 new Vector2(80, -130), new Vector2(440, 2), FaintInk);
             Decoration(pause, "BottomSeal", InventoryInkGraphic.Shape.Diamond,

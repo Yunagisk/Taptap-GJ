@@ -16,7 +16,7 @@ MonoBehaviour:
   damageType: 0
   kind: 0
   weight: 0
-  damage: 6
+  damage: 10
   attackCount: 1
   hitInterval: 0.3
   applyStatus: 0

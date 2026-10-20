@@ -42,7 +42,7 @@ animation_script = 'ce81c491ad4d5ee795cb123185e55937'
 set_script = 'f13a55a793db53ddad46c68a67f511bf'
 ash_guid = '48df0611b8cf599dac0f42ad22c1af73'
 monsters = [
-    dict(name='Rat', original='老鼠小怪', profile=1, sprite='3205e2bcb6be15b4697739f4c6893465',
+    dict(name='Rat', original='瘟鼠小怪', profile=1, sprite='3205e2bcb6be15b4697739f4c6893465',
          bbox=(44, 473, 1917, 1560), old_bbox=(60, 282, 1214, 986), old_ppu=100,
          go=1285487321, renderer=1285487323, component=917520001,
          attack=21, hit=9, hurt=12, death=27, contact=(.045, .395), cycle=2.4),

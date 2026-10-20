@@ -8,6 +8,7 @@ using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [InitializeOnLoad]
@@ -119,16 +120,50 @@ public static class MapBossCameraValidation
         Check(!view.viewport.IsBossCloseup, "immediate cancellation restores a covered exploration frame");
 
         Check(view.viewport.BeginTravelPreview(new Rect(-1700, -400, 1900, 1300)), "wide travel preview starts");
-        yield return new WaitForSecondsRealtime(.65f);
-        Capture("travel-paper-margin.png");
+        foreach (var size in new[] { new Vector2(1600, 900), new Vector2(1200, 900), new Vector2(2100, 900) })
+        {
+            SetGameSize((int)size.x, (int)size.y);
+            float start = Time.unscaledTime;
+            while (Time.unscaledTime - start < .65f) { Coverage(); yield return null; }
+            Capture("bounded-travel-" + (int)size.x + ".png");
+        }
         Vector2 oldPose = view.mapContent.anchoredPosition;
         Check(view.viewport.BeginBossCloseup(bossBounds) && oldPose == view.mapContent.anchoredPosition,
             "travel-to-boss handoff preserves its starting pose");
-        yield return new WaitForSecondsRealtime(.15f); Capture("travel-to-boss.png");
-        yield return new WaitForSecondsRealtime(.5f); Coverage();
-        view.viewport.EndBossCloseup(); yield return new WaitForSecondsRealtime(.7f); Coverage();
+        float handoffStart = Time.unscaledTime; bool capturedHandoff = false;
+        while (Time.unscaledTime - handoffStart < .65f)
+        {
+            Coverage();
+            if (!capturedHandoff && Time.unscaledTime - handoffStart > .15f)
+            { Capture("travel-to-boss.png"); capturedHandoff = true; }
+            yield return null;
+        }
+        view.viewport.EndBossCloseup();
+        handoffStart = Time.unscaledTime;
+        while (Time.unscaledTime - handoffStart < .7f) { Coverage(); yield return null; }
         Check(!view.viewport.IsTravelPreview && !view.viewport.IsBossCloseup && view.viewport.GetComponent<Image>().color.a == 1,
             "handoff and return retain paper backing and restore normal navigation");
+        foreach (var size in new[] { new Vector2(1600, 900), new Vector2(1200, 900), new Vector2(2100, 900) })
+        {
+            SetGameSize((int)size.x, (int)size.y); yield return null; Coverage();
+            var pointer = new PointerEventData(EventSystem.current)
+            { position = size * .5f, pointerId = -1, scrollDelta = new Vector2(0, 100) };
+            view.viewport.OnScroll(pointer); Coverage();
+            view.viewport.OnBeginDrag(pointer);
+            foreach (var corner in new[] { new Vector2(-1, -1), new Vector2(1, -1), new Vector2(1, 1), new Vector2(-1, 1) })
+            { pointer.position = corner * 100000; view.viewport.OnDrag(pointer); Coverage(); }
+            view.viewport.OnEndDrag(pointer);
+            pointer.scrollDelta = new Vector2(0, -100); pointer.position = size * .5f;
+            view.viewport.OnScroll(pointer); Coverage();
+            Check(!view.viewport.IsTravelPreview, "drag and maximum zoom-out remain inside the map at " + size);
+            Check(view.viewport.BeginTravelPreview(new Rect(-1900, -1000, 3800, 2000)), "full-map route preview starts at " + size);
+            float start = Time.unscaledTime;
+            while (Time.unscaledTime - start < .45f) { Coverage(); yield return null; }
+            view.viewport.EndTravelPreview(true);
+            start = Time.unscaledTime;
+            while (Time.unscaledTime - start < .45f) { Coverage(); yield return null; }
+            Check(!view.viewport.IsTravelPreview, "canceling the widest route stays covered at " + size);
+        }
         Check(coverageSamples > 100, "camera bounds sampled throughout approach, hold and return");
     }
     static void Coverage()

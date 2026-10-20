@@ -33,6 +33,7 @@ public sealed class BattleHudView : MonoBehaviour
     BattleActionTooltip actionTooltip;
     BattleTargetingArrow targetingArrow;
     BattlePlayerStatusView playerStatuses;
+    PlayerCombatant healthSource;
     public BattleTargetingArrow TargetingArrow => targetingArrow;
     public IReadOnlyList<BattleHudEnemyView> EnemyRows => rows;
     public EnemyCombatant HighlightedEnemy => targetingArrow != null ? targetingArrow.HoveredEnemy : null;
@@ -73,7 +74,7 @@ public sealed class BattleHudView : MonoBehaviour
             var row = Instantiate(enemyTemplate, enemyContainer);
             row.name = "Enemy_" + (++index);
             row.gameObject.SetActive(true);
-            row.Bind(enemy, index, this);
+            row.Bind(enemy, index, this, EnemyLabel(enemy));
             rows.Add(row);
             if (SelectedEnemy == null) SelectedEnemy = enemy;
             var hover = enemy.GetComponent<BattleHudTargetHover>();
@@ -90,6 +91,8 @@ public sealed class BattleHudView : MonoBehaviour
             rect.localScale = Vector3.one * Mathf.Min(1, enemyRowHeight / 142);
         }
         flow.OnBattleStateChanged += StateChanged;
+        healthSource = flow.Player;
+        if (healthSource != null) healthSource.OnHpChanged += RefreshPlayerHealth;
         targetingArrow = GetComponent<BattleTargetingArrow>();
         if (targetingArrow == null) targetingArrow = gameObject.AddComponent<BattleTargetingArrow>();
         targetingArrow.Bind(this);
@@ -100,6 +103,22 @@ public sealed class BattleHudView : MonoBehaviour
             flow.Player.gameObject.AddComponent<PlayerStatusEffects>();
         foreach (var enemy in flow.Enemies) BindOutline(enemy);
         Refresh();
+    }
+    string EnemyLabel(EnemyCombatant enemy)
+    {
+        int count = 0, number = 0;
+        // Use the encounter roster so deaths and card reflow keep each name stable.
+        foreach (var other in Flow.Enemies)
+        {
+            if (other == null) continue;
+            bool sameKind = enemy.Definition != null && other.Definition != null
+                ? enemy.Definition.kind == other.Definition.kind
+                : enemy.Definition == other.Definition && enemy.DisplayName == other.DisplayName;
+            if (!sameKind) continue;
+            count++;
+            if (other == enemy) number = count;
+        }
+        return count > 1 ? enemy.DisplayName + " " + number : enemy.DisplayName;
     }
     internal void RemoveEnemyCard(BattleHudEnemyView row)
     {
@@ -155,13 +174,19 @@ public sealed class BattleHudView : MonoBehaviour
     }
     public void RefreshTargetHighlights()
     { foreach (var row in rows) if (row != null) row.Refresh(); }
+    void RefreshPlayerHealth(Combatant player)
+    {
+        // Death destroys the actor before the next polling refresh. Paint zero now.
+        SetHealth(playerHealth, player.CurrentHP, player.MaxHP);
+        healthText.text = player.CurrentHP + " / " + player.MaxHP;
+        if (player.IsDead) statusText.text = "";
+    }
     void Refresh()
     {
         if (Flow == null || Flow.Player == null) return;
         var player = Flow.Player;
-        SetHealth(playerHealth, player.CurrentHP, player.MaxHP);
-        healthText.text = player.CurrentHP + " / " + player.MaxHP;
-        statusText.text = player.IsDefending ? "防御中" : "";
+        RefreshPlayerHealth(player);
+        statusText.text = !player.IsDead && player.IsDefending ? "防御中" : "";
         for (int i = 0; i < resolve.Length; i++)
         {
             resolve[i].gameObject.SetActive(i < player.MaxDetermination);
@@ -283,5 +308,9 @@ public sealed class BattleHudView : MonoBehaviour
         popupBody.gameObject.SetActive(true); popupTitle.text = title; popupBody.text = body;
         popup.SetActive(true); popup.transform.SetAsLastSibling(); wheel.SetLocked(true); Refresh(); }
     void ClosePopup() { showingItems = false; if (popup != null) popup.SetActive(false); if (wheel != null) wheel.SetLocked(false); }
-    void OnDestroy() { if (Flow != null) Flow.OnBattleStateChanged -= StateChanged; }
+    void OnDestroy()
+    {
+        if (Flow != null) Flow.OnBattleStateChanged -= StateChanged;
+        if (!ReferenceEquals(healthSource, null)) healthSource.OnHpChanged -= RefreshPlayerHealth;
+    }
 }

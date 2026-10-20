@@ -50,13 +50,13 @@ for name in ['Crow', 'Rat', 'Wraith', 'Sloth']:
 body{margin:0;background:#151a22;color:#eef1f5;font:16px system-ui}main{max-width:980px;margin:auto;padding:24px}
 h1{font-size:25px}p{color:#bdc6d4;line-height:1.7}button,select{padding:9px 14px;margin:4px;border:1px solid #64758b;background:#2d394c;color:white;border-radius:6px;cursor:pointer}
 .active{background:#506780}img{display:block;width:640px;max-width:100%;margin:15px auto}input{width:100%}a{color:#bcd6f5}
-</style><main><h1>怪物攻击 · 位移调整</h1><p>Unity 实际播放，30 FPS。缩短整体前冲，命中稍作停顿，再平稳收回。<br>腐鸦保留俯身啄击；老鼠短促探头；怨影以伸爪为主；懒惰重心稳定、以前爪发力。</p>
+</style><main><h1>怪物攻击 · 位移调整</h1><p>Unity 实际播放，30 FPS。缩短整体前冲，命中稍作停顿，再平稳收回。<br>腐鸦保留俯身啄击；瘟鼠短促探头；怨影以伸爪为主；懒惰重心稳定、以前爪发力。</p>
 <nav id="names"></nav><div><button id="play">暂停</button><button id="reset">重播</button>
 <select id="speed"><option value="1">正常速度</option><option value=".5">半速</option><option value=".25">四分之一速度</option></select>
 <span id="status"></span></div><img id="stage" alt="怪物攻击的 Unity 实录"><input id="seek" type="range" min="0" value="0">
-<p><a id="download" download>下载 30 FPS APNG</a> · <a href="../small-monsters-v1/index.html">老鼠与怨影全套动作</a></p>
+<p><a id="download" download>下载 30 FPS APNG</a> · <a href="../small-monsters-v1/index.html">瘟鼠与怨影全套动作</a></p>
 <p>游戏内：打开 Assets/Scenes/BattleSimulator.unity，进入 Play，切换敌人后点击「防御」即可查看敌人攻击。</p></main><script>
-const clips=__CLIPS__,names={Crow:'腐鸦',Rat:'老鼠',Wraith:'怨影',Sloth:'懒惰'},$=id=>document.getElementById(id);
+const clips=__CLIPS__,names={Crow:'腐鸦',Rat:'瘟鼠',Wraith:'怨影',Sloth:'懒惰'},$=id=>document.getElementById(id);
 let name='Crow',playing=true,time=0,speed=1,last=performance.now(),shown=-1;
 for(const [key,label] of Object.entries(names)){const b=document.createElement('button');b.id=key;b.textContent=label;b.onclick=()=>choose(key);$('names').append(b)}
 function draw(){const frames=clips[name],t=time%(frames.length/30+.5),f=Math.min(frames.length-1,Math.floor(t*30));if(f!==shown){$('stage').src=frames[f];shown=f}$('seek').value=f;$('status').textContent=names[name]+' · '+(f+1)+' / '+frames.length}
@@ -94,5 +94,5 @@ for name in ['Rat', 'Wraith', 'Sloth']:
 (HERE / 'README.txt').write_text('四种怪物攻击位移调整，Unity 原生 30 FPS 实录。\n'
     '打开 index.html 可切换怪物、逐帧、半速播放。\n'
     f'{len(result["checks"])} 项 Unity 播放检查通过：远近与左右目标、单次命中、平稳回位、受击与死亡打断。\n'
-    '老鼠与怨影的旧攻击片段已在 small-monsters-v1 中归档并更新。\n', encoding='utf-8')
+    '瘟鼠与怨影的旧攻击片段已在 small-monsters-v1 中归档并更新。\n', encoding='utf-8')
 print({name: len(frames) for name, frames in clips.items()})

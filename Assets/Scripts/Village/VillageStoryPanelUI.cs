@@ -54,6 +54,13 @@ public class VillageStoryPanelUI : MonoBehaviour
         var state = GameRoot.I != null ? GameRoot.I.state : null;
         if (state == null || dialogueManager == null || dialogueManager.IsPlaying) return;
         MainStoryRules.EnsureInitialized(state, null);
+        if (state.story.stage == MainStoryStage.TutorialCompleted && !VillageIntroRules.IsRestricted(state))
+        {
+            SlothChapterPresentation.PlayInvestigation(transform);
+            return;
+        }
+        if (state.map.slothChapterOnly && (state.story.stage == MainStoryStage.SlothDefeated
+            || state.story.stage == MainStoryStage.CommissionTurnedIn)) return;
         DialogueData data;
         switch (state.story.stage)
         {

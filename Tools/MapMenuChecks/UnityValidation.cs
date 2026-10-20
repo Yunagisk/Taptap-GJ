@@ -27,7 +27,6 @@ public static class MapMenuValidation
     public static void Run()
     {
         if (!Application.isBatchMode) throw new InvalidOperationException("Isolated native validation only.");
-        MapMenuPolishBuilder.Apply();
         EditorSceneManager.OpenScene("Assets/Scenes/MainMap.unity");
         SetGameSize();
         SessionState.SetBool(Pending, true); EditorApplication.EnterPlaymode();
@@ -80,9 +79,15 @@ public static class MapMenuValidation
         Check(controls.Find("Overview") == null && controls.Find("Hint") == null,
             "overview button and drag/zoom hint are removed");
         var focus = controls.Find("Focus").GetComponent<Button>();
-        Check(controls.GetComponentsInChildren<Button>().Length == 1 && focus.GetComponentInChildren<TMP_Text>().text == "定位",
-            "map navigation retains only the renamed recenter button");
+        var inventory = controls.Find("Inventory").GetComponent<Button>();
+        Check(controls.GetComponentsInChildren<Button>().Length == 2 && focus.GetComponentInChildren<TMP_Text>().text == "定位"
+            && inventory.GetComponentInChildren<TMP_Text>().text == "背包",
+            "map navigation contains inventory followed by the existing recenter button");
         Check(focus.GetComponentInChildren<InventoryInkGraphic>() != null, "recenter uses the ink border style");
+        CheckRaycast(inventory); Click(inventory); yield return null;
+        Check(flow.playerPanel.IsInventoryOpen, "new inventory button opens the existing equipment panel");
+        flow.HandleBack(); yield return new WaitForSecondsRealtime(.6f);
+        Check(!flow.playerPanel.IsInventoryOpen && !flow.pauseOverlay.activeSelf, "Escape closes inventory and returns to the map");
         Click(focus); yield return new WaitForSecondsRealtime(.5f);
         Vector2 centered = view.mapContent.anchoredPosition; Vector3 scale = view.mapContent.localScale;
         var pointer = new PointerEventData(EventSystem.current) { pointerId = 2, position = new Vector2(800, 450) };

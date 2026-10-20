@@ -10,7 +10,7 @@ internal static partial class Program
 {
     static readonly JsonSerializerOptions Json = JsonOptions();
     static int checks;
-    static string catalogPath = Path.Combine(AppContext.BaseDirectory, "WildernessEvents.json");
+    static string catalogPath = Path.Combine(AppContext.BaseDirectory, "LegacyWildernessEvents.json");
     static string layoutPath = Path.Combine(AppContext.BaseDirectory, "CenteredThreeSinWhitebox.json");
     static WildernessEventCatalog Catalog() => JsonSerializer.Deserialize<WildernessEventCatalog>(File.ReadAllText(catalogPath), Json);
     static MapLayout Layout() => JsonSerializer.Deserialize<MapLayout>(File.ReadAllText(layoutPath), Json);
@@ -78,7 +78,8 @@ internal static partial class Program
         int previewChecks = checks;
         CheckMapIntegration();
         Console.WriteLine($"Map integration: {checks - previewChecks} assertions across both production maps.");
-        Console.WriteLine($"PASS: {checks} wilderness assertions; 10 templates / 20 choices / 27 outcomes; 10,000 fixed seeds.");
+        CheckProductionSidequests();
+        Console.WriteLine($"PASS: {checks} wilderness assertions; legacy 10,000-seed coverage plus production sidequests.");
     }
     static void CheckCatalog()
     {

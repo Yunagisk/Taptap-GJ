@@ -17,7 +17,7 @@ MonoBehaviour:
   kind: 0
   weight: 20
   followUp: {fileID: 0}
-  damage: 1
+  damage: 2
   attackCount: 2
   hitInterval: 0.3
   applyStatus: 0

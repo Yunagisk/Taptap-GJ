@@ -56,8 +56,8 @@ public sealed class VillageServicePlayChecks : MonoBehaviour
         var shop = screen.Shop;
         Check(shop.balance.text == "4" && shop.SelectedId == "sword", "shop shows the actual balance and selects its first offer");
         Check(shop.cards.All(card=>card.gameObject.activeSelf && card.artwork.texture != null),"six original weapon paintings are visible");
-        Check(shop.offers.Count(offer=>!offer.consumable)==12 && shop.offers.Where(offer=>!offer.consumable)
-            .All(offer=>offer.description.EndsWith("。")&&!offer.description.Contains("\n")),"all twelve weapons have individual one-sentence descriptions");
+        Check(shop.offers.Count(offer=>!offer.consumable)==9 && shop.offers.Where(offer=>!offer.consumable)
+            .All(offer=>WeaponTable.IsSoldInShop(offer.id)&&offer.description.EndsWith("。")&&!offer.description.Contains("\n")),"nine shop weapons have individual one-sentence descriptions");
         Check(!shop.GetComponentsInChildren<TMP_Text>(true).Any(text=>text.text.Contains("旅途所需")||text.text.Contains("购入后放入背包")),"removed subtitle and generic description are absent");
         Check(shop.artwork.uvRect.width < 1 && shop.artwork.uvRect.height < 1,"original artwork fills its slot without modifying its texture");
         Canvas.ForceUpdateCanvases();
@@ -74,7 +74,9 @@ public sealed class VillageServicePlayChecks : MonoBehaviour
         shop.SelectCard(1);
         Check(shop.SelectedId=="axe"&&!shop.buyButton.interactable&&shop.buyLabel.text=="罪骸不足","poor players can inspect a weapon without purchasing it");
         shop.nextButton.onClick.Invoke();
-        Check(shop.Page==1&&shop.cards.Any(card=>card.title.text=="天火"),"second weapon page shows the later paintings");
+        Check(shop.Page==1&&shop.cards.Where(card=>card.gameObject.activeSelf).Any(card=>card.title.text=="斧枪")
+            &&!shop.cards.Where(card=>card.gameObject.activeSelf).Any(card=>card.title.text=="天火"||card.title.text=="焰舌"),
+            "second weapon page excludes both event-only weapons");
         state.world.sinRemnant=2; shop.itemsTab.onClick.Invoke(); shop.buyButton.onClick.Invoke();
         Check(ItemRules.Count(state.inventory,ItemTable.Bandage)==1&&state.world.sinRemnant==0
             && ItemRules.ShopStock(state,ItemTable.Bandage)==0,"consumable purchase uses the existing item rules");

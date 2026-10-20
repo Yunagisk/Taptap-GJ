@@ -147,7 +147,7 @@ MonoBehaviour:
   - id: hair
     speaker: "旁白"
     lineKind: 1
-    content: "哈罗德的头发蓬乱得像一团被老鼠光顾过的干草，衣领却扣得严严实实，袖口也一尘不染。"
+    content: "哈罗德的头发蓬乱得像一团被瘟鼠光顾过的干草，衣领却扣得严严实实，袖口也一尘不染。"
     guideReward: 0
     avatar: {fileID: 0}
     isProtagonist: 0

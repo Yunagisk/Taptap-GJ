@@ -8,7 +8,7 @@ static class InventoryCategoryChecks
     {
         switch (id)
         {
-            case "axe": case "sickle": return 1;
+            case "greatsword": case "axe": case "sickle": return 1;
             case "hammer": case "flail": case "heaven_fire": return 2;
             case "torch": return 3;
             default: return 0;
@@ -26,14 +26,15 @@ static class InventoryCategoryChecks
         state.inventory.equippedWeaponIds = new List<string> { "sword", "greatsword", "axe", "torch" };
         state.player.currentWeaponId="greatsword";
         InventoryEquipmentRules.Normalize(state, Category);
-        check(state.inventory.equippedWeaponIds[0]=="greatsword" && state.inventory.weapons.Contains("sword"), "current weapon wins category conflict without deleting ownership");
+        check(state.inventory.equippedWeaponIds[0]=="sword" && state.inventory.equippedWeaponIds[1]=="greatsword"
+            && state.inventory.weapons.Contains("axe"), "greatsword occupies slash and wins its category conflict without deleting ownership");
         check(state.inventory.equippedWeaponIds[2]=="", "migration does not auto-equip other owned weapons");
         var snapshot=string.Join("|",state.inventory.equippedWeaponIds);
         InventoryEquipmentRules.Normalize(state,Category);
         check(snapshot==string.Join("|",state.inventory.equippedWeaponIds),"category migration is idempotent");
-        check(InventoryEquipmentRules.TryEquip(state,0,"flame_tongue",Category) && state.player.currentWeaponId=="flame_tongue", "replacing the active category keeps that category current");
+        check(InventoryEquipmentRules.TryEquip(state,1,"sickle",Category) && state.player.currentWeaponId=="sickle", "replacing the active category keeps that category current");
         check(!InventoryEquipmentRules.TryEquip(state,3,"flame_tongue",Category),"mixed-damage weapon belongs to its primary category only");
-        check(InventoryEquipmentRules.TryEquip(state,2,"heaven_fire",Category) && state.player.currentWeaponId=="flame_tongue", "equipping another category does not change the current weapon");
+        check(InventoryEquipmentRules.TryEquip(state,2,"heaven_fire",Category) && state.player.currentWeaponId=="sickle", "equipping another category does not change the current weapon");
         check(!InventoryEquipmentRules.TryEquip(state,0,"spear",Category),"unowned weapon cannot be equipped");
         check(!InventoryEquipmentRules.TryEquip(state,-1,"sword",Category) && !InventoryEquipmentRules.TryEquip(state,4,"torch",Category),"invalid categories are rejected");
         check(InventoryEquipmentRules.HasUnread(state.inventory,0,Category) && InventoryEquipmentRules.HasUnread(state.inventory,1,Category),"new weapons light their category dots");

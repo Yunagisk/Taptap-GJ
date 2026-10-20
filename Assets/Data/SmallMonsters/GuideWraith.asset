@@ -18,7 +18,7 @@ MonoBehaviour:
   breakThreshold: 2
   lowHealthGuardWeight: 0
   actions:
-  - {fileID: 11400000, guid: 0ad5b5f9d37f51ab97de9d950e4ff47d, type: 2}
+  - {fileID: 11400000, guid: 815bd1df80945d108e2d3cb923ec856e, type: 2}
   resistances:
   - damageType: 0
     damageReaction: 0

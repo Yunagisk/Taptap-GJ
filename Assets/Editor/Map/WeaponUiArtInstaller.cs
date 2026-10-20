@@ -13,8 +13,8 @@ public static class WeaponUiArtInstaller
     const string HudPrefab = "Assets/Prefabs/MapPrefabs/WorldMapHUD.prefab";
     const string InventoryMaterial = ArtFolder + "/InventoryWeaponInk.mat";
     const string HudMaterial = ArtFolder + "/HudWeaponInk.mat";
-    static readonly string[] Ids = { "sword", "greatsword", "spear", "dual_swords", "axe", "sickle", "hammer", "flail", "torch", "poleaxe", "flame_tongue", "heaven_fire" };
-    static readonly string[] Names = { "Sword", "Greatsword", "Spear", "DualSwords", "Axe", "Sickle", "Hammer", "Flail", "Torch", "Poleaxe", "FlameTongue", "HeavenFire" };
+    static readonly string[] Ids = { "sword", "greatsword", "spear", "axe", "sickle", "hammer", "flail", "torch", "poleaxe", "flame_tongue", "heaven_fire" };
+    static readonly string[] Names = { "Sword", "Greatsword", "Spear", "Axe", "Sickle", "Hammer", "Flail", "Torch", "Poleaxe", "FlameTongue", "HeavenFire" };
 
     [MenuItem("Tools/Map UI/Install Weapon Ink Icons")]
     public static void Install()
@@ -50,7 +50,7 @@ public static class WeaponUiArtInstaller
         });
         AssetDatabase.SaveAssets();
         Validate();
-        Debug.Log("Weapon UI: installed all twelve icons into the inventory and HUD prefabs.");
+        Debug.Log("Weapon UI: installed all active icons into the inventory and HUD prefabs.");
     }
 
     static Sprite ImportSprite(string path)
@@ -116,10 +116,10 @@ public static class WeaponUiArtInstaller
     {
         var hud = AssetDatabase.LoadAssetAtPath<GameObject>(HudPrefab).GetComponentInChildren<MapPlayerInkHud>(true);
         var inventory = AssetDatabase.LoadAssetAtPath<GameObject>(InventoryPrefab).GetComponentInChildren<InventoryLayoutView>(true);
-        Require(hud.weaponImages.Length == 4 && hud.weaponIcons.Length == 12, "HUD weapon bindings are incomplete.");
-        Require(inventory.weaponArt.Length == 12, "Inventory weapon bindings are incomplete.");
-        Require(hud.weaponIcons.Select(x => x.weaponId).Distinct().Count() == 12, "Duplicate HUD weapon id.");
-        Require(inventory.weaponArt.Select(x => x.id).Distinct().Count() == 12, "Duplicate inventory weapon id.");
+        Require(hud.weaponImages.Length == 4 && hud.weaponIcons.Length == WeaponTable.All.Length, "HUD weapon bindings are incomplete.");
+        Require(inventory.weaponArt.Length == WeaponTable.All.Length, "Inventory weapon bindings are incomplete.");
+        Require(hud.weaponIcons.Select(x => x.weaponId).Distinct().Count() == WeaponTable.All.Length, "Duplicate HUD weapon id.");
+        Require(inventory.weaponArt.Select(x => x.id).Distinct().Count() == WeaponTable.All.Length, "Duplicate inventory weapon id.");
         foreach (var offer in WeaponTable.All)
         {
             var hudIcon = hud.weaponIcons.Single(x => x.weaponId == offer.id).sprite;
@@ -138,7 +138,8 @@ public static class WeaponUiArtInstaller
         var directory = Path.Combine(root, "output/imagegen/weapon-ui-ink");
         Directory.CreateDirectory(directory);
         File.WriteAllText(Path.Combine(directory, "unity-validation.json"),
-            "{\"passed\":true,\"hudIcons\":12,\"inventoryIcons\":12,\"shaderCompiled\":true,\"aspectPreserved\":true,\"revealReferencesPreserved\":true}");
+            "{\"passed\":true,\"hudIcons\":" + hud.weaponIcons.Length + ",\"inventoryIcons\":" + inventory.weaponArt.Length
+            + ",\"shaderCompiled\":true,\"aspectPreserved\":true,\"revealReferencesPreserved\":true}");
     }
 
     static void Require(bool condition, string message)

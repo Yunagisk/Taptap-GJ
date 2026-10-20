@@ -28,10 +28,11 @@ public static class PlayerStatusNativeChecks
                 "normal run and combat share the three-point default determination cap");
             check(hud.resolve.Count(pip => pip.gameObject.activeSelf) == 3,
                 "combat HUD hides the unsupported fourth determination slot");
-            var cap = typeof(PlayerCombatant).GetField("maxDetermination", BindingFlags.Instance | BindingFlags.NonPublic);
-            cap.SetValue(player, 4); hud.SendMessage("Refresh");
-            check(hud.resolve.All(pip => pip.gameObject.activeSelf), "combat HUD can still present an explicit four-point cap");
-            cap.SetValue(player, 3); hud.SendMessage("Refresh");
+            GameRoot.I.state.player.maxResolve = 4; GameRoot.I.state.player.resolve = 4;
+            player.Initialize(); hud.SendMessage("Refresh");
+            check(player.MaxDetermination == 3 && player.CurrentDetermination == 3
+                && hud.resolve.Count(pip => pip.gameObject.activeSelf) == 3, "legacy four-point run is migrated before combat HUD refresh");
+            GameRoot.I.state.player.resolve = 1; player.Initialize(); hud.SendMessage("Refresh");
             healthyBar = hud.playerHealth.color;
             foreach (var sprite in player.GetComponentsInChildren<SpriteRenderer>()) artwork[sprite] = sprite.color;
             Time.timeScale = 0;
@@ -114,10 +115,11 @@ public static class PlayerStatusNativeChecks
                 "actual equipment window displays exactly three determination diamonds and matching denominator");
             capture("inventory-resolve-three.png");
             GameRoot.I.state.player.maxResolve = 4; GameRoot.I.state.player.resolve = 4; equipment.Refresh();
-            check(layout.resolveReadout.text == "4 / 4" && layout.resolvePips.All(pip => pip.gameObject.activeSelf && pip.alpha == 1)
-                && layout.resolveFills.All(fill => fill.enabled), "explicit four-point run displays four full diamonds in the equipment window");
-            capture("inventory-resolve-four.png");
-            GameRoot.I.state.player.maxResolve = 3; GameRoot.I.state.player.resolve = 1;
+            check(layout.resolveReadout.text == "3 / 3" && layout.resolvePips.Take(3).All(pip => pip.gameObject.activeSelf && pip.alpha == 1)
+                && !layout.resolvePips[3].gameObject.activeSelf && layout.resolveFills.Take(3).All(fill => fill.enabled),
+                "legacy four-point run displays three full diamonds after migration");
+            capture("inventory-resolve-migrated.png");
+            GameRoot.I.state.player.maxResolve = StatusRules.DefaultMaxResolve; GameRoot.I.state.player.resolve = 1;
             player.ApplyStatus(StatusId.Poison, 2); equipment.Refresh();
             check(layout.healthFill.color.g > layout.healthFill.color.r * 1.2f,
                 "persisted poison also colors the equipment window's health bar green");

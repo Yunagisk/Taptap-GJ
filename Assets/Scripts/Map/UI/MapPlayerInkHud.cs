@@ -198,7 +198,8 @@ public sealed class MapPlayerInkHud : MonoBehaviour, IPointerEnterHandler, IPoin
             return;
         }
         var player = state.player;
-        int maximum = Mathf.Clamp(player.maxResolve, 0, 4);
+        player.NormalizeResolve();
+        int maximum = StatusRules.DefaultMaxResolve;
         int current = Mathf.Clamp(player.resolve, 0, maximum);
         for (int i = 0; resolveFills != null && i < resolveFills.Length; i++)
             if (resolveFills[i] != null) resolveFills[i].enabled = i < current;

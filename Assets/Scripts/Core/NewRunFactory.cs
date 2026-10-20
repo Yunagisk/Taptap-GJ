@@ -2,7 +2,7 @@ using System;
 
 public static class NewRunFactory
 {
-    public static readonly string[] StartingWeapons = { "sword", "axe", "hammer", "dual_swords" };
+    public static readonly string[] StartingWeapons = { "sword", "axe", "hammer" };
 
     public static GameState CreateForIntroduction(MapLayout layout, int seed)
     {
@@ -26,6 +26,7 @@ public static class NewRunFactory
         if (Array.IndexOf(StartingWeapons, weaponId) < 0)
             throw new ArgumentException("Choose a valid starting weapon.", nameof(weaponId));
         var state = new GameState();
+        state.map.slothChapterOnly = true;
         state.player.currentWeaponId = weaponId;
         state.inventory.weapons.Clear();
         state.inventory.weapons.Add(weaponId);

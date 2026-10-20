@@ -15,7 +15,7 @@ MonoBehaviour:
   weaponName: "\u5927\u5251"
   weaponId: greatsword
   damageComponents:
-  - damageType: 0
+  - damageType: 1
     damage: 13
   attackCount: 1
   skill: {fileID: 11400000, guid: 43a87a2879d14b46a974f174ef4eb611, type: 2}

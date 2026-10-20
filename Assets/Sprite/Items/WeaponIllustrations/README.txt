@@ -9,7 +9,6 @@
 sword         Sword.png          剑
 greatsword    Greatsword.png      大剑
 spear         Spear.png          长矛
-dual_swords   DualSwords.png      双剑（两把短刃）
 axe           Axe.png            斧
 sickle        Sickle.png         长柄镰刀
 hammer        Hammer.png         锤
