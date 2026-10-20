@@ -250,9 +250,8 @@ public static class VillageEventRules
         if (!string.IsNullOrEmpty(choice.rewardText))
         {
             string reward = WorldResourceRules.TimeLabel(state.world) + " · " + definition.title
-                + "：" + choice.rewardText + "（道具暂以文字记录，未加入背包）";
+                + "：" + choice.rewardText;
             state.world.villageEvents.rewardTexts.Add(reward);
-            message.Append("\n").Append(choice.rewardText).Append("（道具暂以文字记录，未加入背包）。");
         }
         if (!string.IsNullOrEmpty(result.spawnedBossId))
             message.Append("\n罪恶达到 100，新的原罪首领已经出现，罪恶归零。");

@@ -4,6 +4,23 @@ public static class NewRunFactory
 {
     public static readonly string[] StartingWeapons = { "sword", "axe", "hammer", "dual_swords" };
 
+    public static GameState CreateForIntroduction(MapLayout layout, int seed)
+    {
+        var state = Create(layout, "sword", seed);
+        state.story.useVillageIntroduction = true;
+        state.story.tutorialNodeId = null;
+        MainStoryRules.EnsureInitialized(state, layout);
+        state.player.resolve = 0;
+        state.player.currentWeaponId = string.Empty;
+        state.player.lanternCharges = 0;
+        state.inventory.weapons.Clear();
+        state.inventory.seenWeaponIds.Clear();
+        state.inventory.equippedWeaponIds.Clear();
+        EquipmentRules.EnsureInitialized(state);
+        ShopRules.StockNewRun(state.shop, null);
+        return state;
+    }
+
     public static GameState Create(MapLayout layout, string weaponId, int seed)
     {
         if (Array.IndexOf(StartingWeapons, weaponId) < 0)

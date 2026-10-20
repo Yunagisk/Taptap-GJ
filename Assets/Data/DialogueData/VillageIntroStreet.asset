@@ -1,0 +1,222 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageIntroStreet
+  m_EditorClassIdentifier: 
+  dialogueId: intro_village_street
+  completionEffect: 1
+  startNode:
+    id: street_start
+    speaker: "旁白"
+    lineKind: 1
+    content: "埃尔南多比你预想的安静。沿街的店铺大都落了锁。石板路上散着枯叶，偶尔传来一两声低语，又很快消失在门后。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: street_whispers
+  nodes:
+  - id: street_whispers
+    speaker: "窃窃私语"
+    lineKind: 0
+    content: "“银色的头发……”\n“这么年轻……”"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: mother_appearance
+  - id: mother_appearance
+    speaker: "旁白"
+    lineKind: 1
+    content: "你循声望去。\n你注意到不远处的门槛上坐着一个妇人，怀里紧紧搂着她的孩子。她也注意到了你，把孩子往怀里按了按，又目光冷冷地瞧着你上下打量，显然并未因为你的到来而感到欢欣。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: mother_stranger
+  - id: mother_stranger
+    speaker: "妇人"
+    lineKind: 0
+    content: "外乡人。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: mother_interrupts
+  - id: mother_interrupts
+    speaker: "旁白"
+    lineKind: 1
+    content: "你感觉似乎应该说些什么，但还没来及解释就被她打断了。她真粗鲁，是不是？"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: mother_refusal
+  - id: mother_refusal
+    speaker: "妇人"
+    lineKind: 0
+    content: "这里没有地方给你也没有吃的。要是想来找地方住那么你走错地方了，走开！"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "不好意思，我听不懂。"
+      targetNodeID: mother_language_reply
+    - choiceText: "我不是来投宿的。"
+      targetNodeID: mother_lodging_reply
+    nextNodeID: 
+  - id: mother_language_reply
+    speaker: "旁白"
+    lineKind: 1
+    content: "你回应她的语言听起来和她所说的——别无二致，她显然相信了，真的。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: mother_language_retort
+  - id: mother_language_retort
+    speaker: "妇人"
+    lineKind: 0
+    content: "……听不懂最好！"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: fisher_notice
+  - id: mother_lodging_reply
+    speaker: "猎魔人"
+    lineKind: 0
+    content: "我不是来投宿的。"
+    avatar: {fileID: 0}
+    isProtagonist: 1
+    choices: []
+    nextNodeID: mother_lodging_feedback
+  - id: mother_lodging_feedback
+    speaker: "旁白"
+    lineKind: 1
+    content: "你不曾想自己被错认成了乞丐——连忙挺直腰板急着撇清自己。\n很好，很有精神。你注意到不远处似乎有人低低地笑了一声。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: fisher_notice
+  - id: fisher_notice
+    speaker: "旁白"
+    lineKind: 1
+    content: "得益于过往的猎魔人生活给你带来了敏锐的五感，你留意到另一边原本劈柴的壮汉忽然停下动作，把斧子横在膝盖上。\n你能看到他的嘴唇上下动了动，但也许是这道声波的频率太低，你只听见类似的隆隆雷声。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: fisher_mumble
+  - id: fisher_mumble
+    speaker: "声音低沉的壮汉"
+    lineKind: 0
+    content: "“****斗*。”"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "什么？"
+      targetNodeID: fisher_quiet_cloak
+    nextNodeID: 
+  - id: fisher_quiet_cloak
+    speaker: "声音低沉的壮汉"
+    lineKind: 0
+    content: "……圣马丁的斗篷。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: fisher_loud_cloak
+  - id: fisher_loud_cloak
+    speaker: "声音低沉的壮汉"
+    lineKind: 0
+    content: "圣马丁的斗篷在哪里——？"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: fisher_wait
+  - id: fisher_wait
+    speaker: "旁白"
+    lineKind: 1
+    content: "他说完便不再作声，双眼倒映着金属特有的清光。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: fisher_cloak
+  - id: fisher_cloak
+    speaker: "声音低沉的壮汉"
+    lineKind: 0
+    content: "圣马丁的斗篷在哪里？"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "在我身上。"
+      targetNodeID: cloak_truth
+    - choiceText: "我看起来像个裁缝吗？"
+      targetNodeID: cloak_joke
+    nextNodeID: 
+  - id: cloak_joke
+    speaker: "旁白"
+    lineKind: 1
+    content: "壮汉皱起眉头，耐着性子重复最后一遍。\n“……圣马丁的斗篷在哪里？！”\n看来他没有闲心欣赏你的幽默。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: fisher_cloak
+  - id: cloak_truth
+    speaker: "旁白"
+    lineKind: 1
+    content: "你说得斩钉截铁。此乃实话。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: fisher_looks_up
+  - id: fisher_looks_up
+    speaker: "旁白"
+    lineKind: 1
+    content: "他终于站起身，又打量了你片刻，视线在你那件破旧的斗篷上停留许久。\n随后他放下斧头向你低下头。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: fisher_introduction
+  - id: fisher_introduction
+    speaker: "冈格"
+    lineKind: 0
+    content: "我们等待您很久了。欢迎来到埃尔南多——尊敬的猎魔人。请原谅我之前的失礼，我是冈格。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: traveler_thought
+  - id: traveler_thought
+    speaker: "旁白"
+    lineKind: 1
+    content: "这是一个虫鸣喧闹的凉爽夏夜。如果你还在波西米亚，在同样的季节和天气下应当正享受着酒馆里的美味啤酒，配合着潺潺溪流边动听的圣徒故事。\n不过似乎在这个叫做埃尔南多的地方谁也匀不出多余的力气去款待一个突如其来的陌生人。先薅着这个态度恭敬的冈格问问看吧。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "….埃尔南多？"
+      targetNodeID: fisher_guide
+    nextNodeID: 
+  - id: fisher_guide
+    speaker: "冈格"
+    lineKind: 0
+    content: "大人您刚来想必还不了解。让我先带着您熟悉一下这里吧。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: intro_unlock
+  - id: intro_unlock
+    speaker: "系统提示"
+    lineKind: 2
+    content: "解锁：埃尔南多城区地图、背包、装备界面。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: intro_depart
+  - id: intro_depart
+    speaker: "旁白"
+    lineKind: 1
+    content: "至少现在，你总算知道自己该往哪里走了。"
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID:

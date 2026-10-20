@@ -36,7 +36,7 @@ static class Program
     static void LoadAssets()
     {
         string library = File.ReadAllText(Path.Combine(Root, "Assets/Data/Weapons/WeaponLibrary.asset"));
-        int[] totals = { 12, 16, 13, 10, 14, 12, 14, 10, 10, 13, 12, 12 };
+        int[] totals = { 10, 13, 10, 8, 11, 10, 11, 8, 8, 11, 10, 10 };
         int[] prices = { 4, 8, 8, 8, 4, 8, 4, 8, 4, 12, 12, 12 };
         int[] costs = { 2, 3, 2, 3, 2, 3, 2, 2, 2, 3, 3, 3 };
         int[] masks = { 1, 1, 1, 1, 2, 2, 4, 4, 8, 3, 9, 12 };
@@ -112,15 +112,15 @@ static class Program
     static void NormalSkills()
     {
         string[] ids = { "sword", "greatsword", "spear", "dual_swords", "axe", "sickle", "hammer", "flail", "torch", "poleaxe", "flame_tongue", "heaven_fire" };
-        int[] damage = { 30, 36, 22, 20, 12, 18, 24, 20, 14, 14, 20, 18 };
-        int[] secondary = { 0, 0, 0, 0, 12, 0, 0, 0, 0, 6, 0, 0 };
+        int[] damage = { 24, 29, 18, 16, 10, 14, 19, 16, 11, 11, 16, 14 };
+        int[] secondary = { 0, 0, 0, 0, 10, 0, 0, 0, 0, 5, 0, 0 };
         for (int i = 0; i < ids.Length; i++)
         {
             var player = Player(ids[i], true); var target = Enemy(); var other = Enemy();
             Cast(player, target, target, other);
             Eq(200 - target.CurrentHP, damage[i], "skill primary damage " + ids[i]);
             Eq(200 - other.CurrentHP, secondary[i], "skill secondary damage " + ids[i]);
-            Eq(player.CurrentDetermination, 4 - Weapons[ids[i]].Skill.DeterminationCost, "one payment, no resolve gain " + ids[i]);
+            Eq(player.CurrentDetermination, 3 - Weapons[ids[i]].Skill.DeterminationCost, "one payment, no resolve gain " + ids[i]);
             Eq(player.GetComponent<PlayerAttackAnimation>().Plays, Weapons[ids[i]].Skill.Stages.Sum(s => s.hitCount), "ordinary animation per skill segment " + ids[i]);
         }
         var p = Player("flail"); var e = Enemy(); Cast(p, e); Eq(e.Statuses.Stacks(StatusId.Weak), 1, "flail rider applied once for both hits");
@@ -131,7 +131,7 @@ static class Program
     static void ImmunityAndBreak()
     {
         var p = Player("sword"); var e = Enemy(200, 99, (PlayerDamageType.Pierce, DamageReaction.Resistant));
-        Cast(p, e); Eq(e.CurrentHP, 170, "sword bypasses resistance");
+        Cast(p, e); Eq(e.CurrentHP, 176, "sword bypasses resistance");
         p = Player("sword"); e = Enemy(200, 99, (PlayerDamageType.Pierce, DamageReaction.Immune));
         Cast(p, e); Eq(e.CurrentHP, 200, "sword cannot bypass immunity");
         foreach (var item in new[] { ("greatsword", PlayerDamageType.Pierce, StatusId.Weak), ("hammer", PlayerDamageType.Blunt, StatusId.Sunder), ("flail", PlayerDamageType.Blunt, StatusId.Weak), ("torch", PlayerDamageType.Fire, StatusId.Ignite) })
@@ -140,9 +140,9 @@ static class Program
             Eq(e.CurrentHP, 200, "immune damage " + item.Item1); Eq(e.Statuses.Stacks(item.Item3), 0, "immune blocks rider " + item.Item1);
         }
         p = Player("heaven_fire"); e = Enemy(200, 99, (PlayerDamageType.Blunt, DamageReaction.Immune)); Cast(p, e);
-        Eq(e.CurrentHP, 192, "heaven fire partial immunity damage"); Eq(e.Statuses.Stacks(StatusId.Sunder), 0, "blunt immune blocks sunder"); Eq(e.Statuses.Stacks(StatusId.Ignite), 1, "blunt immunity allows fire ignite");
+        Eq(e.CurrentHP, 194, "heaven fire partial immunity damage"); Eq(e.Statuses.Stacks(StatusId.Sunder), 0, "blunt immune blocks sunder"); Eq(e.Statuses.Stacks(StatusId.Ignite), 1, "blunt immunity allows fire ignite");
         p = Player("heaven_fire"); e = Enemy(200, 99, (PlayerDamageType.Fire, DamageReaction.Immune)); Cast(p, e);
-        Eq(e.CurrentHP, 190, "heaven fire other component damage"); Eq(e.Statuses.Stacks(StatusId.Sunder), 1, "fire immunity allows sunder"); Eq(e.Statuses.Stacks(StatusId.Ignite), 0, "fire immune blocks ignite");
+        Eq(e.CurrentHP, 192, "heaven fire other component damage"); Eq(e.Statuses.Stacks(StatusId.Sunder), 1, "fire immunity allows sunder"); Eq(e.Statuses.Stacks(StatusId.Ignite), 0, "fire immune blocks ignite");
         p = Player("flame_tongue"); e = Enemy(200, 99, (PlayerDamageType.Pierce, DamageReaction.Immune), (PlayerDamageType.Fire, DamageReaction.Immune)); Cast(p, e);
         Eq(e.CurrentHP, 200, "fully immune mixed segment"); Eq(p.Statuses.Stacks(StatusId.Steadfast), 1, "immunity does not block self buff");
         p = Player("flame_tongue"); e = Enemy(200, 99, (PlayerDamageType.Pierce, DamageReaction.Weak), (PlayerDamageType.Fire, DamageReaction.Weak)); Cast(p, e);
@@ -157,26 +157,26 @@ static class Program
     static void Boundaries()
     {
         var p = Player("sickle"); var e = Enemy(200, 2, (PlayerDamageType.Slash, DamageReaction.Weak)); e.Break.TryAdd(2, 1); Cast(p, e);
-        Eq(e.CurrentHP, 178, "scythe prebroken snapshot, each segment floors 9x1.3 to 11");
+        Eq(e.CurrentHP, 182, "scythe prebroken snapshot, each segment floors 7x1.3 to 9");
         p = Player("sickle"); e = Enemy(200, 1, (PlayerDamageType.Slash, DamageReaction.Weak)); Cast(p, e);
-        Eq(e.CurrentHP, 182, "breaking mid-skill does not add scythe bonus");
+        Eq(e.CurrentHP, 186, "breaking mid-skill does not add scythe bonus");
         p = Player("sickle"); e = Enemy(200, 1); e.Break.TryAdd(1, 1); e.Break.ConsumeSkip(); e.BattleRound = 2; Cast(p, e);
-        Eq(e.CurrentHP, 178, "scythe can exploit break on next player turn after skipped enemy action");
+        Eq(e.CurrentHP, 182, "scythe can exploit break on next player turn after skipped enemy action");
         p = Player("sickle"); e = Enemy(200, 1); e.Break.TryAdd(1, 1); e.Break.ConsumeSkip(); e.BattleRound = 3; Cast(p, e);
-        Eq(e.CurrentHP, 182, "expired break protection grants no scythe bonus");
+        Eq(e.CurrentHP, 186, "expired break protection grants no scythe bonus");
         p = Player("dual_swords", true); e = Enemy(7); var other = Enemy(); Cast(p, e, e, other);
         Eq(p.GetComponent<PlayerAttackAnimation>().Plays, 2, "lethal multi-hit stops remaining segments"); Eq(other.CurrentHP, 200, "multi-hit does not retarget");
-        p = Player("poleaxe", true); e = Enemy(8); other = Enemy(); Cast(p, e, e, other);
-        Eq(other.CurrentHP, 194, "poleaxe sweep continues after primary dies"); Eq(p.GetComponent<PlayerAttackAnimation>().Plays, 2, "poleaxe uses two attack phases");
-        p = Player("dual_swords"); e = Enemy(); p.ApplyStatus(StatusId.Haste, 1); Cast(p, e); Eq(e.CurrentHP, 180, "haste does not add skill segments");
-        p = Player("dual_swords", true); e = Enemy(); p.ApplyStatus(StatusId.Haste, 1); Run(new PlayerAttackAction().Execute(p, e)); Eq(e.CurrentHP, 185, "haste still adds basic segment");
-        p = Player("sword"); e = Enemy(); p.SpendDetermination(3); Cast(p, e); Eq(e.CurrentHP, 200, "insufficient resolve prevents damage"); Eq(p.CurrentDetermination, 1, "insufficient resolve remains unchanged");
-        p = Player("sword"); e = Enemy(); p.ApplyStatus(StatusId.Exhaust, 1); Cast(p, e); Eq(e.CurrentHP, 200, "exhaust prevents skill"); Eq(p.CurrentDetermination, 4, "exhaust costs nothing");
-        p = Player("axe"); Run(new SkillAction(Array.Empty<EnemyCombatant>()).Execute(p, null)); Eq(p.CurrentDetermination, 4, "no targets costs nothing");
-        p = Player("sword"); e = Enemy(); other = Enemy(); Cast(p, e, other); Eq(p.CurrentDetermination, 4, "foreign primary costs nothing");
-        p = Player("axe"); e = Enemy(); other = Enemy(0); Cast(p, null, e, null, e, other); Eq(e.CurrentHP, 188, "aoe ignores dead/null/duplicate entries");
+        p = Player("poleaxe", true); e = Enemy(6); other = Enemy(); Cast(p, e, e, other);
+        Eq(other.CurrentHP, 195, "poleaxe sweep continues after primary dies"); Eq(p.GetComponent<PlayerAttackAnimation>().Plays, 2, "poleaxe uses two attack phases");
+        p = Player("dual_swords"); e = Enemy(); p.ApplyStatus(StatusId.Haste, 1); Cast(p, e); Eq(e.CurrentHP, 184, "haste does not add skill segments");
+        p = Player("dual_swords", true); e = Enemy(); p.ApplyStatus(StatusId.Haste, 1); Run(new PlayerAttackAction().Execute(p, e)); Eq(e.CurrentHP, 188, "haste still adds basic segment");
+        p = Player("sword"); e = Enemy(); p.SpendDetermination(2); Cast(p, e); Eq(e.CurrentHP, 200, "insufficient resolve prevents damage"); Eq(p.CurrentDetermination, 1, "insufficient resolve remains unchanged");
+        p = Player("sword"); e = Enemy(); p.ApplyStatus(StatusId.Exhaust, 1); Cast(p, e); Eq(e.CurrentHP, 200, "exhaust prevents skill"); Eq(p.CurrentDetermination, 3, "exhaust costs nothing");
+        p = Player("axe"); Run(new SkillAction(Array.Empty<EnemyCombatant>()).Execute(p, null)); Eq(p.CurrentDetermination, 3, "no targets costs nothing");
+        p = Player("sword"); e = Enemy(); other = Enemy(); Cast(p, e, other); Eq(p.CurrentDetermination, 3, "foreign primary costs nothing");
+        p = Player("axe"); e = Enemy(); other = Enemy(0); Cast(p, null, e, null, e, other); Eq(e.CurrentHP, 190, "aoe ignores dead/null/duplicate entries");
         p = Player("sword"); e = Enemy(); GameRoot.I = new GameObject().AddComponent<GameRoot>(); GameRoot.I.state.player.nextAttackBonusPercent = 50; Cast(p, e);
-        Eq(e.CurrentHP, 155, "next attack bonus applies to skill"); Eq(GameRoot.I.state.player.nextAttackBonusPercent, 0, "skill consumes bonus once");
+        Eq(e.CurrentHP, 164, "next attack bonus applies to skill"); Eq(GameRoot.I.state.player.nextAttackBonusPercent, 0, "skill consumes bonus once");
         GameRoot.I = null;
     }
     static BattleFlowController Flow(PlayerCombatant player, params EnemyCombatant[] enemies)
@@ -190,25 +190,55 @@ static class Program
     static void Targeting()
     {
         var p = Player("sword"); var e = Enemy(); var flow = Flow(p, e);
-        flow.PlayerSkill(); Check(flow.IsSelectingSkill, "skill enters target selection"); Eq(p.CurrentDetermination, 4, "selection costs nothing");
-        flow.CancelTargetSelection(); Check(flow.CurrentState == BattleState.PlayerTurn, "cancel restores turn"); Eq(p.CurrentDetermination, 4, "cancel costs nothing");
+        flow.PlayerSkill(); Check(flow.IsSelectingSkill, "skill enters target selection"); Eq(p.CurrentDetermination, 3, "selection costs nothing");
+        flow.CancelTargetSelection(); Check(flow.CurrentState == BattleState.PlayerTurn, "cancel restores turn"); Eq(p.CurrentDetermination, 3, "cancel costs nothing");
         flow.PlayerSkill(); flow.AttackTarget(e); Check(flow.CurrentState == BattleState.ExecutingAction, "confirmation immediately locks action");
         flow.AttackTarget(e); flow.PlayerSkill(); Eq(flow.Pending.Count, 1, "double click cannot queue duplicate cast");
         foreach (var pending in flow.Pending.ToArray()) Run(pending);
-        Eq(e.CurrentHP, 170, "flow executes skill damage"); Eq(p.CurrentDetermination, 2, "flow pays once"); Check(flow.CurrentState == BattleState.PlayerTurn && flow.RoundNumber == 2, "skill advances through enemy turn");
+        Eq(e.CurrentHP, 176, "flow executes skill damage"); Eq(p.CurrentDetermination, 1, "flow pays once"); Check(flow.CurrentState == BattleState.PlayerTurn && flow.RoundNumber == 2, "skill advances through enemy turn");
         p = Player("axe"); e = Enemy(); var other = Enemy(); flow = Flow(p, e, other); flow.PlayerSkill();
         Check(flow.CurrentState == BattleState.ExecutingAction && !flow.IsSelectingSkill, "aoe casts without target selection");
         foreach (var pending in flow.Pending.ToArray()) Run(pending);
-        Eq(e.CurrentHP, 188, "flow aoe primary"); Eq(other.CurrentHP, 188, "flow aoe secondary");
-        p = Player("sword"); e = Enemy(); flow = Flow(p, e); p.SpendDetermination(4); flow.PlayerSkill();
+        Eq(e.CurrentHP, 190, "flow aoe primary"); Eq(other.CurrentHP, 190, "flow aoe secondary");
+        p = Player("sword"); e = Enemy(); flow = Flow(p, e); p.SpendDetermination(3); flow.PlayerSkill();
         Check(flow.CurrentState == BattleState.PlayerTurn && flow.Pending.Count == 0, "insufficient resolve does not consume turn");
         p = Player("sword"); e = Enemy(); flow = Flow(p, e); p.ApplyStatus(StatusId.Exhaust, 1); Check(!flow.CanUseWeaponSkill, "exhaust disables skill button eligibility");
         flow.PlayerAttack(); Check(!flow.IsSelectingSkill, "ordinary attack retains its own selection mode");
     }
+    static void SharedWeaknesses()
+    {
+        var body = Enemy(100, 2, (PlayerDamageType.Pierce, DamageReaction.Weak), (PlayerDamageType.Blunt, DamageReaction.Weak));
+        var a = body.GetComponent<DamageResistance>();
+        var b = Enemy(100, 2, (PlayerDamageType.Pierce, DamageReaction.Weak), (PlayerDamageType.Blunt, DamageReaction.Weak)).GetComponent<DamageResistance>();
+        var unrelated = Enemy(100, 2, (PlayerDamageType.Pierce, DamageReaction.Weak)).GetComponent<DamageResistance>();
+        var record = new List<PlayerDamageType>();
+        a.ShareDiscovery(record); b.ShareDiscovery(record);
+        Run(new PlayerAttackAction().Execute(Player("sword"), body));
+        Check(a.IsWeaknessKnown(PlayerDamageType.Pierce) && b.IsWeaknessKnown(PlayerDamageType.Pierce), "one species shares a discovered damage type immediately");
+        Check(!b.IsWeaknessKnown(PlayerDamageType.Blunt) && b.UnknownWeaknessCount == 1, "a hit reveals only its own damage type");
+        Check(!unrelated.IsWeaknessKnown(PlayerDamageType.Pierce), "other species with the same weakness stay undiscovered");
+        a.ObserveDamageType(PlayerDamageType.Pierce); Eq(record.Count, 1, "repeated attacks do not duplicate discovery entries");
+        Eq(b.RevealWeaknesses(), 1, "lantern reveals only remaining shared weaknesses");
+        Check(a.IsWeaknessKnown(PlayerDamageType.Blunt) && a.UnknownWeaknessCount == 0, "lantern discovery propagates back to the first monster");
+        Eq(a.RevealWeaknesses(), 0, "already known species cannot consume another reveal");
+        b.SetStageRules(new[] { new DamageResistance.DamageRule { damageType = PlayerDamageType.Fire, damageReaction = DamageReaction.Weak } });
+        Check(!b.IsWeaknessKnown(PlayerDamageType.Fire) && a.IsWeaknessKnown(PlayerDamageType.Pierce), "phase reset detaches without erasing other monsters or the run record");
+        a.ResetDiscovery(); Check(!a.IsWeaknessKnown(PlayerDamageType.Pierce) && record.Count == 2, "battle reset leaves saved discoveries intact");
+        a.ShareDiscovery(record); Check(a.UnknownWeaknessCount == 0, "rebinding a new encounter restores species discoveries");
+    }
+
     static void Main(string[] args)
     {
         Root = args.Length > 0 ? Path.GetFullPath(args[0]) : Directory.GetCurrentDirectory();
-        LoadAssets(); NormalSkills(); ImmunityAndBreak(); Boundaries(); Targeting();
+        LoadAssets(); NormalSkills(); ImmunityAndBreak(); Boundaries(); Targeting(); SharedWeaknesses();
+        var capped = Player("sword");
+        Eq(capped.MaxDetermination, 3, "standalone combat shares the three-point default cap");
+        Eq(capped.AddDetermination(99), 0, "three-point cap rejects excess determination");
+        GameRoot.I = new GameObject().AddComponent<GameRoot>();
+        GameRoot.I.state.player.maxResolve = 4; GameRoot.I.state.player.resolve = 4;
+        capped.Initialize();
+        Eq(capped.MaxDetermination, 4, "explicit run cap is preserved instead of silently reduced");
+        Eq(capped.CurrentDetermination, 4, "explicit four-point run restores all four points");
         Console.WriteLine($"PASS: {checks} weapon asset, skill damage, immunity, break, animation, resolve and targeting checks.");
     }
 }

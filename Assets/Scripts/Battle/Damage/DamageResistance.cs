@@ -14,12 +14,24 @@ public class DamageResistance : MonoBehaviour
     }
     [Header("伤害类型抗性")]
     [SerializeField] private List<DamageRule> damageRules = new List<DamageRule>();
-    readonly HashSet<PlayerDamageType> observedTypes = new HashSet<PlayerDamageType>();
+    List<PlayerDamageType> observedTypes = new List<PlayerDamageType>();
 
     public bool IsWeaknessKnown(PlayerDamageType type) =>
         observedTypes.Contains(type) && GetDamageReaction(type) == DamageReaction.Weak;
-    public void ObserveDamageType(PlayerDamageType type) => observedTypes.Add(type);
-    public void ResetDiscovery() => observedTypes.Clear();
+    public void ObserveDamageType(PlayerDamageType type)
+    { if (!observedTypes.Contains(type)) observedTypes.Add(type); }
+
+    // All instances of a species can use the same per-run discovery record.
+    public void ShareDiscovery(List<PlayerDamageType> discoveries)
+    {
+        if (discoveries == null) throw new ArgumentNullException(nameof(discoveries));
+        foreach (var type in observedTypes)
+            if (!discoveries.Contains(type)) discoveries.Add(type);
+        observedTypes = discoveries;
+    }
+
+    // A phase reset detaches this combatant without erasing its species' record.
+    public void ResetDiscovery() => observedTypes = new List<PlayerDamageType>();
 
     public int UnknownWeaknessCount
     {
@@ -36,7 +48,8 @@ public class DamageResistance : MonoBehaviour
     {
         int count = 0;
         foreach (PlayerDamageType type in Enum.GetValues(typeof(PlayerDamageType)))
-            if (GetDamageReaction(type) == DamageReaction.Weak && observedTypes.Add(type)) count++;
+            if (GetDamageReaction(type) == DamageReaction.Weak && !observedTypes.Contains(type))
+            { ObserveDamageType(type); count++; }
         return count;
     }
 

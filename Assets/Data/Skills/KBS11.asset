@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: KBS11
   m_EditorClassIdentifier: 
   skillName: "\u711a\u5fc3"
-  skillDescription: "\u5355\u4f53\u7a7f\u523a12\uff0b\u706b\u71308\uff0c1\u4e2a\u6df7\u5408\u6bb5\uff1b\u4e3b\u89d2\u575a\u5b9a1\u5c42\uff0c\u76ee\u6807\u514d\u75ab\u4e0d\u963b\u6b62\u81ea\u8eab\u589e\u76ca\u3002"
+  skillDescription: "\u5355\u4f53\u7a7f\u523a10\uff0b\u706b\u71306\uff0c1\u4e2a\u6df7\u5408\u6bb5\uff1b\u4e3b\u89d2\u575a\u5b9a1\u5c42\uff0c\u76ee\u6807\u514d\u75ab\u4e0d\u963b\u6b62\u81ea\u8eab\u589e\u76ca\u3002"
   determinationCost: 3
   stages:
   - target: 0
     hitCount: 1
     damageComponents:
     - damageType: 0
-      damage: 12
+      damage: 10
     - damageType: 3
-      damage: 8
+      damage: 6
   statusEffects:
   - applyToSelf: 1
     status: 2

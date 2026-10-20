@@ -21,6 +21,7 @@ public sealed class EnemySpriteAnimation : MonoBehaviour
     int playbackVersion;
     float clock;
     Vector3 hurtStartPosition;
+    Vector3 idleStartPosition;
 
     public Sprite Portrait => animations != null ? animations.Portrait : null;
     public Sprite HudPortrait => animations != null && animations.portraitIcon != null ? animations.portraitIcon : Portrait;
@@ -66,14 +67,17 @@ public sealed class EnemySpriteAnimation : MonoBehaviour
     {
         if (animatedRenderer == null || motion == Motion.Attack) return;
         clock += Time.deltaTime;
+        if (motion == Motion.Idle)
+            visual.localPosition = Vector3.Lerp(idleStartPosition, visualOffset, Mathf.SmoothStep(0, 1, clock / .14f));
+        else if (motion == Motion.Hurt)
+            visual.localPosition = Vector3.Lerp(hurtStartPosition, visualOffset,
+                Mathf.SmoothStep(0, 1, clock / (animations.HurtFrameCount / (float)animations.framesPerSecond)));
         if (animations.UsesArtworkMotion && stableIdle != null)
         {
             float duration = animations.HurtFrameCount / (float)animations.framesPerSecond;
             if (motion == Motion.Hurt && clock >= duration) { ReturnToIdle(); return; }
             stableIdle.ApplyArtwork(animations, motion == Motion.Hurt ? EnemyArtworkPose.Hurt : EnemyArtworkPose.Idle,
                 clock, duration);
-            if (motion == Motion.Hurt) visual.localPosition = Vector3.Lerp(hurtStartPosition, visualOffset,
-                Mathf.SmoothStep(0, 1, clock / duration));
             return;
         }
         if (motion == Motion.Idle && stableIdle != null)
@@ -92,7 +96,7 @@ public sealed class EnemySpriteAnimation : MonoBehaviour
     {
         motion = Motion.Idle;
         clock = 0f;
-        if (visual != null) visual.localPosition = visualOffset;
+        if (visual != null) idleStartPosition = visual.localPosition;
         if (animatedRenderer != null) animatedRenderer.sprite = animations.Portrait;
         if (stableIdle != null)
         {
@@ -108,16 +112,15 @@ public sealed class EnemySpriteAnimation : MonoBehaviour
         if (defeated || !isActiveAndEnabled || animatedRenderer == null || !animations.HasHurt) return;
         ++playbackVersion;
         motion = Motion.Hurt;
+        hurtStartPosition = visual.localPosition;
         if (animations.UsesArtworkMotion && stableIdle != null)
         {
-            hurtStartPosition = visual.localPosition;
             clock = 0; stableIdle.BeginPose(); stableIdle.Show(true);
             stableIdle.ApplyArtwork(animations, EnemyArtworkPose.Hurt, 0, animations.HurtFrameCount / (float)animations.framesPerSecond);
             return;
         }
         if (stableIdle != null) stableIdle.Show(false);
         clock = 0f;
-        visual.localPosition = visualOffset;
         animatedRenderer.sprite = animations.hurtFrames[0];
     }
 
@@ -178,25 +181,21 @@ public sealed class EnemySpriteAnimation : MonoBehaviour
 
     Vector3 Approach(Combatant target)
     {
-        if (target == null) return Vector3.zero;
-        float gap = target.transform.position.x - transform.position.x;
+        float gap = target != null ? target.transform.position.x - transform.position.x
+            : (appearance.flipX ? 10f : -10f);
         float distance = Mathf.Min(Mathf.Max(0f, animations.attackLungeDistance), Mathf.Abs(gap) * .25f);
         // Convert from world space so differently scaled prefabs all take the same small step.
         return appearance.transform.InverseTransformVector(Vector3.right * (Mathf.Sign(gap) * distance));
     }
 
-    void Pose(EnemyAttackAnimationClock.Sample sample, EnemyAttackAnimationClock timing, Vector3 approach)
+    void Pose(EnemyAttackAnimationClock.Sample sample, EnemyAttackAnimationClock timing, Vector3 approach, Vector3 start)
     {
         if (animations.UsesArtworkMotion)
             stableIdle.ApplyArtwork(animations, EnemyArtworkPose.Attack, sample.Time, timing.Duration);
         else animatedRenderer.sprite = animations.attackFrames[sample.Frame];
-        float contact = timing.ContactTime;
-        float release = contact * .6f;
-        float amount = sample.Time <= contact
-            ? Mathf.InverseLerp(release, contact, sample.Time)
-            : 1f - Mathf.InverseLerp(contact, timing.Duration, sample.Time);
-        amount = Mathf.SmoothStep(0f, 1f, amount);
-        visual.localPosition = visualOffset + approach * amount;
+        float amount = EnemyAttackMotion.Advance(sample.Time / timing.Duration, timing.ContactTime / timing.Duration);
+        visual.localPosition = visualOffset + approach * amount
+            + (start - visualOffset) * (1f - Mathf.SmoothStep(0, 1, sample.Time / .14f));
     }
 
     public IEnumerator PlayAttack(Combatant target, Func<bool> attackerAlive, Func<bool> targetAlive, Action onHit)
@@ -205,7 +204,7 @@ public sealed class EnemySpriteAnimation : MonoBehaviour
         int version = ++playbackVersion;
         var timing = new EnemyAttackAnimationClock(animations.AttackFrameCount,
             animations.framesPerSecond, animations.attackContactFrame);
-        visual.localPosition = visualOffset;
+        Vector3 start = visual.localPosition;
         Vector3 approach = Approach(target);
         motion = Motion.Attack;
         if (stableIdle != null)
@@ -220,11 +219,13 @@ public sealed class EnemySpriteAnimation : MonoBehaviour
                 && attackerAlive() && targetAlive())
             {
                 var sample = timing.At(elapsed);
-                Pose(sample, timing, approach);
+                Pose(sample, timing, approach, start);
+                // A delayed frame must not skip straight from the contact pose to idle.
+                elapsed = sample.Time;
                 if (sample.DeliverHit) onHit?.Invoke();
                 if (sample.Complete) break;
                 yield return null;
-                elapsed += Time.deltaTime;
+                elapsed += Mathf.Min(Time.deltaTime, .05f);
             }
         }
         finally

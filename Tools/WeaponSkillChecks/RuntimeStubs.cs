@@ -70,10 +70,19 @@ public class GameRoot : UnityEngine.MonoBehaviour
 }
 public class TestGameState { public PlayerState player = new(); public TestMapState map = new(); }
 public class GameState : TestGameState { }
+// Narrative presentation is exercised by the native guide playthrough, not this combat rules host.
+public sealed class GuideBattleController
+{
+    public static GuideBattleController Attach(BattleFlowController battle) => null;
+    public bool Allows(string action) => true;
+    public string Instruction => "";
+    public void ReadyForPlayer() { }
+    public void ActionCompleted(string action) { }
+}
 public class TestMapState { public string templateId; }
 public class PlayerState
 {
-    public int hp = 100, maxHp = 100, resolve, maxResolve = 4;
+    public int hp = 100, maxHp = 100, resolve, maxResolve = StatusRules.DefaultMaxResolve;
     public int nextAttackBonusPercent, nextDirectHitReductionPercent;
     public List<StatusSnapshot> ordinaryStatuses = new();
 }
@@ -82,7 +91,10 @@ public class EnemyCombatant : Combatant
     public int Priority => 10;
     public BreakGauge Break { get; set; } = new(99);
     public IEnumerator TakeTurn(PlayerCombatant player) { yield break; }
+    public void PrepareIntent(PlayerCombatant player, EnemyIntentBudget budget) { }
 }
+public class EnemyIntentBudget { }
+public class PlayerDefenseEffects : UnityEngine.MonoBehaviour { }
 public class PlayerAttackAnimation : UnityEngine.MonoBehaviour
 {
     public int Plays, Impacts;

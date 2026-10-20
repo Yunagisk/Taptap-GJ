@@ -26,7 +26,12 @@ public static class WorldResourceRules
 
     public static string TimeLabel(WorldState world)
     {
-        int time = Math.Max(0, world != null ? world.time : 0);
+        return TimeLabel(world != null ? world.time : 0);
+    }
+
+    public static string TimeLabel(int absoluteTime)
+    {
+        int time = Math.Max(0, absoluteTime);
         return "第 " + (time / UnitsPerDay + 1) + " 天 " + Periods[time % UnitsPerDay];
     }
 
@@ -98,13 +103,18 @@ public static class WorldResourceRules
         return player.hp - oldHp;
     }
 
-    public static int RecoverAtCamp(PlayerState player)
+    public static int CampRecoveryPreview(PlayerState player)
     {
-        if (player == null || player.hp >= player.maxHp) return 0;
-        // The prototype camp restores 25% max HP; its one-use bonus scales that recovery.
+        if (player == null || player.maxHp <= 0 || player.hp >= player.maxHp) return 0;
         int bonus = Math.Max(0, player.nextCampRecoveryBonusPercent);
         int amount = Math.Max(1, (int)Math.Ceiling(player.maxHp * 0.25d * (1d + bonus / 100d)));
-        int recovered = Heal(player, amount);
+        return Math.Min(player.maxHp - Math.Max(0, player.hp), amount);
+    }
+
+    public static int RecoverAtCamp(PlayerState player)
+    {
+        // Previewing a rest never consumes the one-use camp recovery bonus.
+        int recovered = Heal(player, CampRecoveryPreview(player));
         if (recovered > 0) player.nextCampRecoveryBonusPercent = 0;
         return recovered;
     }

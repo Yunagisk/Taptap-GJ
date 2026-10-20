@@ -15,6 +15,8 @@ public class DialogueNode
 
     [TextArea(3, 5)]
     public string content;
+    [Header("引导任务到达此句时发放一次的奖励")]
+    public GuideReward guideReward;
 
 
     [Header("角色立绘（建议使用透明背景半身像）")]

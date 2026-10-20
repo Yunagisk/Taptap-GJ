@@ -32,6 +32,8 @@ public class BattleFlowController : MonoBehaviour
     public GameState ItemState => GameRoot.I != null ? GameRoot.I.state : null;
     public string ActionMessage { get; private set; }
     public bool IsSelectingLantern => currentAction is ItemAction item && item.ItemId == ItemTable.Lantern;
+    public GuideBattleController Guide { get; private set; }
+    public bool GuideAllowsAction(string action) => Guide == null || Guide.Allows(action);
 
     private int round = 0;
 
@@ -55,6 +57,7 @@ public class BattleFlowController : MonoBehaviour
     {
         get
         {
+            if (!GuideAllowsAction("skill")) return Guide.Instruction;
             if (currentState != BattleState.PlayerTurn || player == null || player.IsDead) return "当前不能行动";
             var skill = player.CurrentWeapon != null ? player.CurrentWeapon.Skill : null;
             if (skill == null || !skill.IsConfigured) return "未配置技能";
@@ -103,6 +106,8 @@ public class BattleFlowController : MonoBehaviour
             enemy.Initialize();
         }
 
+        Guide = GuideBattleController.Attach(this);
+
         StartNewRound();
     }
 
@@ -110,6 +115,16 @@ public class BattleFlowController : MonoBehaviour
     {
         round++;
         StampRound();
+
+        // Lock actual random intents before the player makes a decision.
+        var planningOrder = new List<EnemyCombatant>(enemies);
+        for (int i = planningOrder.Count - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            var swap = planningOrder[i]; planningOrder[i] = planningOrder[j]; planningOrder[j] = swap;
+        }
+        var budget = new EnemyIntentBudget();
+        foreach (var enemy in planningOrder) if (enemy != null) enemy.PrepareIntent(player, budget);
 
         roundText.text = $"回合：{round}";
 
@@ -141,6 +156,7 @@ public class BattleFlowController : MonoBehaviour
     {
         ActiveCombatant = player;
         SetState(BattleState.PlayerTurn);
+        Guide?.ReadyForPlayer();
 
         Debug.Log("玩家开始战斗");
 
@@ -149,7 +165,7 @@ public class BattleFlowController : MonoBehaviour
     }
     public void PlayerAttack()
     {
-        if (currentState != BattleState.PlayerTurn || player == null
+        if (!GuideAllowsAction("attack") || currentState != BattleState.PlayerTurn || player == null
             || player.IsDead || player.CurrentWeapon == null)
         {
             return;
@@ -233,6 +249,7 @@ public class BattleFlowController : MonoBehaviour
     public ItemResult CheckItem(string id, bool selectingTarget = false)
     {
         id = ItemTable.CanonicalId(id);
+        if (!GuideAllowsAction(id)) return new ItemResult(false, Guide.Instruction);
         if (currentState != BattleState.PlayerTurn || player == null || player.IsDead)
             return new ItemResult(false, "当前无法使用道具。");
         if (id == ItemTable.Lantern && selectingTarget)
@@ -293,6 +310,9 @@ public class BattleFlowController : MonoBehaviour
 
     IEnumerator FinishPlayerAction()
     {
+        string action = currentAction is ItemAction item ? item.ItemId : currentAction is DefendAction ? "defend"
+            : currentAction is SkillAction ? "skill" : "attack";
+        Guide?.ActionCompleted(action);
         currentAction = null;
         if (player == null || player.IsDead)
         {
@@ -437,7 +457,7 @@ public class BattleFlowController : MonoBehaviour
 
     public void PlayerDefend()
     {
-        if(currentState != BattleState.PlayerTurn)
+        if(!GuideAllowsAction("defend") || currentState != BattleState.PlayerTurn)
         {
             return;
         }

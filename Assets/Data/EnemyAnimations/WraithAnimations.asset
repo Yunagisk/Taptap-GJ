@@ -36,4 +36,5 @@ MonoBehaviour:
   deathAshMaterial: {fileID: 2100000, guid: 48df0611b8cf599dac0f42ad22c1af73, type: 2}
   deathAshSeconds: 1
   attackContactFrame: 12
+  attackLungeDistance: 0.06
   attackContactPoint: {x: 0, y: 0}

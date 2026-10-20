@@ -171,9 +171,9 @@ public class MapWildernessEventUI : MonoBehaviour
         victoryButton.interactable = defeatButton.interactable = pending;
         closeButton.interactable = !pending;
         ConfigureNavigation(choosing, pending);
-        closeLabel.text = pending ? "先结算遭遇" : choosing ? "离开此处" : "继续探索";
-        eventMeta.text = choosing ? "选择后结算；离开后，这次事件将不再出现。"
-            : pending ? "遭遇一只小怪，使用下方按钮进行文字结算。" : "事件已结束，可以继续探索。";
+        closeLabel.text = pending ? "先应对小怪" : choosing ? "离开此处" : "继续探索";
+        eventMeta.text = choosing ? "选择一种行动；离开后将无法再参与此事。"
+            : pending ? "小怪拦住了去路，你打算怎么做？" : "事件已结束，可以继续探索。";
         string result = choosing ? "" : ResultSummary(level, definition, node);
         if (pending)
         {
@@ -223,24 +223,28 @@ public class MapWildernessEventUI : MonoBehaviour
             foreach (var node in layout.nodes)
                 if (node != null && !string.IsNullOrEmpty(node.id) && !string.IsNullOrEmpty(node.displayName))
                     text = text.Replace(node.id, NodeName(node.id));
-        return text.Replace("（文字占位）", "（文字记录）");
+        // Old saves may retain prototype-only reward and combat notes.
+        var lines = text.Split('\n');
+        var presented = new StringBuilder();
+        foreach (string line in lines)
+        {
+            if (line.Contains("道具记录（文字") || line.Contains("效果记录（文字")) continue;
+            string clean = line.Contains("战斗暂用文字结算")
+                ? "一只小怪挡住了去路。你可以驱赶它，或绕路离开。"
+                : line.Contains("战斗伤害、攻击和道具均为文字占位")
+                    ? "你赶走了小怪，拾取了它落下的罪骸。罪骸 +1。"
+                    : line.Contains("普通遭遇失败（文字占位）") ? "你绕过小怪，继续前行。"
+                    : line.Replace("（文字占位）", "").Replace("（文字记录）", "");
+            if (presented.Length > 0) presented.Append('\n');
+            presented.Append(clean);
+        }
+        return presented.ToString();
     }
 
     string NodeName(string id)
     {
         var node = controller != null && controller.Progression != null ? controller.Progression.GetNode(id) : null;
-        if (node == null) return "相邻地点";
-        if (node.kind != MapNodeKind.Event) return node.displayName;
-        var layout = controller.Progression.Layout;
-        var region = layout.regions != null ? layout.regions.Find(value => value != null && value.id == node.region) : null;
-        int ordinal = 0;
-        foreach (var candidate in layout.nodes)
-        {
-            if (candidate == null || candidate.kind != MapNodeKind.Event || candidate.region != node.region) continue;
-            ordinal++;
-            if (candidate.id == id) break;
-        }
-        return (region != null ? region.displayName : "野外") + "·问号 " + ordinal;
+        return node != null ? node.displayName : "相邻地点";
     }
 
     static string ChoiceSummary(WildernessChoiceDefinition choice)
@@ -255,14 +259,12 @@ public class MapWildernessEventUI : MonoBehaviour
             if (choice.outcomes.Count > 1) text.Append(Math.Round(outcome.weight * 100d / total)).Append("% ");
             if (outcome.sinDelta != 0) text.Append("罪恶 ").Append(outcome.sinDelta > 0 ? "+" : "").Append(outcome.sinDelta).Append("  ");
             if (outcome.healAmount > 0) text.Append("恢复 ").Append(outcome.healAmount).Append(" 生命  ");
-            if (!string.IsNullOrEmpty(outcome.rewardText)) text.Append(outcome.rewardText).Append("  ");
-            if (!string.IsNullOrEmpty(outcome.effectText)) text.Append(outcome.effectText).Append("  ");
             if (outcome.campRecoveryBonusPercent > 0) text.Append("下次营地恢复 +").Append(outcome.campRecoveryBonusPercent).Append("%  ");
             if (outcome.repairBridge) text.Append("修复通道  ");
-            if (outcome.encounter) text.Append("普通遭遇（另耗时 1）");
-            else if (outcome.sinDelta == 0 && outcome.healAmount == 0 && string.IsNullOrEmpty(outcome.rewardText)
-                && string.IsNullOrEmpty(outcome.effectText) && !outcome.repairBridge && outcome.campRecoveryBonusPercent == 0)
-                text.Append("无额外战斗");
+            if (outcome.encounter) text.Append("遇到小怪（另耗时 1）");
+            else if (outcome.sinDelta == 0 && outcome.healAmount == 0
+                && !outcome.repairBridge && outcome.campRecoveryBonusPercent == 0)
+                text.Append("平安离开");
         }
         return text.ToString().TrimEnd();
     }

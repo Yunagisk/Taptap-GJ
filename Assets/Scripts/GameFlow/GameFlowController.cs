@@ -12,6 +12,7 @@ public class GameFlowController : MonoBehaviour
     public bool isMainMenu;
     public Canvas canvas;
     public TMP_FontAsset font;
+    public Sprite menuPaper;
     public WorldMapTemplate template;
     public GameObject mainPage;
     public GameObject weaponPage;
@@ -43,6 +44,7 @@ public class GameFlowController : MonoBehaviour
     void Start()
     {
         if (GameRoot.I == null) new GameObject("GameRoot").AddComponent<GameRoot>();
+        GameFlowMenuStyle.Apply(this);
         Set(settingsOverlay, false);
         Set(pauseOverlay, false);
         Set(confirmOverlay, false);
@@ -83,7 +85,12 @@ public class GameFlowController : MonoBehaviour
 
     public void HandleBack()
     {
+        var guide = FindObjectOfType<GuideDialogueView>();
+        if (guide != null && guide.IsOpen) return;
         if (MapSceneTransition.IsBusy) return;
+        var map = worldMapGroup != null ? worldMapGroup.GetComponent<WorldMapController>() : null;
+        if (map == null) map = FindObjectOfType<WorldMapController>();
+        if (map != null && map.IsFastTravelConfirmationOpen) { map.CancelFastTravel(); return; }
         if (wildernessEventUI != null && wildernessEventUI.IsOpen)
         {
             wildernessEventUI.controller.CloseWildernessEvent();
@@ -109,13 +116,7 @@ public class GameFlowController : MonoBehaviour
     public void BeginNewGame()
     {
         if (IsLoading) return;
-        SelectedWeapon = null;
-        errorText.text = "";
-        selectedWeaponText.text = "";
-        startButton.interactable = false;
-        foreach (var image in weaponOptions) image.color = new Color32(237, 239, 243, 255);
-        Set(mainPage, false);
-        Set(weaponPage, true);
+        StartNewRun(true);
     }
 
     public void SelectWeapon(string id)
@@ -132,10 +133,17 @@ public class GameFlowController : MonoBehaviour
     public void StartSelectedGame()
     {
         if (IsLoading || string.IsNullOrEmpty(SelectedWeapon)) return;
+        StartNewRun(false);
+    }
+
+    void StartNewRun(bool introduction)
+    {
         try
         {
             if (template == null) throw new InvalidOperationException("No map template is assigned.");
-            var fresh = NewRunFactory.Create(template.Load(), SelectedWeapon, Guid.NewGuid().GetHashCode());
+            int seed = Guid.NewGuid().GetHashCode();
+            var fresh = introduction ? NewRunFactory.CreateForIntroduction(template.Load(), seed)
+                : NewRunFactory.Create(template.Load(), SelectedWeapon, seed);
             if (!Application.CanStreamedLevelBeLoaded(MapScene))
                 throw new InvalidOperationException("The map scene is missing from Build Settings.");
             if (!Application.CanStreamedLevelBeLoaded(VillageScene))

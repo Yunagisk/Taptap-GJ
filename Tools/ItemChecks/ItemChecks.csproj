@@ -6,9 +6,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Assets/Scripts/Core/GameState.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Damage/PlayerDamageType.cs" />
     <Compile Include="../../Assets/Scripts/Core/WorldResourceRules.cs" />
     <Compile Include="../../Assets/Scripts/Core/VillageEventRules.cs" />
     <Compile Include="../../Assets/Scripts/Core/MainStoryRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/VillageIntroRules.cs" />
     <Compile Include="../../Assets/Scripts/Core/EquipmentRules.cs" />
     <Compile Include="../../Assets/Scripts/Inventory/Weapons/WeaponTable.cs" />
     <Compile Include="../../Assets/Scripts/Inventory/Items/ItemDef.cs" />

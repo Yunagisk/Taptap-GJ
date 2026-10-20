@@ -15,6 +15,7 @@ public sealed class BattleHudView : MonoBehaviour
     public BattleHudEnemyView enemyTemplate;
     public RectTransform enemyContainer, worldTagTemplate;
     public Sprite[] damageIcons;
+    public Material actorOutlineMaterial;
     public Button attack, defend, skill, items, closePopup;
     public BattleWeaponWheel wheel;
     public GameObject popup;
@@ -25,9 +26,21 @@ public sealed class BattleHudView : MonoBehaviour
     readonly List<BattleHudEnemyView> rows = new List<BattleHudEnemyView>();
     readonly List<Combatant> order = new List<Combatant>();
     float nextRefresh;
+    float enemyRowHeight;
     TMP_Text skillLabel;
     readonly List<Button> itemButtons = new List<Button>();
     bool showingItems;
+    BattleActionTooltip actionTooltip;
+    BattleTargetingArrow targetingArrow;
+    BattlePlayerStatusView playerStatuses;
+    public BattleTargetingArrow TargetingArrow => targetingArrow;
+    public IReadOnlyList<BattleHudEnemyView> EnemyRows => rows;
+    public EnemyCombatant HighlightedEnemy => targetingArrow != null ? targetingArrow.HoveredEnemy : null;
+    public bool ShowEnemyName(EnemyCombatant enemy) => Flow != null && !popup.activeSelf
+        && (Flow.CurrentState == BattleState.SelectingTarget || HighlightedEnemy == enemy);
+
+    public bool CanShowActionInfo => Flow != null && !popup.activeSelf
+        && (Flow.CurrentState == BattleState.PlayerTurn || Flow.CurrentState == BattleState.SelectingTarget);
 
     public void Bind(BattleFlowController flow, PlayerWeaponLoadout loadout, BattleWeaponController switching)
     {
@@ -37,13 +50,20 @@ public sealed class BattleHudView : MonoBehaviour
         defend.onClick.AddListener(() => { if (CanAct) Flow.PlayerDefend(); });
         skill.onClick.AddListener(UseSkill);
         skillLabel = skill.GetComponentInChildren<TMP_Text>();
+        skillLabel.enableAutoSizing = true;
+        skillLabel.fontSizeMin = 17;
+        skillLabel.fontSizeMax = 24;
         items.onClick.AddListener(ShowItems);
         closePopup.onClick.AddListener(ClosePopup);
         popup.SetActive(false);
+        prompt.gameObject.SetActive(false);
         enemyTemplate.gameObject.SetActive(false);
         worldTagTemplate.gameObject.SetActive(false);
         foreach (var label in GetComponentsInChildren<TMP_Text>(true))
             label.font = SharedUIFont.Get(label.font);
+        actionTooltip = GetComponent<BattleActionTooltip>();
+        if (actionTooltip == null) actionTooltip = gameObject.AddComponent<BattleActionTooltip>();
+        actionTooltip.Bind(this);
         OutlineNumber(healthText);
         if (flow == null) return;
         int index = 0;
@@ -59,18 +79,45 @@ public sealed class BattleHudView : MonoBehaviour
             var hover = enemy.GetComponent<BattleHudTargetHover>();
             if (hover == null) hover = enemy.gameObject.AddComponent<BattleHudTargetHover>();
             hover.Bind(this, enemy);
-            enemy.GetComponent<EnemyTargetSelector>()?.UseExternalIndicator();
+            enemy.GetComponent<EnemyTargetSelector>()?.UseExternalIndicator(true);
         }
         // Fit extra enemies into the top-right column without running below the actions.
-        float rowHeight = Mathf.Min(142, 510f / Mathf.Max(1, rows.Count));
+        enemyRowHeight = Mathf.Min(142, 510f / Mathf.Max(1, rows.Count));
         for (int i = 0; i < rows.Count; i++)
         {
             var rect = (RectTransform)rows[i].transform;
-            rect.anchoredPosition = new Vector2(0, -i * rowHeight);
-            rect.localScale = Vector3.one * Mathf.Min(1, rowHeight / 142);
+            rows[i].MoveTo(new Vector2(0, -i * enemyRowHeight), true);
+            rect.localScale = Vector3.one * Mathf.Min(1, enemyRowHeight / 142);
         }
         flow.OnBattleStateChanged += StateChanged;
+        targetingArrow = GetComponent<BattleTargetingArrow>();
+        if (targetingArrow == null) targetingArrow = gameObject.AddComponent<BattleTargetingArrow>();
+        targetingArrow.Bind(this);
+        BindOutline(flow.Player);
+        playerStatuses = gameObject.AddComponent<BattlePlayerStatusView>();
+        playerStatuses.Bind(this);
+        if (flow.Player != null && flow.Player.GetComponent<PlayerStatusEffects>() == null)
+            flow.Player.gameObject.AddComponent<PlayerStatusEffects>();
+        foreach (var enemy in flow.Enemies) BindOutline(enemy);
         Refresh();
+    }
+    internal void RemoveEnemyCard(BattleHudEnemyView row)
+    {
+        if (!rows.Remove(row)) return;
+        row.gameObject.SetActive(false);
+        Destroy(row.gameObject);
+        int slot = 0;
+        foreach (var remaining in rows)
+            if (remaining != null && !remaining.IsDeparting)
+                remaining.MoveTo(new Vector2(0, -slot++ * enemyRowHeight));
+        Refresh();
+    }
+    void BindOutline(Combatant actor)
+    {
+        if (actor == null || actorOutlineMaterial == null) return;
+        var outline = actor.GetComponent<BattleActorOutline>();
+        if (outline == null) outline = actor.gameObject.AddComponent<BattleActorOutline>();
+        outline.Bind(actorOutlineMaterial);
     }
     bool CanAct => Flow != null && Flow.CurrentState == BattleState.PlayerTurn && !popup.activeSelf;
     void Attack()
@@ -91,7 +138,7 @@ public sealed class BattleHudView : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            wheel.CancelDrag();
+            actionTooltip.Hide();
             if (popup.activeSelf) ClosePopup();
             else Flow?.CancelTargetSelection();
         }
@@ -102,38 +149,35 @@ public sealed class BattleHudView : MonoBehaviour
     void StateChanged(BattleState state)
     {
         if (state != BattleState.PlayerTurn) ClosePopup();
-        if (state != BattleState.PlayerTurn) wheel.CancelDrag();
+        actionTooltip.Hide();
+        targetingArrow?.Synchronize();
         Refresh();
     }
+    public void RefreshTargetHighlights()
+    { foreach (var row in rows) if (row != null) row.Refresh(); }
     void Refresh()
     {
         if (Flow == null || Flow.Player == null) return;
         var player = Flow.Player;
         SetHealth(playerHealth, player.CurrentHP, player.MaxHP);
         healthText.text = player.CurrentHP + " / " + player.MaxHP;
-        statusText.text = (player.IsDefending ? "防御中  " : "") + player.Statuses.Format();
+        statusText.text = player.IsDefending ? "防御中" : "";
         for (int i = 0; i < resolve.Length; i++)
         {
-            resolve[i].fill = i < player.CurrentDetermination ? new Color32(239, 190, 55, 255) : new Color32(245, 241, 225, 255);
+            resolve[i].gameObject.SetActive(i < player.MaxDetermination);
+            resolve[i].fill = i < player.CurrentDetermination ? new Color32(219, 171, 68, 255) : new Color32(56, 47, 37, 255);
             resolve[i].SetVerticesDirty();
         }
         bool targeting = Flow.CurrentState == BattleState.SelectingTarget;
-        attack.interactable = !popup.activeSelf && (CanAct || targeting) && player.CurrentWeapon != null;
-        defend.interactable = items.interactable = CanAct;
+        attack.interactable = !popup.activeSelf && (CanAct || targeting) && player.CurrentWeapon != null && Flow.GuideAllowsAction("attack");
+        defend.interactable = CanAct && Flow.GuideAllowsAction("defend");
+        items.interactable = CanAct && Flow.GuideAllowsAction("items");
         skill.interactable = !popup.activeSelf && (Flow.IsSelectingSkill || CanAct && Flow.CanUseWeaponSkill);
         var skillData = player.CurrentWeapon != null ? player.CurrentWeapon.Skill : null;
         if (skillLabel != null) skillLabel.text = skillData != null
-            ? skillData.SkillName + " · " + skillData.DeterminationCost : "技能";
-        attack.GetComponent<BattleHudGraphic>().Highlight(targeting && !Flow.IsSelectingSkill && !Flow.IsSelectingLantern);
-        skill.GetComponent<BattleHudGraphic>()?.Highlight(Flow.IsSelectingSkill);
+            ? skillData.SkillName + "\n<size=70%>消耗 " + skillData.DeterminationCost + " 决心</size>" : "技能";
+        RefreshActionHighlights();
         roundText.text = "第 " + Flow.RoundNumber + " 回合";
-        prompt.text = targeting ? (Flow.IsSelectingLantern ? Flow.ActionMessage : Flow.IsSelectingSkill
-            ? "选择敌人施放" + skillData.SkillName + " · Esc 取消" : "选择敌人发动攻击 · Esc 取消") : Flow.CurrentState == BattleState.PlayerTurn
-            ? "选择行动 · 按住轮盘左右拖动，松手切换武器" : Flow.CurrentState == BattleState.EnemyTurn
-            ? "敌人行动中" : Flow.CurrentState == BattleState.ExecutingAction ? "行动中" : "";
-        if (!targeting && !string.IsNullOrEmpty(Flow.ActionMessage)) prompt.text = Flow.ActionMessage + "  ·  " + prompt.text;
-        else if (CanAct && skillData != null) prompt.text = skillData.SkillName + " · 消耗 " + skillData.DeterminationCost
-            + " 决心" + (Flow.SkillUnavailableReason != null ? " · " + Flow.SkillUnavailableReason : " · 选择行动");
         if (showingItems && popup.activeSelf) RefreshItems();
         if (SelectedEnemy == null || SelectedEnemy.IsDead)
         {
@@ -142,6 +186,15 @@ public sealed class BattleHudView : MonoBehaviour
         }
         foreach (var row in rows) row.Refresh();
         RefreshOrder();
+    }
+    public void RefreshActionHighlights()
+    {
+        var hovered = actionTooltip != null ? actionTooltip.ActiveButton : null;
+        bool targeting = Flow != null && Flow.CurrentState == BattleState.SelectingTarget;
+        if (attack != null) attack.GetComponent<BattleHudGraphic>()?.Highlight(hovered == attack
+            || targeting && !Flow.IsSelectingSkill && !Flow.IsSelectingLantern);
+        if (defend != null) defend.GetComponent<BattleHudGraphic>()?.Highlight(hovered == defend);
+        if (skill != null) skill.GetComponent<BattleHudGraphic>()?.Highlight(hovered == skill || Flow != null && Flow.IsSelectingSkill);
     }
     void RefreshOrder()
     {
@@ -196,6 +249,9 @@ public sealed class BattleHudView : MonoBehaviour
                 string id = ItemTable.All[i].id;
                 itemButtons.Add(ItemUi.Button(popupBody.transform.parent, popupBody.font,
                     "Use_" + id, new Vector2(0, 66 - i * 74), new Vector2(490, 66), () => UseItem(id)));
+                var itemButton = itemButtons[itemButtons.Count - 1];
+                itemButton.GetComponent<Image>().color = new Color32(66, 54, 43, 255);
+                itemButton.GetComponentInChildren<TMP_Text>().color = new Color32(225, 212, 185, 255);
             }
         RefreshItems();
     }
@@ -223,7 +279,7 @@ public sealed class BattleHudView : MonoBehaviour
         Refresh();
     }
     void OpenPopup(string title, string body)
-    { showingItems = false; foreach (var button in itemButtons) button.gameObject.SetActive(false);
+    { actionTooltip.Hide(); showingItems = false; foreach (var button in itemButtons) button.gameObject.SetActive(false);
         popupBody.gameObject.SetActive(true); popupTitle.text = title; popupBody.text = body;
         popup.SetActive(true); popup.transform.SetAsLastSibling(); wheel.SetLocked(true); Refresh(); }
     void ClosePopup() { showingItems = false; if (popup != null) popup.SetActive(false); if (wheel != null) wheel.SetLocked(false); }

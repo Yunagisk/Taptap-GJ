@@ -39,6 +39,8 @@ public class MapPlayerPanelView : MonoBehaviour
     float nextRefresh;
     MapPlayerInkHud inkHud;
     Material healthReadoutMaterial;
+    Graphic healthAppearance;
+    Color normalHealthColor;
 
     public bool IsInventoryOpen => equipmentPanel != null ? equipmentPanel.IsOpen
         : inventoryPanel != null && inventoryPanel.target != null && inventoryPanel.target.alpha > 0;
@@ -118,6 +120,13 @@ public class MapPlayerPanelView : MonoBehaviour
         if (GameRoot.I == null || GameRoot.I.state == null) return;
         var state = GameRoot.I.state;
         var player = state.player;
+        if (healthAppearance == null && hudHealthFill != null)
+        {
+            healthAppearance = hudHealthFill.GetComponent<Graphic>();
+            if (healthAppearance != null) normalHealthColor = healthAppearance.color;
+        }
+        if (healthAppearance != null)
+            healthAppearance.color = StatusAppearance.HealthTint(player.ordinaryStatuses, normalHealthColor);
         string health = player.hp + " / " + player.maxHp;
         if (hudHealthText != null)
         {

@@ -86,6 +86,7 @@ MonoBehaviour:
   deathAshMaterial: {{fileID: 2100000, guid: {ash_guid}, type: 2}}
   deathAshSeconds: 1
   attackContactFrame: 18
+  attackLungeDistance: 0.04
   attackContactPoint: {{x: 0, y: 0}}
 ''', encoding='utf-8')
 set_guid = meta(asset_path)

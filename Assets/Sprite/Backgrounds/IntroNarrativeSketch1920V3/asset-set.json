@@ -1,0 +1,36 @@
+{
+  "id": "intro-narrative-sketch-v3",
+  "selection": "Selected by the user as the art set to use for planning the opening scenes.",
+  "selected_date": "2026-10-20",
+  "width": 1920,
+  "height": 1080,
+  "color": "neutral grayscale",
+  "style_reference": "Assets/Sprite/UI/VillageAmbience/VillageMorning.jpg",
+  "assets": [
+    {
+      "id": "village_arrival",
+      "scene": "初到村庄",
+      "file": "01_VillageArrival_Sketch_v3.png"
+    },
+    {
+      "id": "village_street",
+      "scene": "村内街道",
+      "file": "02_VillageStreet_Sketch_v3.png"
+    },
+    {
+      "id": "mayor_house",
+      "scene": "村长家",
+      "file": "03_MayorHouse_Sketch_v3.png"
+    },
+    {
+      "id": "blacksmith",
+      "scene": "铁匠铺",
+      "file": "04_Blacksmith_Sketch_v3.png"
+    },
+    {
+      "id": "outside_dirt_road",
+      "scene": "村外土路",
+      "file": "05_OutsideDirtRoad_Sketch_v3.png"
+    }
+  ]
+}

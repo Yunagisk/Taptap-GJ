@@ -44,7 +44,7 @@ public class MapSceneNode : MonoBehaviour
     }
 
     void UpdateInteraction() => button.interactable = available && !revealInputBlocked && !isRevealing
-        && (controller == null || !controller.IsEnteringNode);
+        && (controller == null || !controller.IsEnteringNode && !controller.IsFastTravelConfirmationOpen);
 
     public void PrepareReveal()
     {
@@ -98,7 +98,8 @@ public class MapSceneNode : MonoBehaviour
         var node = map.GetNode(nodeId);
         bool current = map.State.currentNodeId == nodeId;
         bool cleared = map.State.clearedNodes.Contains(nodeId);
-        available = map.CanMove(nodeId) || map.CanReenterVillage(nodeId);
+        available = map.CanMove(nodeId) || map.CanReenterVillage(nodeId) || map.CanFastTravel(nodeId);
+        available = available && (controller == null || controller.GuideAllowsNode(nodeId));
         gameObject.SetActive(map.IsVisible(nodeId));
         UpdateInteraction();
         button.image.color = ActiveColor;

@@ -41,10 +41,12 @@ public sealed class InventoryLayoutView : MonoBehaviour
     int openCategory = -1;
     float pickerPhase;
     Vector2 pickerPosition;
+    Color normalHealthColor;
 
     public void Bind(EquipmentPanelView panel, TMP_FontAsset font)
     {
         owner=panel;runtimeFont=font;
+        if (healthFill != null) normalHealthColor = healthFill.color;
         for (int i = 0; categorySlots != null && i < categorySlots.Length; i++)
         {
             int category = i;
@@ -69,11 +71,16 @@ public sealed class InventoryLayoutView : MonoBehaviour
         var player=state.player;
         if(healthReadout!=null)healthReadout.text="血量  " + player.hp + " / " + player.maxHp;
         if(healthFill!=null)healthFill.fillAmount=player.maxHp>0?Mathf.Clamp01((float)player.hp/player.maxHp):0;
+        if(healthFill!=null)healthFill.color=StatusAppearance.HealthTint(player.ordinaryStatuses,normalHealthColor);
         if(resolveReadout!=null)resolveReadout.text=player.resolve+" / "+player.maxResolve;
         for(int i=0;resolveFills!=null && i<resolveFills.Length;i++)
         {
             if(resolveFills[i]!=null)resolveFills[i].enabled=i<player.resolve && i<player.maxResolve;
-            if(resolvePips!=null && i<resolvePips.Length && resolvePips[i]!=null)resolvePips[i].alpha=i<player.maxResolve?1:.18f;
+            if(resolvePips!=null && i<resolvePips.Length && resolvePips[i]!=null)
+            {
+                resolvePips[i].alpha=1;
+                resolvePips[i].gameObject.SetActive(i<player.maxResolve);
+            }
         }
         if(currency!=null)currency.text=state.world.sinRemnant.ToString();
         if(currentWeapon!=null)currentWeapon.text=string.IsNullOrEmpty(player.currentWeaponId)?"未装备武器":Name(player.currentWeaponId);
@@ -307,8 +314,7 @@ public sealed class InventoryLayoutView : MonoBehaviour
                 var rect=(RectTransform)row.transform;rect.anchoredPosition=new Vector2(0,-i*100);rect.sizeDelta=new Vector2(736,100);
                 row.button.onClick.AddListener(()=>{selectedItem=id;owner.Refresh();});
                 row.title.text=string.IsNullOrEmpty(info.displayName)?id:info.displayName;
-                row.icon.sprite=info.icon;row.icon.enabled=info.icon!=null;
-                row.fallback.gameObject.SetActive(info.icon==null);row.fallback.text=info.displayName;
+                row.PresentItemIcon(info.icon, id);
                 itemRows.Add(row);
             }
             if(itemContent!=null)itemContent.sizeDelta=new Vector2(736,Mathf.Max(400,items.Count*100));

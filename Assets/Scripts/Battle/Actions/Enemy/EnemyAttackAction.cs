@@ -12,6 +12,14 @@ public class EnemyAttackAction
         if (enemy.IsDead || player.IsDead)
             yield break;
 
+        if (attackData.Kind != EnemyActionKind.Attack)
+        {
+            if (attackData.Kind == EnemyActionKind.Guard) enemy.StartGuard();
+            Debug.Log($"{enemy.DisplayName} 使用 {attackData.AttackName}");
+            yield return new WaitForSeconds(.35f);
+            yield break;
+        }
+
         int attackCount = attackData.AttackCount;
         float hitInterval = attackData.HitInterval;
         var animation = enemy.GetComponent<EnemySpriteAnimation>();

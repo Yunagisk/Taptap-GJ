@@ -474,47 +474,47 @@
   "enemyVariants": [
     {
       "id": "preview_crow_stage1",
-      "name": "腐鸦 · 阶段 I（文字占位）",
+      "name": "腐鸦",
       "stage": 1
     },
     {
       "id": "preview_rat_stage1",
-      "name": "老鼠 · 阶段 I（文字占位）",
+      "name": "老鼠",
       "stage": 1
     },
     {
       "id": "preview_shade_stage1",
-      "name": "怨影 · 阶段 I（文字占位）",
+      "name": "怨影",
       "stage": 1
     },
     {
       "id": "preview_crow_stage2",
-      "name": "腐鸦 · 阶段 II（文字占位）",
+      "name": "腐鸦",
       "stage": 2
     },
     {
       "id": "preview_rat_stage2",
-      "name": "老鼠 · 阶段 II（文字占位）",
+      "name": "老鼠",
       "stage": 2
     },
     {
       "id": "preview_shade_stage2",
-      "name": "怨影 · 阶段 II（文字占位）",
+      "name": "怨影",
       "stage": 2
     },
     {
       "id": "preview_crow_stage3",
-      "name": "腐鸦 · 阶段 III（文字占位）",
+      "name": "腐鸦",
       "stage": 3
     },
     {
       "id": "preview_rat_stage3",
-      "name": "老鼠 · 阶段 III（文字占位）",
+      "name": "老鼠",
       "stage": 3
     },
     {
       "id": "preview_shade_stage3",
-      "name": "怨影 · 阶段 III（文字占位）",
+      "name": "怨影",
       "stage": 3
     }
   ],

@@ -4,7 +4,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System;
-using System.Collections.Generic;
 
 public class VillageScreen : MonoBehaviour
 {
@@ -37,10 +36,21 @@ public class VillageScreen : MonoBehaviour
     public WeaponLibrary weaponLibrary;
 
     GameObject[] _panels;
-    RectTransform shopContent;
-    bool shopReady;
     TMP_FontAsset runtimeFont;
+    MapLayout villageLayout;
+    EquipmentPanelView closingBag;
+    public VillageRestTransition restTransition;
+    public VillageShopUI Shop { get; private set; }
+    public VillageInnUI Inn { get; private set; }
+    public bool IsResting => restTransition != null && restTransition.IsRunning;
+    public bool CanUseFacilities => !IsLoading && !IsResting && FacilitiesAvailable;
     public bool IsLoading { get; private set; }
+    public VillageIntroController Introduction { get; private set; }
+    public Canvas UICanvas => panelRoot != null ? panelRoot.GetComponentInParent<Canvas>(true)
+        : GetComponentInChildren<Canvas>(true);
+
+    bool FacilitiesAvailable => !VillageIntroRules.IsRestricted(GameRoot.I != null ? GameRoot.I.state : null)
+        && (Introduction == null || !Introduction.IsOpen);
 
     void Awake()
     {
@@ -57,6 +67,7 @@ public class VillageScreen : MonoBehaviour
             // Reuse the existing run. Opening the village never starts a new map.
             var progression = new MapProgression(template.Load(), root.state.map, root.state.world,
                 string.IsNullOrEmpty(root.state.map.templateId) ? Guid.NewGuid().GetHashCode() : root.state.map.randomSeed);
+            villageLayout = progression.Layout;
             MainStoryRules.EnsureInitialized(root.state, progression.Layout);
             EquipmentRules.EnsureInitialized(root.state);
             VillageEventRules.InitializeForRun(root.state, progression.Layout);
@@ -66,15 +77,18 @@ public class VillageScreen : MonoBehaviour
         {
             runtimeFont = SharedUIFont.Get(font);
             runtimeFont.isMultiAtlasTexturesEnabled = true;
-            var canvas = hpText != null ? hpText.GetComponentInParent<Canvas>()
-                : GetComponentInChildren<Canvas>(true);
+            var canvas = UICanvas;
             if (canvas != null)
                 foreach (var text in canvas.GetComponentsInChildren<TMP_Text>(true)) text.font = runtimeFont;
         }
         _panels = new[] { panelInn, panelShop, panelBag, panelEvent };
-        PrepareShopList();
+        Shop = panelShop != null ? panelShop.GetComponent<VillageShopUI>() : null;
+        Inn = panelInn != null ? panelInn.GetComponent<VillageInnUI>() : null;
+        if (Shop != null) Shop.Bind(this, runtimeFont);
+        if (Inn != null) Inn.Bind(this, runtimeFont);
         ClosePanels();
         RefreshStatus();
+        Introduction = VillageIntroController.Attach(this);
     }
 
     public void RefreshStatus()
@@ -85,30 +99,42 @@ public class VillageScreen : MonoBehaviour
         if (lanternText != null) lanternText.text = "提灯 " + state.player.lanternCharges + "/" + state.player.maxLanternCharges;
         if (sinText != null) sinText.text = "罪骸 " + state.world.sinRemnant + "    罪恶 " + state.world.sin + "/100";
         if (timeText != null) timeText.text = WorldResourceRules.TimeLabel(state.world);
-        if (weaponText != null) weaponText.text = "当前武器：" + NewRunFactory.WeaponName(state.player.currentWeaponId);
+        if (weaponText != null) weaponText.text = string.IsNullOrEmpty(state.player.currentWeaponId)
+            ? "尚未领取武器" : "当前武器：" + NewRunFactory.WeaponName(state.player.currentWeaponId);
     }
 
     void Update()
     {
         RefreshStatus();
-        if (IsLoading || !Input.GetKeyDown(KeyCode.Escape)) return;
+        if (Introduction != null && Introduction.IsOpen) return;
+        if (IsLoading || IsResting || !Input.GetKeyDown(KeyCode.Escape)) return;
         if (panelConflict != null && panelConflict.activeSelf) CloseConflict();
         else if (panelRoot != null && panelRoot.activeSelf && !ReturnToTavernEvents()) ClosePanels();
     }
 
+    void LateUpdate()
+    {
+        if (closingBag != null && !closingBag.IsOpen) FinishClosingPanels();
+    }
+
     public void OpenInn()
     {
+        if (!CanUseFacilities) return;
         Show(panelInn, focusInnConfirm);
+        if (Inn != null) { Inn.Refresh(); Select(Inn.PreferredFocus); }
     }
 
     public void OpenShop()
     {
+        if (!CanUseFacilities) return;
         Show(panelShop, focusBuy);
-        RebuildShop();
+        if (Shop != null) Shop.Open();
     }
 
     public void OpenBag()
     {
+        if (IsLoading || IsResting || VillageIntroRules.IsPending(GameRoot.I != null ? GameRoot.I.state : null)
+            || Introduction != null && Introduction.IsOpen) return;
         Show(panelBag, focusSlot);
         var equipment = panelBag != null ? panelBag.GetComponent<EquipmentPanelView>() : null;
         if (equipment != null) equipment.Open();
@@ -116,7 +142,7 @@ public class VillageScreen : MonoBehaviour
 
     public void OpenTavern()
     {
-        if (IsLoading) return;
+        if (!CanUseFacilities) return;
         Show(panelEvent, focusOption);
         var story = panelEvent != null ? panelEvent.GetComponent<VillageStoryPanelUI>() : null;
         var browser = panelEvent != null ? panelEvent.GetComponent<TavernEventBrowserUI>() : null;
@@ -147,6 +173,25 @@ public class VillageScreen : MonoBehaviour
 
     public void ClosePanels()
     {
+        if (IsResting) return;
+        var equipment = panelBag != null && panelBag.activeInHierarchy
+            ? panelBag.GetComponent<EquipmentPanelView>() : null;
+        if (equipment != null && equipment.IsOpen)
+        {
+            equipment.Close();
+            if (equipment.IsOpen)
+            {
+                // Keep the modal alive until the parchment has finished rolling up.
+                closingBag = equipment;
+                return;
+            }
+        }
+        FinishClosingPanels();
+    }
+
+    void FinishClosingPanels()
+    {
+        closingBag = null;
         bool closingTavern = panelEvent != null && panelEvent.activeInHierarchy;
         SetBagButtons(true);
         if (panelConflict != null)
@@ -158,6 +203,7 @@ public class VillageScreen : MonoBehaviour
 
     public void OpenConflict()
     {
+        if (IsResting || IsLoading) return;
         if (panelConflict != null)
             panelConflict.SetActive(true);
         SetBagButtons(false);
@@ -174,41 +220,43 @@ public class VillageScreen : MonoBehaviour
 
     public void ConfirmInn()
     {
+        if (!CanUseFacilities) return;
         // Ignore callbacks after closing the inn or while changing scenes.
         if (IsLoading || panelRoot == null || !panelRoot.activeInHierarchy
             || panelInn == null || !panelInn.activeInHierarchy) return;
-        var player = GameRoot.I != null && GameRoot.I.state != null ? GameRoot.I.state.player : null;
-        if (player == null) return;
-        if (player.hp >= player.maxHp && player.lanternCharges >= player.maxLanternCharges)
+        var state = GameRoot.I != null ? GameRoot.I.state : null;
+        if (!VillageInnRules.CanRest(state))
         {
             Say("生命和提灯次数已满，无需休息。");
             ClosePanels();
             return;
         }
 
-        int recovered = player.maxHp - player.hp;
-        int lanternRecovered = Math.Max(0, player.maxLanternCharges - player.lanternCharges);
-        player.hp = player.maxHp;
-        player.lanternCharges = player.maxLanternCharges;
-        RefreshStatus();
-        Say("休息完成，恢复 " + recovered + " 点生命，补充 " + lanternRecovered + " 次提灯。");
-        ClosePanels();
+        if (restTransition == null || !restTransition.Begin(this, state, villageLayout))
+            Say("旅店转场尚未就绪，请重新进入村庄。");
+    }
+
+    public void HidePanelsForRest() { if (IsResting) FinishClosingPanels(); }
+
+    public void CompleteInnPresentation(string message)
+    {
+        RefreshStatus(); Say(message); Select(focusInn);
     }
 
     public void ConfirmBuy()
     {
-        Say("选择列表中的商品购买。消耗品每日补货，武器买后不补货。");
+        if (Shop != null) Shop.Purchase();
     }
 
     public void ConfirmOptionA()
     {
-        Say("选项甲已提交一次。关掉再开不会重抽。");
+        Say("已作出选择。");
         ClosePanels();
     }
 
     public void ConfirmOptionB()
     {
-        Say("选项乙已提交一次。关掉再开不会重抽。");
+        Say("已作出选择。");
         ClosePanels();
     }
 
@@ -220,13 +268,21 @@ public class VillageScreen : MonoBehaviour
 
     public void ConfirmConflict()
     {
-        Say("装备替换已提交一次。");
+        Say("已更换装备。");
         CloseConflict();
     }
 
     public void LeaveToMap()
     {
-        if (IsLoading) return;
+        if (IsLoading || IsResting || Introduction != null && Introduction.IsOpen
+            || !VillageIntroRules.CanLeaveVillage(GameRoot.I != null ? GameRoot.I.state : null)) return;
+        var state = GameRoot.I != null ? GameRoot.I.state : null;
+        if (VillageIntroRules.IsRestricted(state))
+        {
+            EquipmentRules.EnsureInitialized(state);
+            if (state.inventory.equippedWeaponIds.FindAll(id => !string.IsNullOrEmpty(id)).Count < 2)
+            { Say("请在背包中装备两种武器，再前往旧磨坊。"); return; }
+        }
         var root = GameRoot.I;
         string scene = root != null && !string.IsNullOrEmpty(root.villageReturnScene)
             ? root.villageReturnScene : GameFlowController.MapScene;
@@ -252,6 +308,8 @@ public class VillageScreen : MonoBehaviour
 
     void Show(GameObject panel, GameObject focus)
     {
+        if (IsLoading || IsResting) return;
+        closingBag = null;
         if (_panels != null)
         {
             foreach (var item in _panels)
@@ -292,155 +350,6 @@ public class VillageScreen : MonoBehaviour
         if (target == null || EventSystem.current == null)
             return;
         EventSystem.current.SetSelectedGameObject(target);
-    }
-
-    void PrepareShopList()
-    {
-        if (panelShop == null || focusBuy == null) return;
-        focusBuy.SetActive(false);
-        var scrollGo = new GameObject("ShopScroll", typeof(RectTransform), typeof(ScrollRect), typeof(LayoutElement), typeof(Image));
-        scrollGo.transform.SetParent(panelShop.transform, false);
-        scrollGo.transform.SetSiblingIndex(2);
-        scrollGo.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.18f);
-        var element = scrollGo.GetComponent<LayoutElement>();
-        element.minHeight = 240;
-        element.preferredHeight = 280;
-        element.flexibleHeight = 1;
-        var scroll = scrollGo.GetComponent<ScrollRect>();
-        scroll.horizontal = false;
-        scroll.movementType = ScrollRect.MovementType.Clamped;
-        scroll.scrollSensitivity = 28;
-
-        var viewport = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
-        viewport.transform.SetParent(scrollGo.transform, false);
-        Stretch(viewport.GetComponent<RectTransform>());
-        viewport.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.01f);
-        viewport.GetComponent<Mask>().showMaskGraphic = false;
-
-        var content = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-        content.transform.SetParent(viewport.transform, false);
-        var contentRect = content.GetComponent<RectTransform>();
-        contentRect.anchorMin = new Vector2(0f, 1f);
-        contentRect.anchorMax = new Vector2(1f, 1f);
-        contentRect.pivot = new Vector2(0.5f, 1f);
-        contentRect.offsetMin = Vector2.zero;
-        contentRect.offsetMax = Vector2.zero;
-        var layout = content.GetComponent<VerticalLayoutGroup>();
-        layout.spacing = 8;
-        layout.padding = new RectOffset(4, 4, 4, 4);
-        layout.childAlignment = TextAnchor.UpperCenter;
-        layout.childControlWidth = true;
-        layout.childControlHeight = true;
-        layout.childForceExpandWidth = true;
-        layout.childForceExpandHeight = false;
-        var fitter = content.GetComponent<ContentSizeFitter>();
-        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        scroll.viewport = viewport.GetComponent<RectTransform>();
-        scroll.content = contentRect;
-        shopContent = contentRect;
-        shopReady = true;
-    }
-
-    void RebuildShop()
-    {
-        if (!shopReady || GameRoot.I == null) return;
-        var state = GameRoot.I.state;
-        ShopRules.EnsureStock(state);
-        ItemRules.EnsureShopStock(state);
-        for (int i = shopContent.childCount - 1; i >= 0; i--)
-        {
-            shopContent.GetChild(i).gameObject.SetActive(false);
-            Destroy(shopContent.GetChild(i).gameObject);
-        }
-
-        var buttons = new List<Button>();
-        foreach (var item in ItemTable.All)
-        {
-            if (item.dailyStock <= 0) continue;
-            string itemId = item.id;
-            int stock = ItemRules.ShopStock(state, itemId);
-            bool full = ItemRules.Count(state.inventory, itemId) >= item.carryLimit;
-            var button = Instantiate(focusBuy.GetComponent<Button>(), shopContent);
-            button.name = "BuyItem_" + itemId;
-            button.gameObject.SetActive(true);
-            button.onClick = new Button.ButtonClickedEvent();
-            button.onClick.AddListener(() => BuyItem(itemId));
-            button.interactable = stock > 0 && !full && state.world.sinRemnant >= item.price;
-            var label = button.GetComponentInChildren<TMP_Text>(true);
-            if (label != null)
-            {
-                if (runtimeFont != null) label.font = runtimeFont;
-                label.text = item.displayName + "    " + item.price + " 罪骸    今日库存 " + stock
-                    + (full ? "    已达携带上限" : "    携带上限 " + item.carryLimit);
-            }
-            buttons.Add(button);
-        }
-        var ids = state.shop.availableWeaponIds;
-        for (int i = 0; i < ids.Count; i++)
-        {
-            string id = ids[i];
-            var button = Instantiate(focusBuy.GetComponent<Button>(), shopContent);
-            button.gameObject.SetActive(true);
-            button.name = "Buy_" + id;
-            var buttonRect = button.GetComponent<RectTransform>();
-            buttonRect.anchorMin = new Vector2(0f, 1f);
-            buttonRect.anchorMax = new Vector2(1f, 1f);
-            buttonRect.pivot = new Vector2(0.5f, 1f);
-            int price = weaponLibrary != null ? weaponLibrary.PriceOf(id) : WeaponTable.PriceOf(id);
-            string weaponName = weaponLibrary != null ? weaponLibrary.NameOf(id) : WeaponTable.NameOf(id);
-            var label = button.GetComponentInChildren<TMP_Text>(true);
-            if (label != null)
-            {
-                if (runtimeFont != null) label.font = runtimeFont;
-                label.text = weaponName + "    " + price + " 罪骸    库存 1";
-            }
-            string captured = id;
-            int capturedPrice = price;
-            button.onClick = new Button.ButtonClickedEvent();
-            button.onClick.AddListener(() => BuyWeapon(captured, capturedPrice));
-            buttons.Add(button);
-        }
-        for (int i = 0; i < buttons.Count; i++)
-        {
-            var nav = new Navigation { mode = Navigation.Mode.Explicit };
-            if (i > 0) nav.selectOnUp = buttons[i - 1];
-            if (i + 1 < buttons.Count) nav.selectOnDown = buttons[i + 1];
-            buttons[i].navigation = nav;
-        }
-        var body = panelShop.transform.Find("Txt_ShopBody");
-        var bodyText = body != null ? body.GetComponent<TMP_Text>() : null;
-        if (bodyText != null)
-        {
-            if (runtimeFont != null) bodyText.font = runtimeFont;
-            bodyText.text = "绷带、圣水每日各补货 1 件，各可携带 1 件。武器买后不补货。";
-        }
-        if (buttons.Count > 0) Select(buttons[0].gameObject);
-    }
-
-    void BuyWeapon(string id, int price)
-    {
-        if (GameRoot.I == null) return;
-        var result = ShopRules.TryBuy(GameRoot.I.state, id, price);
-        Say(result.message);
-        RefreshStatus();
-        if (result.ok) RebuildShop();
-    }
-
-    void BuyItem(string id)
-    {
-        if (IsLoading || GameRoot.I == null || panelShop == null || !panelShop.activeInHierarchy) return;
-        var result = ItemRules.TryBuy(GameRoot.I.state, id);
-        Say(result.message);
-        RefreshStatus();
-        RebuildShop();
-    }
-
-    static void Stretch(RectTransform rect)
-    {
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
     }
 
 }

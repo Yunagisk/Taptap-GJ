@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageGuideBreak
+  m_EditorClassIdentifier:
+  dialogueId: guide_teach_break
+  completionEffect: 0
+  startNode:
+    id: weak
+    speaker: "系统提示"
+    lineKind: 2
+    content: "命中敌人的弱点，可以积累破防进度。\n破防进度达到上限后，敌人陷入眩晕，跳过下一次行动。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: do
+  nodes:
+  - id: do
+    speaker: "系统提示"
+    lineKind: 2
+    content: "攻击提灯揭示的弱点，直到敌人触发破防。决心足够时，也可以尝试武器技能。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: 

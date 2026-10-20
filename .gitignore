@@ -25,6 +25,7 @@
 !/Tools/BattleUiChecks/BattleUiChecks.csproj
 !/Tools/EnemyAnimationChecks/EnemyAnimationChecks.csproj
 !/Tools/WeaponSkillChecks/WeaponSkillChecks.csproj
+!/Tools/EncounterBalanceSimulation/EncounterBalanceChecks.csproj
 !/Tools/ItemChecks/ItemChecks.csproj
 *.sln
 *.user

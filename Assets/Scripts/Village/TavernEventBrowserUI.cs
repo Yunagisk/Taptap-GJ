@@ -218,13 +218,8 @@ public class TavernEventBrowserUI : MonoBehaviour
             SetText(resourcesText, WorldResourceRules.TimeLabel(state.world) + "    生命 "
                 + state.player.hp + "/" + state.player.maxHp + "    罪恶 " + state.world.sin
                 + "/100    罪骸 " + state.world.sinRemnant);
-            var rewards = state.world.villageEvents != null ? state.world.villageEvents.rewardTexts : null;
-            string recent = "";
-            if (rewards != null)
-                for (int i = Math.Max(0, rewards.Count - 2); i < rewards.Count; i++)
-                    recent += (recent.Length == 0 ? "" : "、") + ShortReward(rewards[i]);
-            SetText(rewardHistoryText, recent.Length == 0 ? "道具奖励暂以文字记录"
-                : "最近获得（文字）\n" + recent);
+            SetText(rewardHistoryText, "");
+            SetActive(rewardHistoryText, false);
         }
         if (timedSelected) RefreshTimedDetail(state, active, canInteract);
         else
@@ -251,7 +246,7 @@ public class TavernEventBrowserUI : MonoBehaviour
     void RefreshTimedRows(List<VillageEventOccurrence> active, bool canInteract)
     {
         SetActive(timedEventEmptyText, active.Count == 0);
-        SetText(timedEventEmptyText, "此刻没有待处理的限时事件。\n每推进 1 单位时间会尝试出现新事件；回城和重开酒馆不会重抽。");
+        SetText(timedEventEmptyText, "此刻没有待处理的限时事件。\n晚些时候再来看看吧。");
         if (eventListContent == null || timedEventTemplate == null) return;
         for (int i = 0; i < active.Count; i++)
         {
@@ -295,8 +290,8 @@ public class TavernEventBrowserUI : MonoBehaviour
         var definition = occurrence != null ? VillageEventRules.FindDefinition(occurrence.definitionId) : null;
         SetText(detailTitle, definition != null ? definition.title : "限时事件");
         SetText(detailDescription, definition != null ? definition.description : "该事件当前不可用。");
-        SetText(detailMetaText, available ? ExpiryLabel(occurrence) + " · 确认选项后结算一次"
-            : occurrence != null && occurrence.resolved ? "已处理，不能再次领取" : "事件已失效");
+        SetText(detailMetaText, available ? ExpiryLabel(occurrence)
+            : occurrence != null && occurrence.resolved ? "这件事已经结束。" : "事件已失效");
         SetPortrait(detailPortrait, definition != null && definition.id == "v13" ? travelerPortrait : villagerPortrait);
         for (int i = 0; i < 3; i++)
         {
@@ -417,21 +412,11 @@ public class TavernEventBrowserUI : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(target);
     }
 
-    static string ShortReward(string record)
-    {
-        if (string.IsNullOrEmpty(record)) return "";
-        int separator = record.LastIndexOf('：');
-        string reward = separator >= 0 ? record.Substring(separator + 1) : record;
-        int note = reward.IndexOf('（');
-        return note >= 0 ? reward.Substring(0, note) : reward;
-    }
-
     static string ChoiceLabel(VillageEventChoice choice)
     {
         string text = choice.label + "\n" + choice.timeCost + " 单位时间 · 罪恶 "
             + (choice.sinDelta >= 0 ? "+" : "") + choice.sinDelta;
         if (choice.healAmount > 0) text += " · 生命 +" + choice.healAmount;
-        if (!string.IsNullOrEmpty(choice.rewardText)) text += " · " + choice.rewardText + "（文字）";
         if (choice.nextDirectHitReductionPercent > 0) text += " · 首次直接受击 -" + choice.nextDirectHitReductionPercent + "%";
         if (choice.nextAttackBonusPercent > 0) text += " · 下次完整攻击 +" + choice.nextAttackBonusPercent + "%";
         if (choice.nextCampRecoveryBonusPercent > 0) text += " · 下次营地恢复 +" + choice.nextCampRecoveryBonusPercent + "%";
@@ -469,7 +454,7 @@ public class TavernEventBrowserUI : MonoBehaviour
     static void SetPortrait(Image target, Sprite sprite)
     {
         if (target == null) return;
-        if (target.sprite != sprite) target.sprite = sprite;
+        CharacterPortraitStyle.Apply(target, sprite);
         target.enabled = sprite != null;
     }
 
@@ -485,7 +470,7 @@ public class TavernEventBrowserUI : MonoBehaviour
             case MainStoryStage.CommissionAccepted:
                 title = "清剿的约定";
                 summary = "出发前，再确认一次委托。";
-                description = "村长仍在等候清剿的消息。\n\n先前往约定的战斗节点，完成第一次清剿。若对委托还有疑问，可以再与他交谈。";
+                description = "村长仍在等候清剿的消息。\n\n先前往村外的战场，完成第一次清剿。若对委托还有疑问，可以再与他交谈。";
                 break;
             case MainStoryStage.TutorialCompleted:
                 title = "懒惰的阴影";

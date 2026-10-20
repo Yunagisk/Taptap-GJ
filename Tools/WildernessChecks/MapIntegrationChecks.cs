@@ -200,7 +200,8 @@ internal static partial class Program
                     if (outcome.Encounter)
                     {
                         Check(result.encounterPending && node.encounterPending && !string.IsNullOrEmpty(node.enemyId)
-                            && result.message.Contains("×1"), label + " exactly one hidden ordinary enemy");
+                            && result.message.Contains(f.Catalog.enemyVariants.Find(enemy => enemy.id == node.enemyId).name),
+                            label + " encounter retains its fixed enemy");
                         Check(!f.Map.FinishEvent(request.requestId) && Save(f.State) == snapshot,
                             label + " hidden encounter must settle before map navigation");
                         WildernessEventRules.Leave(f.Level);

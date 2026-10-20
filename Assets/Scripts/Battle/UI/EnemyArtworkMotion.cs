@@ -43,23 +43,23 @@ public static class EnemyArtworkMotion
         }
         else if (pose == EnemyArtworkPose.Attack)
         {
-            float t = Clamp(time), wind = Smooth(0, contact * .58f, t) * (1f - Smooth(contact * .58f, contact, t));
-            float strike = t <= contact ? Smooth(contact * .54f, contact, t) : 1f - Smooth(contact, 1, t);
+            float t = Clamp(time), wind = EnemyAttackMotion.Windup(t, contact);
+            float strike = EnemyAttackMotion.Advance(t, contact);
             if (profile == EnemyArtworkProfile.Rat)
             {
-                dx = .035f * wind * upper - .065f * strike * head - .020f * strike * upper;
-                dy = -.032f * wind * upper + .018f * strike * head - .012f * strike * upper;
-                dx += .035f * strike * tail * upper;
+                dx = .018f * wind * upper - .050f * strike * head - .008f * strike * upper;
+                dy = -.018f * wind * upper + .012f * strike * head - .006f * strike * upper;
+                dx += .018f * strike * tail * upper;
                 // Front paws reach during the bite while the back pushes off.
-                dx -= .035f * strike * Bell(x, .27f, .19f) * (1f - Smooth(.12f, .35f, y));
-                dy += .018f * strike * tail * upper;
+                dx -= .024f * strike * Bell(x, .27f, .19f) * (1f - Smooth(.12f, .35f, y));
+                dy += .010f * strike * tail * upper;
             }
             else
             {
-                dx = .035f * wind * upper - .16f * strike * claw - .028f * strike * upper;
-                dy = .018f * wind * upper - .095f * strike * claw;
-                dx += .028f * strike * (1f - y) * Smooth(.45f, .8f, x);
-                dy += .025f * strike * (1f - y);
+                dx = .018f * wind * upper - .105f * strike * claw - .010f * strike * upper;
+                dy = .010f * wind * upper - .060f * strike * claw;
+                dx += .014f * strike * (1f - y) * Smooth(.45f, .8f, x);
+                dy += .012f * strike * (1f - y);
             }
         }
         else if (pose == EnemyArtworkPose.Hurt)
@@ -94,10 +94,10 @@ public static class EnemyArtworkMotion
         else if (pose == EnemyArtworkPose.Attack)
         {
             float t = Clamp(time);
-            float wind = Smooth(0, contact * .65f, t) * (1f - Smooth(contact * .65f, contact, t));
-            float strike = t <= contact ? Smooth(contact * .62f, contact, t) : 1f - Smooth(contact, 1, t);
-            dx = .025f * wind * upper + .035f * wind * paw - .028f * strike * upper - .13f * strike * paw;
-            dy = -.018f * wind * chest + .075f * wind * paw - .048f * strike * paw - .018f * strike * head;
+            float wind = EnemyAttackMotion.Windup(t, contact);
+            float strike = EnemyAttackMotion.Advance(t, contact);
+            dx = .014f * wind * upper + .025f * wind * paw - .012f * strike * upper - .095f * strike * paw;
+            dy = -.012f * wind * chest + .055f * wind * paw - .036f * strike * paw - .012f * strike * head;
         }
         else if (pose == EnemyArtworkPose.Hurt)
         {

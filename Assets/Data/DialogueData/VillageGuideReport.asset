@@ -1,0 +1,135 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageGuideReport
+  m_EditorClassIdentifier:
+  dialogueId: guide_report
+  completionEffect: 6
+  startNode:
+    id: door
+    speaker: "旁白"
+    lineKind: 1
+    content: "哈罗德家的门依旧开着，哈罗德站在门口，像是早听见了动静，看着你回来，他一直绷着的肩，缓缓松了下去。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: footsteps
+  nodes:
+  - id: footsteps
+    speaker: "旁白"
+    lineKind: 1
+    content: "听见脚步声，他猛地抬起头。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: back
+  - id: back
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "您回来了！"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: papers
+  - id: papers
+    speaker: "旁白"
+    lineKind: 1
+    content: "你走进去时，他正坐在桌边，面前摊着几张皱巴巴的纸。\n他下意识地想站起来，左腿却不大配合，只得重新跌回椅子里。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: thing
+  - id: thing
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "路上的东西……"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: solved
+  - id: solved
+    speaker: "猎魔人"
+    lineKind: 0
+    content: "解决了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 1
+    choices: []
+    nextNodeID: dead_question
+  - id: dead_question
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "死了？"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: dead
+  - id: dead
+    speaker: "猎魔人"
+    lineKind: 0
+    content: "死了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 1
+    choices: []
+    nextNodeID: success
+  - id: success
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "成了……真的成了！"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: open
+  - id: open
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "我已经交代下去了。往后铁匠铺、旅店，都肯为您开门。只要我们还有东西，就不会让您白跑一趟。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: trade
+  - id: trade
+    speaker: "旁白"
+    lineKind: 1
+    content: "你不但获得了一处可以投宿的地方，还有人愿意和你做买卖了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: services
+  - id: services
+    speaker: "系统提示"
+    lineKind: 2
+    content: "解锁：基础武器与消耗品交易、旅馆休整、铁匠铺后续服务。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: complete
+  - id: complete
+    speaker: "系统提示"
+    lineKind: 2
+    content: "引导任务完成。\n解锁：自由探索大地图、村内普通随机事件、酒馆事件、主线·懒惰。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: 

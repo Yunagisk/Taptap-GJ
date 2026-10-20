@@ -133,8 +133,6 @@ public static class GameFlowSceneBuilder
         flow.worldMapGroup = controller.GetComponent<CanvasGroup>();
         flow.playerPanel = view.canvas.GetComponentInChildren<MapPlayerPanelView>(true);
         flow.playerPanel.manageEscape = false;
-        var menu = Button("Btn_GameMenu", root, "菜单", Vector2.zero, new Vector2(100, 48), flow.OpenPause);
-        Box((RectTransform)menu.transform, Vector2.one, new Vector2(-32, -30), new Vector2(100, 48), Vector2.one);
         SharedOverlays(flow, root, new RectTransform[0]);
         UnityEventTools.AddPersistentListener(controller.onVillageEntered, flow.ShowVillage);
         EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
@@ -142,6 +140,7 @@ public static class GameFlowSceneBuilder
 
     static void SharedOverlays(GameFlowController flow, RectTransform root, RectTransform[] initialPanels)
     {
+        flow.menuPaper = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprite/UI/InventoryParchment2K/InventoryPaper.png");
         var fitted = new List<RectTransform>(initialPanels);
         var settings = Modal("SettingsOverlay", root, new Vector2(660, 370), out var settingsWindow);
         flow.settingsOverlay = settings;
@@ -211,6 +210,7 @@ public static class GameFlowSceneBuilder
         loadingLabel.alignment = TextAlignmentOptions.Center;
         flow.loadingOverlay = loading.gameObject;
         flow.fittedPanels = fitted.ToArray();
+        GameFlowMenuStyle.Apply(flow);
         settings.SetActive(false);
         pause.SetActive(false);
         confirmation.SetActive(false);

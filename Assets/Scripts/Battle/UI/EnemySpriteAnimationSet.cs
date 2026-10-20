@@ -29,7 +29,7 @@ public sealed class EnemySpriteAnimationSet : ScriptableObject
     [Min(0f)] public float deathAshSeconds = 1f;
     [Min(0)] public int attackContactFrame = 9;
     // World-space travel of the visual only; attacks do not need physical contact.
-    [Min(0f)] public float attackLungeDistance = .3f;
+    [Min(0f)] public float attackLungeDistance = .12f;
     // Contact point of the beak in the attack sprite's local coordinates.
     public Vector2 attackContactPoint = new Vector2(-3.1f, -2.87f);
 

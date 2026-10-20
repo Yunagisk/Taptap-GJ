@@ -1,28 +1,5 @@
 using System;
 
-// Input state is separate from equipment. Only Release returns a commit choice.
-public sealed class BattleWeaponWheelGesture
-{
-    public bool Dragging { get; private set; }
-    public float Cursor { get; private set; }
-    float origin, start;
-    public void Begin(float x, int selected, int count)
-    {
-        Dragging = count > 0; origin = x; start = selected; Cursor = selected;
-    }
-    public void Drag(float x, float step)
-    {
-        if (Dragging) Cursor = start - (x - origin) / Math.Max(1, step);
-    }
-    public int Release(bool canSwitch, int count)
-    {
-        if (!Dragging) return -1;
-        Dragging = false;
-        return canSwitch && count > 0 ? BattleWeaponWheelMath.CenteredIndex(Cursor, count) : -1;
-    }
-    public void Cancel() { Dragging = false; }
-}
-
 public static class BattleWeaponWheelMath
 {
     public static int CenteredIndex(float cursor, int count) => Wrap((int)Math.Round(cursor, MidpointRounding.AwayFromZero), count);

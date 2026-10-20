@@ -13,10 +13,20 @@ public class EnemyTargetSelector : MonoBehaviour
 
     private bool isCanSelected = true;
     bool externalIndicator;
+    bool externalClickHandling;
 
-    public void UseExternalIndicator()
+    public void Bind(BattleFlowController flow, EnemyCombatant unit)
+    {
+        if (battleFlow != null) battleFlow.OnTargetSelectionChanged -= HandleTargetSelectionChanged;
+        battleFlow = flow; enemy = unit;
+        if (isActiveAndEnabled && battleFlow != null)
+            battleFlow.OnTargetSelectionChanged += HandleTargetSelectionChanged;
+    }
+
+    public void UseExternalIndicator(bool handlesClicks = false)
     {
         externalIndicator = true;
+        externalClickHandling = handlesClicks;
         if (targetIndicator != null) targetIndicator.SetActive(false);
     }
 
@@ -56,12 +66,13 @@ public class EnemyTargetSelector : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (externalClickHandling) return;
         if (UnityEngine.EventSystems.EventSystem.current != null &&
             UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
         if (!isCanSelected)
         {
             return;
         }
-        battleFlow.AttackTarget(enemy);
+        if (battleFlow != null && enemy != null) battleFlow.AttackTarget(enemy);
     }
 }

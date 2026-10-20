@@ -16,7 +16,7 @@ MonoBehaviour:
   weaponId: hammer
   damageComponents:
   - damageType: 2
-    damage: 14
+    damage: 11
   attackCount: 1
   skill: {fileID: 11400000, guid: d3f599376ecc46d1acd60858f489df7e, type: 2}
   price: 4

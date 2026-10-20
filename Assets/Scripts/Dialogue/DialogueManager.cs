@@ -8,6 +8,7 @@ public class DialogueManager : MonoBehaviour
     private DialogueData data;
     private DialogueNode currentNode;
     public bool IsPlaying { get; private set; }
+    public string CurrentNodeId => currentNode != null ? currentNode.id : null;
     public event Action<DialogueData> DialogueCompleted;
 
     private void Awake()
@@ -16,7 +17,8 @@ public class DialogueManager : MonoBehaviour
         if (ui != null) ui.manager = this;
     }
 
-    public void StartDialogue(DialogueData dialogue)
+    public void StartDialogue(DialogueData dialogue) => StartDialogue(dialogue, null);
+    public void StartDialogue(DialogueData dialogue, string startNodeId)
     {
         if (IsPlaying) return;
         if (dialogue == null || dialogue.startNode == null || ui == null)
@@ -25,7 +27,8 @@ public class DialogueManager : MonoBehaviour
             return;
         }
         data = dialogue;
-        currentNode = data.startNode;
+        currentNode = string.IsNullOrEmpty(startNodeId) ? data.startNode : FindNode(startNodeId);
+        if (currentNode == null) return;
         IsPlaying = true;
         ShowNode();
     }
@@ -33,6 +36,8 @@ public class DialogueManager : MonoBehaviour
     public void ShowNode()
     {
         if (!IsPlaying || currentNode == null) return;
+        if (GameRoot.I != null && data != null)
+            VillageIntroRules.ApplyReward(GameRoot.I.state, data.dialogueId + ":" + currentNode.id, currentNode.guideReward);
         ui.ShowDialogue(currentNode);
     }
 

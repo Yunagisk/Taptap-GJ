@@ -6,8 +6,8 @@ public sealed class BattleHudGraphic : MaskableGraphic
 {
     public enum Shape { Panel, Diamond, Ellipse, Rule, Arrow }
     public Shape shape;
-    public Color fill = new Color32(246, 242, 228, 245);
-    public Color ink = new Color32(26, 25, 23, 255);
+    public Color fill = new Color32(49, 41, 34, 250);
+    public Color ink = new Color32(146, 125, 95, 255);
     public float stroke = 2;
     public bool highlighted;
     static readonly Color Gold = new Color32(237, 185, 53, 255);

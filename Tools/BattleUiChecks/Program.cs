@@ -8,26 +8,19 @@ static class Program
     { checks++; if (!ok) throw new Exception(name); }
     static void Main()
     {
-        var drag = new BattleWeaponWheelGesture();
-        drag.Begin(0, 0, 4); drag.Drag(-100, 100);
-        Check(drag.Dragging && drag.Cursor == 1, "drag is a preview");
-        Check(drag.Release(true, 4) == 1, "release confirms front weapon");
-        Check(drag.Release(true, 4) == -1, "pointer-up and end-drag cannot commit twice");
-        drag.Begin(0, 0, 4); drag.Drag(100, 100);
-        Check(drag.Release(true, 4) == 3, "negative drag wraps");
-        drag.Begin(0, 3, 4); drag.Drag(-200, 100);
-        Check(drag.Release(true, 4) == 1, "multiple steps wrap");
-        drag.Begin(0, 0, 4); drag.Drag(-150, 100);
-        Check(drag.Release(false, 4) == -1, "turn lock discards preview");
-        drag.Begin(0, 0, 4); drag.Drag(-150, 100); drag.Cancel();
-        Check(drag.Release(true, 4) == -1, "cancel or focus loss discards preview");
-        drag.Begin(0, 0, 0); Check(!drag.Dragging && drag.Release(true, 0) == -1, "empty loadout");
-        drag.Begin(0, 0, 1); drag.Drag(-1500, 100);
-        Check(drag.Release(true, 1) == 0, "single weapon stays selected");
-        foreach (float position in new[] { -.5f, .5f, 1.49f, 1.5f, -100.5f, 101.5f })
+        foreach (var end in new[] { (600f, 240f), (-300f, 180f), (0f, 500f), (0f, 0f) })
         {
-            drag.Begin(0, 0, 4); drag.Drag(-position * 100, 100);
-            Check(drag.Release(true, 4) == BattleWeaponWheelMath.CenteredIndex(position, 4), "preview and confirmation agree at ties");
+            BattleTargetingCurve.Evaluate(0, 0, end.Item1, end.Item2, 0, out float x0, out float y0);
+            BattleTargetingCurve.Evaluate(0, 0, end.Item1, end.Item2, 1, out float x1, out float y1);
+            Check(x0 == 0 && y0 == 0 && x1 == end.Item1 && y1 == end.Item2, "targeting curve meets its exact source and arrow tip");
+            for (int i = 0; i <= 100; i++)
+            {
+                float t = i / 100f;
+                BattleTargetingCurve.Evaluate(0, 0, end.Item1, end.Item2, t, out float x, out float y);
+                Check(!float.IsNaN(x) && !float.IsInfinity(y), "targeting curve remains finite even for zero distance");
+                Check(Math.Abs(x - end.Item1 * t) < .001 && y >= end.Item2 * t - .001,
+                    "curve advances toward its target and bows above the chord");
+            }
         }
         for (int count = 1; count <= 4; count++)
         for (int slot = 0; slot < count; slot++)

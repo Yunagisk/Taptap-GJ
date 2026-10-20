@@ -22,7 +22,7 @@ public class PlayerState
     public int hp = 100;
     public int maxHp = 100;                  
     public int resolve = 1;                  // 决心
-    public int maxResolve = 3;               // 决心上限
+    public int maxResolve = StatusRules.DefaultMaxResolve; // 决心上限
     public int lanternCharges = 2;           // 提灯次数
     public int maxLanternCharges = 2;        // 提灯上限
     public float healingMultiplier = 1f;
@@ -99,15 +99,35 @@ public enum MainStoryStage
     CommissionTurnedIn
 }
 
-public enum StoryDialogueEffect { None, VillageIntroduction, AcceptCommission, TurnInCommission }
+public enum StoryDialogueEffect { None, VillageIntroduction, AcceptCommission, TurnInCommission,
+    GuideEquipmentReady, GuideOutsideReady, GuideComplete }
+
+public enum GuideReward { None, Supplies, SwordAndLantern, Axe, Hammer, Torch }
+[Flags]
+public enum GuideLesson { None = 0, Switch = 1, Lantern = 2, Resolve = 4, Break = 8, Items = 16 }
 
 [Serializable]
 public class MainStoryState
 {
     public MainStoryStage stage = MainStoryStage.ArrivedVillage;
+    // Only new story runs use the mandatory village arrival. Existing/debug runs keep their entry flow.
+    public bool useVillageIntroduction;
+    public bool guideEquipmentReady;
+    public bool guideOutsideReady;
+    public bool guideCompleted;
+    public string guideSecondWeaponId;
+    public GuideLesson guideLessons;
+    public List<string> guideRewards = new List<string>();
     public string tutorialNodeId;
     public string slothNodeId;
     public List<string> completedDialogueIds = new List<string>();
+}
+
+[Serializable]
+public class MonsterWeaknessDiscovery
+{
+    public string monsterId;
+    public List<PlayerDamageType> observedTypes = new List<PlayerDamageType>();
 }
 
 //游戏总状态
@@ -120,4 +140,5 @@ public class GameState
     public MapState map = new MapState();
     public ShopState shop = new ShopState();
     public MainStoryState story = new MainStoryState();
+    public List<MonsterWeaknessDiscovery> monsterWeaknesses = new List<MonsterWeaknessDiscovery>();
 }

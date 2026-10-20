@@ -210,6 +210,7 @@ public static class P0ScenePrefabBuilder
         Box(window, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1000, 520), new Vector2(0.5f, 0.5f));
         window.gameObject.AddComponent<Image>().color = Paper;
         ui.avatarImage = Rect("Avatar", window).gameObject.AddComponent<Image>();
+        CharacterPortraitStyle.Apply(ui.avatarImage, null);
         Box(ui.avatarImage.rectTransform, new Vector2(0, 1), new Vector2(24, -64), new Vector2(88, 88), new Vector2(0, 1));
         ui.avatarImage.preserveAspect = true;
         ui.speakerText = Label("Speaker", window, "说话人", new Vector2(140, -28), new Vector2(820, 42), 28);

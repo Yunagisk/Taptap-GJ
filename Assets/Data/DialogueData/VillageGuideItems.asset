@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageGuideItems
+  m_EditorClassIdentifier:
+  dialogueId: guide_teach_items
+  completionEffect: 0
+  startNode:
+    id: break
+    speaker: "旁白"
+    lineKind: 1
+    content: "你照着灯光揭示的位置出手。第一次让它的躯干一歪，僵直在原地，它很快暴跳如雷。\n你提剑又恰到好处地点在某个精巧的位置上，它的膝盖一摔跪倒在周围的泥泞里，它黑色的血液粘黏在它的衣衫。\n现在它终于安静了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: items
+  nodes:
+  - id: items
+    speaker: "系统提示"
+    lineKind: 2
+    content: "战斗中可使用道具。绷带回复生命，圣水解除异常状态；使用道具占用一次行动机会。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: bag
+  - id: bag
+    speaker: "旁白"
+    lineKind: 1
+    content: "你腾出手按了按腰间的药囊，这装了药品的瓶子居然还在。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: finish
+  - id: finish
+    speaker: "系统提示"
+    lineKind: 2
+    content: "可以按需使用道具。接下来，击败眼前的怪物。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: 

@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: KBS09
   m_EditorClassIdentifier: 
   skillName: "\u70b9\u71c3"
-  skillDescription: "\u5355\u4f53\u706b\u713014\uff1b\u4f24\u5bb3\u540e\u70b9\u71c32\u5c42\uff0c\u706b\u7130\u514d\u75ab\u963b\u6b62\u70b9\u71c3\u3002"
+  skillDescription: "\u5355\u4f53\u706b\u713011\uff1b\u4f24\u5bb3\u540e\u70b9\u71c32\u5c42\uff0c\u706b\u7130\u514d\u75ab\u963b\u6b62\u70b9\u71c3\u3002"
   determinationCost: 2
   stages:
   - target: 0
     hitCount: 1
     damageComponents:
     - damageType: 3
-      damage: 14
+      damage: 11
   statusEffects:
   - applyToSelf: 0
     status: 8
