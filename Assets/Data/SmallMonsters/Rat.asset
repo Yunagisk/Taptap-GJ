@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2724e5f1f5059c45b0260b277a42ef9, type: 3}
+  m_Name: Rat
+  m_EditorClassIdentifier:
+  kind: 0
+  displayName: 老鼠
+  maxHp: 36
+  breakThreshold: 2
+  lowHealthGuardWeight: 30
+  actions:
+  - {fileID: 11400000, guid: 07142921a40a50328022679a0929932f, type: 2}
+  - {fileID: 11400000, guid: 0699d91e9161512cb95f52444dc4e977, type: 2}
+  - {fileID: 11400000, guid: 7eb9950f178b55d691676b84d080a1fd, type: 2}
+  - {fileID: 11400000, guid: 8ccf4464c49e583aa972e81bbacbc09d, type: 2}
+  resistances:
+  - damageType: 0
+    damageReaction: 0
+  - damageType: 2
+    damageReaction: 0

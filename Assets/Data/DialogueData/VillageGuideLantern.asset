@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageGuideLantern
+  m_EditorClassIdentifier:
+  dialogueId: guide_teach_lantern
+  completionEffect: 0
+  startNode:
+    id: rush
+    speaker: "旁白"
+    lineKind: 1
+    content: "一道幽灵一样的人形生物向你扑来。它身着破破烂烂的黑袍。你侧身避开，提灯在手中晃了一下。昏黄的光掠过它的腹侧，照出一片尚未长成硬壳的皮肉。你侧了侧头调整视角，看不清它的面孔。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: light
+  nodes:
+  - id: light
+    speaker: "系统提示"
+    lineKind: 2
+    content: "举起提灯，可照见敌人全部弱点。提灯一场战斗可以使用两次，回到埃尔南多休整给它添添油吧。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: do
+  - id: do
+    speaker: "系统提示"
+    lineKind: 2
+    content: "打开“道具”，选择“提灯”，再选择敌人。弱点一旦知晓，本局同种怪物持续有效。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: 

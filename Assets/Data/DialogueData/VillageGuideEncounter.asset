@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageGuideEncounter
+  m_EditorClassIdentifier:
+  dialogueId: guide_encounter
+  completionEffect: 0
+  startNode:
+    id: walk
+    speaker: "旁白"
+    lineKind: 1
+    content: "你抬脚沿土路往前走。四下安静得反常，只有风穿过田地发出低低的声响，像谁趴在你肩头一声接一声地叹气。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: cart
+  nodes:
+  - id: cart
+    speaker: "旁白"
+    lineKind: 1
+    content: "磨坊旁停着一辆翻倒的运粮车。车上的粮袋被撕开，麦粒混在泥里。你看见一道新鲜的拖痕，一直延伸到车底。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: crunch
+  - id: crunch
+    speaker: "旁白"
+    lineKind: 1
+    content: "咔嚓。\n咔嚓。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "……?"
+      targetNodeID: chewing
+    nextNodeID: 
+  - id: chewing
+    speaker: "旁白"
+    lineKind: 1
+    content: "有东西正在……咀嚼？\n它叼着的看起来不是谷物——是一截拴牲口的皮带。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: look_up
+  - id: look_up
+    speaker: "旁白"
+    lineKind: 1
+    content: "它忽然抬起头。\n好消息：它比你晚了一瞬发现你。坏消息：这一瞬很快就要过去。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "…加钱"
+      targetNodeID: more_money
+    - choiceText: "过来。"
+      targetNodeID: come
+    nextNodeID: 
+  - id: more_money
+    speaker: "旁白"
+    lineKind: 1
+    content: "好吧。先把眼前这头东西处理了吧。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: first
+  - id: come
+    speaker: "旁白"
+    lineKind: 1
+    content: "你淡淡地命令他，而它果然听话，朝你立刻扑了过来"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: first
+  - id: first
+    speaker: "旁白"
+    lineKind: 1
+    content: "你率先出手。身为猎魔人，你总是占尽先机。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: 

@@ -1,0 +1,48 @@
+{
+  "version": "resource-icons-v1",
+  "icons": [
+    {
+      "id": "lantern",
+      "sprite": "Assets/Sprite/UI/ResourceIcons2K/Lantern.png",
+      "guid": "6562745134fb4894abd38f1e637fe910",
+      "sourceGeneratedSize": [
+        1254,
+        1254
+      ],
+      "exportSize": [
+        2048,
+        2048
+      ],
+      "native2kDetail": false,
+      "transparent": true,
+      "sourceTool": "image_gen.imagegen",
+      "sha256": "5da7ab45f9a6e5bf1fc89af830a028c1077b79f13a29820fffa14eaee15296df"
+    },
+    {
+      "id": "sin_remnant",
+      "sprite": "Assets/Sprite/UI/ResourceIcons2K/SinRemnant.png",
+      "guid": "a08f4bb0ce134c04196b8f00f3a8783c",
+      "sourceGeneratedSize": [
+        1254,
+        1254
+      ],
+      "exportSize": [
+        2048,
+        2048
+      ],
+      "native2kDetail": false,
+      "transparent": true,
+      "sourceTool": "image_gen.imagegen",
+      "sha256": "b65e1fd264badf6f45b1cac82929fec14dafd7b562909a7af473540871fec353"
+    }
+  ],
+  "promptSet": "output/imagegen/resource-icons-v1/prompt-set.json",
+  "bindings": {
+    "prefab": "Assets/Prefabs/UI/EquipmentPanel.prefab",
+    "lantern": "InventoryLayoutView.itemInfo[lantern]",
+    "sin_remnant": "SinRemnantIcon beside CurrencyAmount"
+  },
+  "gameplayCodeChanged": false,
+  "desktopInputUsed": false,
+  "nativePlayTested": false
+}

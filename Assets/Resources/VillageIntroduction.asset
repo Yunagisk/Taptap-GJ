@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d2383876ebfa178df473e174ca2f37, type: 3}
+  m_Name: VillageIntroduction
+  m_EditorClassIdentifier: 
+  dialoguePrefab: {fileID: 4777671997904438016, guid: fddf5c1948a129244b1b3a1d76468b72, type: 3}
+  font: {fileID: 11400000, guid: a473706d66b325b4ebe64f5afc020c5a, type: 2}
+  arrivalDialogue: {fileID: 11400000, guid: e7832c3020fc16a80ea265c4437335cc, type: 2}
+  streetDialogue: {fileID: 11400000, guid: 3a4a1abf19a8ef8295642a0ff08f5834, type: 2}
+  mayorApproachDialogue: {fileID: 11400000, guid: cfa4a0eb1050be1089a5325d2b122137, type: 2}
+  arrivalBackground: {fileID: 21300000, guid: 1a6da3b7376a2744fb086aef8b591330, type: 3}
+  streetBackground: {fileID: 21300000, guid: 78d3a630273c4b149a1c35868dfbc121, type: 3}
+  mayorBackground: {fileID: 21300000, guid: 4e28d5204ff01464a9910370892a5e1b, type: 3}
+  blacksmithDialogue: {fileID: 11400000, guid: 50268b4382635f6ca79a9b92305c55bb, type: 2}
+  outsideDialogue: {fileID: 11400000, guid: 6cf9d8465cfc58109e2b79fdba5ad2d9, type: 2}
+  encounterDialogue: {fileID: 11400000, guid: 7a5fddfc7c5a5d7b8691522072fc0c35, type: 2}
+  returnDialogue: {fileID: 11400000, guid: 83b76c1db69e542eb85bfdf6597d5508, type: 2}
+  reportDialogue: {fileID: 11400000, guid: 88669722e69f537785dcad142a981fd0, type: 2}
+  switchTutorial: {fileID: 11400000, guid: 48c16b2fd66f560dbdd8326a76c0d1dc, type: 2}
+  lanternTutorial: {fileID: 11400000, guid: 4129e942ccb453dd88086a55a680c4cb, type: 2}
+  resolveTutorial: {fileID: 11400000, guid: dbd7f3d11410563ba2efd550607f0333, type: 2}
+  breakTutorial: {fileID: 11400000, guid: a13f3bd9cbf054e8b29b71037026cd1a, type: 2}
+  itemTutorial: {fileID: 11400000, guid: 74e1d865b7e150aba8d2e7fa6040f011, type: 2}
+  blacksmithBackground: {fileID: 21300000, guid: 9b880f22275eafd42955b2cdf4afcc51, type: 3}
+  outsideBackground: {fileID: 21300000, guid: 33158e2d8d76fe5409d10ba852a4c560, type: 3}
+  tutorialEnemy: {fileID: 11400000, guid: 81d0c207d55b4245a9b7782973e29df6, type: 2}

@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageGuideReturn
+  m_EditorClassIdentifier:
+  dialogueId: guide_return
+  completionEffect: 0
+  startNode:
+    id: done
+    speaker: "旁白"
+    lineKind: 1
+    content: "至少这条路上的麻烦已经解决了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: city
+  nodes:
+  - id: city
+    speaker: "旁白"
+    lineKind: 1
+    content: "沿街的店铺关着门，招牌在风里吱呀作响。无人清扫的街道上堆着落叶，广场中央的喷泉也早已干涸。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: trust
+  - id: trust
+    speaker: "系统提示"
+    lineKind: 2
+    content: "获得：埃尔南多居民的初步信任。\n前往哈罗德宅邸，向他复命。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: 
