@@ -1,0 +1,33 @@
+{
+  "version": 3,
+  "createdOn": "2026-10-18",
+  "mode": "built-in image_gen",
+  "canvasPixels": [2048, 2048],
+  "nativeGenerationPixels": [1254, 1254],
+  "resampled": true,
+  "spritePivot": [0.5, 0.5],
+  "pixelsPerUnit": 100,
+  "runtimeAnimationIntegrated": false,
+  "refinedOn": "2026-10-18",
+  "refinement": {
+    "linework": "Restrained contour cleanup across all twelve weapon illustrations, preserving deliberate points, notches, chain openings and proportions.",
+    "flameTongue": "Red-hot solid metal blade with an incandescent orange-yellow ridge; separate flames retained.",
+    "heavenFire": "Dark charcoal hammer head with branching molten lava fissures, a gunmetal steel shaft and faceted metal grip with silver reflections; intact overall construction and separate flames retained.",
+    "registration": "Uniform fit to previous 2048px canvas alpha bounds; bodies and flames retain shared canvas registration.",
+    "promptLog": "output/imagegen/weapon-refinement/generation.json",
+    "latestEditPromptLog": "output/imagegen/heaven-fire-metal-handle/generation.json"
+  },
+  "weapons": [
+    { "id": "sword", "sprite": "Sword.png" },
+    { "id": "greatsword", "sprite": "Greatsword.png" },
+    { "id": "spear", "sprite": "Spear.png" },
+    { "id": "axe", "sprite": "Axe.png" },
+    { "id": "sickle", "sprite": "Sickle.png" },
+    { "id": "hammer", "sprite": "Hammer.png" },
+    { "id": "flail", "sprite": "Flail.png" },
+    { "id": "poleaxe", "sprite": "Poleaxe.png" },
+    { "id": "flame_tongue", "sprite": "FlameTongue.png", "layersBackToFront": ["Layers/FlameTongueFlames.png", "Layers/FlameTongueBody.png"] },
+    { "id": "heaven_fire", "sprite": "HeavenFire.png", "layersBackToFront": ["Layers/HeavenFireFlames.png", "Layers/HeavenFireBody.png"] },
+    { "id": "torch", "sprite": "Torch.png", "layersBackToFront": ["Layers/TorchFlames.png", "Layers/TorchBody.png"] }
+  ]
+}

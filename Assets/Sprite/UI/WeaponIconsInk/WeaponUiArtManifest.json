@@ -1,0 +1,108 @@
+﻿{
+    "version":  2,
+    "mode":  "built-in image_gen",
+    "nativePixels":  [
+                         1254,
+                         1254
+                     ],
+    "canvasPixels":  [
+                         1024,
+                         1024
+                     ],
+    "sourceArtwork":  "Assets/Sprite/Items/WeaponIllustrations",
+    "shader":  "Assets/Scripts/SharedUI/WeaponInkIcon.shader",
+    "inventory":  {
+                      "prefab":  "Assets/Prefabs/UI/EquipmentPanel.prefab",
+                      "material":  "InventoryWeaponInk.mat",
+                      "saturation":  0.65,
+                      "contrast":  1.08,
+                      "emberColor":  0.8
+                  },
+    "hud":  {
+                "prefab":  "Assets/Prefabs/MapPrefabs/WorldMapHUD.prefab",
+                "material":  "HudWeaponInk.mat",
+                "saturation":  0.08,
+                "contrast":  1.38,
+                "emberColor":  0.62
+            },
+    "weapons":  [
+                    {
+                        "id":  "sword",
+                        "name":  "剑",
+                        "sprite":  "WeaponSword.png",
+                        "angle":  28,
+                        "hudSprite":  "Hud/WeaponSword.png"
+                    },
+                    {
+                        "id":  "greatsword",
+                        "name":  "大剑",
+                        "sprite":  "WeaponGreatsword.png",
+                        "angle":  28,
+                        "hudSprite":  "Hud/WeaponGreatsword.png"
+                    },
+                    {
+                        "id":  "spear",
+                        "name":  "长矛",
+                        "sprite":  "WeaponSpear.png",
+                        "angle":  38,
+                        "hudSprite":  "Hud/WeaponSpear.png"
+                    },
+                    {
+                        "id":  "axe",
+                        "name":  "斧",
+                        "sprite":  "WeaponAxe.png",
+                        "angle":  26,
+                        "hudSprite":  "Hud/WeaponAxe.png"
+                    },
+                    {
+                        "id":  "sickle",
+                        "name":  "镰刀",
+                        "sprite":  "WeaponSickle.png",
+                        "angle":  20,
+                        "hudSprite":  "Hud/WeaponSickle.png"
+                    },
+                    {
+                        "id":  "hammer",
+                        "name":  "锤",
+                        "sprite":  "WeaponHammer.png",
+                        "angle":  28,
+                        "hudSprite":  "Hud/WeaponHammer.png"
+                    },
+                    {
+                        "id":  "flail",
+                        "name":  "链枷",
+                        "sprite":  "WeaponFlail.png",
+                        "angle":  0,
+                        "hudSprite":  "Hud/WeaponFlail.png"
+                    },
+                    {
+                        "id":  "torch",
+                        "name":  "火把",
+                        "sprite":  "WeaponTorch.png",
+                        "angle":  26,
+                        "hudSprite":  "Hud/WeaponTorch.png"
+                    },
+                    {
+                        "id":  "poleaxe",
+                        "name":  "斧枪",
+                        "sprite":  "WeaponPoleaxe.png",
+                        "angle":  32,
+                        "hudSprite":  "Hud/WeaponPoleaxe.png"
+                    },
+                    {
+                        "id":  "flame_tongue",
+                        "name":  "焰舌",
+                        "sprite":  "WeaponFlameTongue.png",
+                        "angle":  25,
+                        "hudSprite":  "Hud/WeaponFlameTongue.png"
+                    },
+                    {
+                        "id":  "heaven_fire",
+                        "name":  "天火",
+                        "sprite":  "WeaponHeavenFire.png",
+                        "angle":  28,
+                        "hudSprite":  "Hud/WeaponHeavenFire.png"
+                    }
+                ],
+    "promptLog":  "output/imagegen/weapon-ui-ink/generation.json"
+}

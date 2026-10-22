@@ -1,0 +1,64 @@
+PASS: Actual Unity Play Mode uses production controller
+PASS: Six unique templates stored on actual GameRoot map
+PASS: Unsaved deterministic fixture seed used
+PASS: Original 28-node/six-question topology unchanged
+PASS: Fixture starts without pending event
+PASS: Real map question button is enabled
+PASS: Native map movement spends exactly one time
+PASS: Native map arrival opens the generated question
+PASS: Old placeholder is suppressed for integrated questions
+PASS: Rendered modal button is top actual pointer target
+RENDER: MainMap-question-1600x1000.png
+RENDER: MainMap-question-1280x720.png
+PASS: Zero-extra-time selection stays open and charges no placeholder time
+PASS: Native choice marks actual map event resolved
+PASS: Text items and attack/received-hit effects do not alter real inventory/buffs
+PASS: Repeated native choice cannot grant or pay again
+PASS: Map input is blocked while modal result remains open
+PASS: Actual scene reload restores selected result without reroll or repaying
+PASS: Escape closes completed event and unlocks exploration
+PASS: Closing event does not spend time or also open pause
+PASS: Native round trip pays two roads and never reopens resolved question
+PASS: Fixture starts without pending event
+PASS: Real map question button is enabled
+PASS: Native map movement spends exactly one time
+PASS: Native map arrival opens the generated question
+PASS: Old placeholder is suppressed for integrated questions
+PASS: Native event heals the current shared player
+PASS: Fixture starts without pending event
+PASS: Real map question button is enabled
+PASS: Native map movement spends exactly one time
+PASS: Native map arrival opens the generated question
+PASS: Old placeholder is suppressed for integrated questions
+PASS: Hidden single enemy costs one time beyond the configured option
+PASS: Pending text encounter does not apply damage or early currency
+PASS: Pending encounter cannot be dismissed or pause through Escape
+PASS: Actual scene reload resumes fixed pending single enemy
+PASS: Rendered modal button is top actual pointer target
+RENDER: MainMap-hidden-encounter-1600x1000.png
+PASS: Native victory gives one remnant without reducing sin or applying text damage
+PASS: Hidden reward cannot be repeated or changed by stale button callbacks
+PASS: Fixture starts without pending event
+PASS: Real map question button is enabled
+PASS: Native map movement spends exactly one time
+PASS: Native map arrival opens the generated question
+PASS: Old placeholder is suppressed for integrated questions
+PASS: Leaving unchosen event marks it spent with zero extra time
+PASS: Fixture starts without pending event
+PASS: Real map question button is enabled
+PASS: Native map movement spends exactly one time
+PASS: Native map arrival opens the generated question
+PASS: Old placeholder is suppressed for integrated questions
+PASS: Bridge is a missing edge before repair
+PASS: Native bridge repair pays exactly two extra time and shows result
+RENDER: MainMap-bridge-result-1600x1000.png
+PASS: Closed repair result reveals the actual shortcut road
+PASS: Native road Prefab is instantiated once and visible
+PASS: New line has valid node geometry and never intercepts clicks
+PASS: Repeated refresh never duplicates repaired road
+PASS: Real controller can traverse repaired shortcut for one road unit
+RENDER: MainMap-repaired-road-1600x1000.png
+PASS: Returning to MainMap retains all six event states and repaired shortcut
+PASS: Saved repaired road renders again after actual scene reload
+FIXTURE SEED: 6
+SUCCESS: 65 actual Unity Play Mode assertions

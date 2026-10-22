@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec845a17881ffd844b3c2c047c74f946, type: 3}
+  m_Name: KBW08
+  m_EditorClassIdentifier: 
+  weaponName: "\u94FE\u67B7"
+  weaponId: flail
+  damageComponents:
+  - damageType: 2
+    damage: 4
+  attackCount: 2
+  skill: {fileID: 11400000, guid: 1239645ef6ee44da8a9342764250bb64, type: 2}
+  price: 8

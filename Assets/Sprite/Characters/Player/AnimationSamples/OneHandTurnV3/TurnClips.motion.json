@@ -1,0 +1,765 @@
+{
+  "fps": 30,
+  "thrust": {
+    "duration": 1,
+    "release": 0.34,
+    "hit": 0.4,
+    "frames": [
+      {
+        "time": 0,
+        "sprite": 0,
+        "grip": {
+          "x": 518.7,
+          "y": 1150.3
+        },
+        "angle": 28,
+        "idleWeight": 1,
+        "view": "rightReady"
+      },
+      {
+        "time": 0.033333335,
+        "sprite": 1,
+        "grip": {
+          "x": 513.51605,
+          "y": 1140.7506
+        },
+        "angle": 28.419754,
+        "idleWeight": 0.79012346,
+        "view": "rightReady"
+      },
+      {
+        "time": 0.06666667,
+        "sprite": 2,
+        "grip": {
+          "x": 499.18396,
+          "y": 1114.3495
+        },
+        "angle": 29.580246,
+        "idleWeight": 0.20987648,
+        "view": "coil"
+      },
+      {
+        "time": 0.1,
+        "sprite": 3,
+        "grip": {
+          "x": 494,
+          "y": 1104.8
+        },
+        "angle": 30,
+        "idleWeight": 0,
+        "view": "coil"
+      },
+      {
+        "time": 0.13333334,
+        "sprite": 4,
+        "grip": {
+          "x": 506.00186,
+          "y": 1102.7297
+        },
+        "angle": 30.107601,
+        "idleWeight": 0,
+        "view": "coil"
+      },
+      {
+        "time": 0.16666667,
+        "sprite": 5,
+        "grip": {
+          "x": 569.26245,
+          "y": 1091.8177
+        },
+        "angle": 30.674759,
+        "idleWeight": 0,
+        "view": "coil"
+      },
+      {
+        "time": 0.2,
+        "sprite": 6,
+        "grip": {
+          "x": 687.30963,
+          "y": 1071.4552
+        },
+        "angle": 31.733097,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.23333333,
+        "sprite": 7,
+        "grip": {
+          "x": 830.46735,
+          "y": 1046.7614
+        },
+        "angle": 33.016563,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.26666668,
+        "sprite": 8,
+        "grip": {
+          "x": 956.6081,
+          "y": 1025.0028
+        },
+        "angle": 34.147465,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.3,
+        "sprite": 9,
+        "grip": {
+          "x": 1031.9049,
+          "y": 1012.0145
+        },
+        "angle": 34.82253,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.33333334,
+        "sprite": 10,
+        "grip": {
+          "x": 1051.5854,
+          "y": 1008.61975
+        },
+        "angle": 34.998974,
+        "idleWeight": 0,
+        "view": "backThrust"
+      },
+      {
+        "time": 0.36666667,
+        "sprite": 11,
+        "grip": {
+          "x": 1088.9344,
+          "y": 986.2593
+        },
+        "angle": 28.086424,
+        "idleWeight": 0,
+        "view": "backThrust"
+      },
+      {
+        "time": 0.4,
+        "sprite": 12,
+        "grip": {
+          "x": 1240.2,
+          "y": 895.5
+        },
+        "angle": 0,
+        "idleWeight": 0,
+        "view": "backThrust"
+      },
+      {
+        "time": 0.43333334,
+        "sprite": 13,
+        "grip": {
+          "x": 1222.5273,
+          "y": 907.80994
+        },
+        "angle": 4.0582695,
+        "idleWeight": 0,
+        "view": "backThrust"
+      },
+      {
+        "time": 0.46666667,
+        "sprite": 14,
+        "grip": {
+          "x": 1209.7628,
+          "y": 919.73456
+        },
+        "angle": 8.370609,
+        "idleWeight": 0,
+        "view": "backThrust"
+      },
+      {
+        "time": 0.5,
+        "sprite": 15,
+        "grip": {
+          "x": 1199.452,
+          "y": 931.4667
+        },
+        "angle": 12.809985,
+        "idleWeight": 0,
+        "view": "backThrust"
+      },
+      {
+        "time": 0.53333336,
+        "sprite": 16,
+        "grip": {
+          "x": 1189.1412,
+          "y": 943.1988
+        },
+        "angle": 17.249361,
+        "idleWeight": 0,
+        "view": "backThrust"
+      },
+      {
+        "time": 0.56666666,
+        "sprite": 17,
+        "grip": {
+          "x": 1176.3765,
+          "y": 955.1234
+        },
+        "angle": 21.561699,
+        "idleWeight": 0,
+        "view": "backThrust"
+      },
+      {
+        "time": 0.6,
+        "sprite": 18,
+        "grip": {
+          "x": 1158.704,
+          "y": 967.43335
+        },
+        "angle": 25.61997,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.6333333,
+        "sprite": 19,
+        "grip": {
+          "x": 1133.6697,
+          "y": 980.321
+        },
+        "angle": 29.297132,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.6666667,
+        "sprite": 20,
+        "grip": {
+          "x": 1098.8196,
+          "y": 993.979
+        },
+        "angle": 32.46616,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.7,
+        "sprite": 21,
+        "grip": {
+          "x": 1051.7,
+          "y": 1008.6
+        },
+        "angle": 35,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.73333335,
+        "sprite": 22,
+        "grip": {
+          "x": 965.0469,
+          "y": 1026.295
+        },
+        "angle": 35.93013,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.76666665,
+        "sprite": 23,
+        "grip": {
+          "x": 833.90625,
+          "y": 1047.4546
+        },
+        "angle": 34.97677,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.8,
+        "sprite": 24,
+        "grip": {
+          "x": 689.2885,
+          "y": 1069.69
+        },
+        "angle": 33.046024,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.8333333,
+        "sprite": 25,
+        "grip": {
+          "x": 562.2044,
+          "y": 1090.6123
+        },
+        "angle": 31.044014,
+        "idleWeight": 0,
+        "view": "coil"
+      },
+      {
+        "time": 0.8666667,
+        "sprite": 26,
+        "grip": {
+          "x": 483.41943,
+          "y": 1107.9559
+        },
+        "angle": 29.845734,
+        "idleWeight": 0.03549391,
+        "view": "coil"
+      },
+      {
+        "time": 0.9,
+        "sprite": 27,
+        "grip": {
+          "x": 462.6383,
+          "y": 1123.46
+        },
+        "angle": 29.12731,
+        "idleWeight": 0.2752074,
+        "view": "coil"
+      },
+      {
+        "time": 0.93333334,
+        "sprite": 28,
+        "grip": {
+          "x": 477.6875,
+          "y": 1137.0282
+        },
+        "angle": 28.540619,
+        "idleWeight": 0.6533807,
+        "view": "coil"
+      },
+      {
+        "time": 0.96666664,
+        "sprite": 29,
+        "grip": {
+          "x": 504.42282,
+          "y": 1146.6464
+        },
+        "angle": 28.145052,
+        "idleWeight": 0.9354799,
+        "view": "rightReady"
+      },
+      {
+        "time": 1,
+        "sprite": 0,
+        "grip": {
+          "x": 518.7,
+          "y": 1150.3
+        },
+        "angle": 28,
+        "idleWeight": 1,
+        "view": "rightReady"
+      }
+    ]
+  },
+  "swing": {
+    "duration": 1.2,
+    "release": 0.49,
+    "hit": 0.57,
+    "frames": [
+      {
+        "time": 0,
+        "sprite": 0,
+        "grip": {
+          "x": 518.7,
+          "y": 1150.3
+        },
+        "angle": 28,
+        "idleWeight": 1,
+        "view": "rightReady"
+      },
+      {
+        "time": 0.033333335,
+        "sprite": 1,
+        "grip": {
+          "x": 513.51605,
+          "y": 1140.7506
+        },
+        "angle": 28.419754,
+        "idleWeight": 0.79012346,
+        "view": "rightReady"
+      },
+      {
+        "time": 0.06666667,
+        "sprite": 2,
+        "grip": {
+          "x": 499.18396,
+          "y": 1114.3495
+        },
+        "angle": 29.580246,
+        "idleWeight": 0.20987648,
+        "view": "coil"
+      },
+      {
+        "time": 0.1,
+        "sprite": 3,
+        "grip": {
+          "x": 494,
+          "y": 1104.8
+        },
+        "angle": 30,
+        "idleWeight": 0,
+        "view": "coil"
+      },
+      {
+        "time": 0.13333334,
+        "sprite": 30,
+        "grip": {
+          "x": 494.59564,
+          "y": 1099.1392
+        },
+        "angle": 30.83673,
+        "idleWeight": 0,
+        "view": "coil"
+      },
+      {
+        "time": 0.16666667,
+        "sprite": 31,
+        "grip": {
+          "x": 498.0865,
+          "y": 1066.595
+        },
+        "angle": 35.65091,
+        "idleWeight": 0,
+        "view": "coil"
+      },
+      {
+        "time": 0.2,
+        "sprite": 32,
+        "grip": {
+          "x": 506.72473,
+          "y": 997.9851
+        },
+        "angle": 45.875656,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.23333333,
+        "sprite": 33,
+        "grip": {
+          "x": 525.9867,
+          "y": 900.45496
+        },
+        "angle": 60.82227,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.26666668,
+        "sprite": 34,
+        "grip": {
+          "x": 564.5016,
+          "y": 792.3686
+        },
+        "angle": 78.39957,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.3,
+        "sprite": 35,
+        "grip": {
+          "x": 622.1648,
+          "y": 693.2767
+        },
+        "angle": 95.83299,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.33333334,
+        "sprite": 36,
+        "grip": {
+          "x": 682.8139,
+          "y": 615.78503
+        },
+        "angle": 110.38401,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.36666667,
+        "sprite": 37,
+        "grip": {
+          "x": 727.06805,
+          "y": 565.8246
+        },
+        "angle": 120.06935,
+        "idleWeight": 0,
+        "view": "backOverhead"
+      },
+      {
+        "time": 0.4,
+        "sprite": 38,
+        "grip": {
+          "x": 747.1988,
+          "y": 543.7692
+        },
+        "angle": 124.380066,
+        "idleWeight": 0,
+        "view": "backOverhead"
+      },
+      {
+        "time": 0.43333334,
+        "sprite": 39,
+        "grip": {
+          "x": 750.1,
+          "y": 540.6
+        },
+        "angle": 125,
+        "idleWeight": 0,
+        "view": "backOverhead"
+      },
+      {
+        "time": 0.46666667,
+        "sprite": 40,
+        "grip": {
+          "x": 750.1,
+          "y": 540.6
+        },
+        "angle": 125,
+        "idleWeight": 0,
+        "view": "backOverhead"
+      },
+      {
+        "time": 0.5,
+        "sprite": 41,
+        "grip": {
+          "x": 759.5301,
+          "y": 552.7468
+        },
+        "angle": 122.34375,
+        "idleWeight": 0,
+        "view": "backOverhead"
+      },
+      {
+        "time": 0.53333336,
+        "sprite": 42,
+        "grip": {
+          "x": 917.199,
+          "y": 768.69165
+        },
+        "angle": 75.12147,
+        "idleWeight": 0,
+        "view": "backOverhead"
+      },
+      {
+        "time": 0.56666666,
+        "sprite": 43,
+        "grip": {
+          "x": 1093.9371,
+          "y": 1254.5663
+        },
+        "angle": -31.128464,
+        "idleWeight": 0,
+        "view": "backChop"
+      },
+      {
+        "time": 0.57,
+        "sprite": 44,
+        "grip": {
+          "x": 1102.4,
+          "y": 1318
+        },
+        "angle": -45,
+        "idleWeight": 0,
+        "view": "backChop"
+      },
+      {
+        "time": 0.6333333,
+        "sprite": 45,
+        "grip": {
+          "x": 1103.0854,
+          "y": 1268.6323
+        },
+        "angle": -32.53938,
+        "idleWeight": 0,
+        "view": "backChop"
+      },
+      {
+        "time": 0.6666667,
+        "sprite": 46,
+        "grip": {
+          "x": 1108.325,
+          "y": 1241.0613
+        },
+        "angle": -25.748592,
+        "idleWeight": 0,
+        "view": "backChop"
+      },
+      {
+        "time": 0.7,
+        "sprite": 47,
+        "grip": {
+          "x": 1115.2466,
+          "y": 1212.9424
+        },
+        "angle": -18.87763,
+        "idleWeight": 0,
+        "view": "backChop"
+      },
+      {
+        "time": 0.73333335,
+        "sprite": 48,
+        "grip": {
+          "x": 1122.5564,
+          "y": 1184.6973
+        },
+        "angle": -11.98815,
+        "idleWeight": 0,
+        "view": "backChop"
+      },
+      {
+        "time": 0.76666665,
+        "sprite": 49,
+        "grip": {
+          "x": 1128.9604,
+          "y": 1156.7471
+        },
+        "angle": -5.141858,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.8,
+        "sprite": 50,
+        "grip": {
+          "x": 1133.1646,
+          "y": 1129.513
+        },
+        "angle": 1.5995779,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.8333333,
+        "sprite": 51,
+        "grip": {
+          "x": 1133.8748,
+          "y": 1103.4163
+        },
+        "angle": 8.174442,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.8666667,
+        "sprite": 52,
+        "grip": {
+          "x": 1129.797,
+          "y": 1078.8782
+        },
+        "angle": 14.52109,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.9,
+        "sprite": 53,
+        "grip": {
+          "x": 1119.6373,
+          "y": 1056.3202
+        },
+        "angle": 20.577797,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.93333334,
+        "sprite": 54,
+        "grip": {
+          "x": 1102.1016,
+          "y": 1036.1633
+        },
+        "angle": 26.282885,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 0.96666664,
+        "sprite": 55,
+        "grip": {
+          "x": 1075.8958,
+          "y": 1018.8291
+        },
+        "angle": 31.574682,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 1,
+        "sprite": 56,
+        "grip": {
+          "x": 1031.3212,
+          "y": 1006.9584
+        },
+        "angle": 36.080597,
+        "idleWeight": 0,
+        "view": "sideTurn"
+      },
+      {
+        "time": 1.0333333,
+        "sprite": 57,
+        "grip": {
+          "x": 868.2321,
+          "y": 1028.2412
+        },
+        "angle": 35.88076,
+        "idleWeight": 0,
+        "view": "coil"
+      },
+      {
+        "time": 1.0666667,
+        "sprite": 58,
+        "grip": {
+          "x": 649.6144,
+          "y": 1069.8947
+        },
+        "angle": 32.635124,
+        "idleWeight": 0.03549409,
+        "view": "coil"
+      },
+      {
+        "time": 1.1,
+        "sprite": 59,
+        "grip": {
+          "x": 494,
+          "y": 1104.8
+        },
+        "angle": 30,
+        "idleWeight": 0.27520782,
+        "view": "coil"
+      },
+      {
+        "time": 1.1333333,
+        "sprite": 60,
+        "grip": {
+          "x": 462.80225,
+          "y": 1126.5928
+        },
+        "angle": 28.987652,
+        "idleWeight": 0.6533804,
+        "view": "coil"
+      },
+      {
+        "time": 1.1666666,
+        "sprite": 61,
+        "grip": {
+          "x": 493.49548,
+          "y": 1143.502
+        },
+        "angle": 28.271606,
+        "idleWeight": 0.9354793,
+        "view": "rightReady"
+      },
+      {
+        "time": 1.2,
+        "sprite": 0,
+        "grip": {
+          "x": 518.7,
+          "y": 1150.3
+        },
+        "angle": 28,
+        "idleWeight": 1,
+        "view": "rightReady"
+      }
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: TavernRumor
+  m_EditorClassIdentifier: 
+  dialogueId: tavern_rumor
+  completionEffect: 0
+  startNode:
+    id: node0
+    speaker: "\u65C5\u4EBA"
+    content: "\u6211\u5728\u8FD9\u91CC\u6B47\u6B47\u811A\u3002\u8FD1\u6765\u6751\u5916\u4E0D\u592A\u5E73\uFF0C\u8DEF\u4E0A\u53EF\u8981\u5F53\u5FC3\u3002"
+    avatar: {fileID: 21300000, guid: 57822df983ccf204d9bdf5669627e3db, type: 3}
+    choices: []
+    nextNodeID: node1
+  nodes:
+  - id: node1
+    speaker: "\u65C5\u4EBA"
+    content: "\u51FA\u95E8\u524D\u68C0\u67E5\u597D\u88C5\u5907\uFF1B\u53D7\u4F24\u4E86\uFF0C\u4E5F\u522B\u5FD8\u4E86\u6751\u91CC\u7684\u65C5\u9986\u3002"
+    avatar: {fileID: 21300000, guid: 57822df983ccf204d9bdf5669627e3db, type: 3}
+    choices: []
+    nextNodeID: 

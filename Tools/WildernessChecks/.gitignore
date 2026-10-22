@@ -1,0 +1,2 @@
+# Preserve the hand-authored check project despite the repository's Unity-project wildcard.
+!WildernessChecks.csproj

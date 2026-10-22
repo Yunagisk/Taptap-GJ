@@ -1,0 +1,430 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageMayorApproach
+  m_EditorClassIdentifier:
+  dialogueId: guide_mayor_commission
+  completionEffect: 2
+  startNode:
+    id: door
+    speaker: "旁白"
+    lineKind: 1
+    content: "你在那扇敞开的“门”前站定。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: frame
+  nodes:
+  - id: frame
+    speaker: "旁白"
+    lineKind: 1
+    content: "门轴破烂，门板歪斜。好在从厚度和材质看来还算经久耐用。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: window
+  - id: window
+    speaker: "旁白"
+    lineKind: 1
+    content: "光从破窗斜切进来，照见无数浮尘悬在那里。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: lamp
+  - id: lamp
+    speaker: "旁白"
+    lineKind: 1
+    content: "一盏将熄的灯，芯黑硬地缠绕在一起而火苗摇摇欲坠，照亮了一张————\n这是怎样一张脸….啊。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: greet
+  - id: greet
+    speaker: "大胡子"
+    lineKind: 0
+    content: "请接受我微不足道的致意，恕我无法到门口来招待您。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: leg
+  - id: leg
+    speaker: "旁白"
+    lineKind: 1
+    content: "你只见扭扭曲曲的红色须发上下翻动。对方同时指了指自己左腿。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: name
+  - id: name
+    speaker: "大胡子"
+    lineKind: 0
+    content: "您叫我哈罗德就可以了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: city
+  - id: city
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "您一路过来，想必也看见了城里的情形。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: mill
+  - id: mill
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "村东的旧磨坊先是牲口不见，后来去查看车辙的人也没回来，埃尔南多常驻的猎魔组织其实不少，但是当我派人前往时发现那里早就人去楼空。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: commission
+  - id: commission
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "我的委托自然也早就无人接取。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: young
+  - id: young
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "但没想到迎来了您这样的….猎魔人。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: consider
+  - id: consider
+    speaker: "旁白"
+    lineKind: 1
+    content: "你见他抬头看了看你，似乎还在斟酌措辞。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "我什么样？"
+      targetNodeID: cloak
+    nextNodeID: 
+  - id: cloak
+    speaker: "旁白"
+    lineKind: 1
+    content: "哦，你问得可真坚定。看什么看，你什么样？你的破斗篷会为你回答的。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: young_reply
+  - id: young_reply
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "您这样….年轻的….猎魔人。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: hair
+  - id: hair
+    speaker: "旁白"
+    lineKind: 1
+    content: "哈罗德的头发蓬乱得像一团被瘟鼠光顾过的干草，衣领却扣得严严实实，袖口也一尘不染。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: bread
+  - id: bread
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "让您见笑了。我们这里已经没有什么可以招待客人的东西，只有这个黑面包了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "接过面包。「谢谢。」"
+      targetNodeID: bread_accept
+    - choiceText: "留着吧，你比我更需要。"
+      targetNodeID: bread_decline
+    - choiceText: "我是来谈报酬的。"
+      targetNodeID: bread_business
+    nextNodeID: 
+  - id: bread_accept
+    speaker: "旁白"
+    lineKind: 1
+    content: "你接过面包。它坚硬、粗糙，沉甸甸地压在你的掌心。至少可以肯定，这是块货真价实的面包。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: waist
+  - id: bread_decline
+    speaker: "旁白"
+    lineKind: 1
+    content: "免费的东西才是最贵的。这个更古不变的道理对你和哈罗德来说都适用。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: waist
+  - id: bread_business
+    speaker: "旁白"
+    lineKind: 1
+    content: "哈罗德淡然地点头，仿佛所有猎魔人就该这样讲效率。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: business_reply
+  - id: business_reply
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "那我更习惯这样。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: waist
+  - id: waist
+    speaker: "旁白"
+    lineKind: 1
+    content: "哈罗德把目光移向你的腰间。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: weapon
+  - id: weapon
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "对了，您的兵器最好不要一直暴露在外头。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: disease
+  - id: disease
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "如今城里到处是病害，谁也说不准会沾上什么东西。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: empty
+  - id: empty
+    speaker: "旁白"
+    lineKind: 1
+    content: "你低头看了看自己空荡荡的腰间。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "不会的"
+      targetNodeID: no_weapon
+    nextNodeID: 
+  - id: no_weapon
+    speaker: "旁白"
+    lineKind: 1
+    content: "不会的，因为你真的没有武器，当然不会担心了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: awkward
+  - id: awkward
+    speaker: "旁白"
+    lineKind: 1
+    content: "哈罗德也终于发现了这一点。\n他的红胡须动了动，神色开始变得古怪。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: memory
+  - id: memory
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "……啊。瞧我这记性。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: blacksmith
+  - id: blacksmith
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "范斯大人的佩剑我已经交给了村里的铁匠，请他按猎魔人的惯例重新锻打过。您现在就去取。他叫加斯帕，铁匠铺在村子西边，门口有一块挂着的蹄铁。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "我这就去。"
+      targetNodeID: go
+    - choiceText: "先告诉我怪物是什么样子。"
+      targetNodeID: monster_silence
+    - choiceText: "如果我没回来呢？"
+      targetNodeID: not_back
+    nextNodeID: 
+  - id: go
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "有劳您了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: vans
+  - id: monster_silence
+    speaker: "旁白"
+    lineKind: 1
+    content: "哈罗德沉默片刻。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: monster_reply
+  - id: monster_reply
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "……倘若有人能看清它的模样，还活着回来告诉我，我恐怕也不必这样求助于您了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: reasonable
+  - id: reasonable
+    speaker: "旁白"
+    lineKind: 1
+    content: "有道理。\n虽然对你眼下的处境毫无帮助。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: get_sword
+  - id: get_sword
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "您还是先去取剑吧。至少得有件趁手的兵器。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: vans
+  - id: not_back
+    speaker: "旁白"
+    lineKind: 1
+    content: "那便一去不回。你居然也会操心这个么？"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: no_answer
+  - id: no_answer
+    speaker: "旁白"
+    lineKind: 1
+    content: "哈罗德张了张嘴，最终没有回答。\n很好。看来你们都不太喜欢这个问题。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: vans
+  - id: vans
+    speaker: "旁白"
+    lineKind: 1
+    content: "“范斯大人？”你很想知道他口中的范斯大人到底是谁，但你隐约觉得现在不是问的时候。你很想知道这位范斯大人时何方神圣，不过眼下最好还是别问了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: west
+  - id: west
+    speaker: "旁白"
+    lineKind: 1
+    content: "你转身朝西走去了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: parcel
+  - id: parcel
+    speaker: "旁白"
+    lineKind: 1
+    content: "哈罗德弯下腰，从桌下摸出一个小包裹，推到你面前。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: take_supplies
+  - id: take_supplies
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "这些您带着。路上兴许用得着。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: supplies
+  - id: supplies
+    speaker: "系统提示"
+    lineKind: 2
+    content: "获得：初始补给。\n绷带 ×1、圣水 ×1。"
+    guideReward: 1
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: objective
+  - id: objective
+    speaker: "系统提示"
+    lineKind: 2
+    content: "当前目标：前往西城区铁匠铺，向加斯帕领取武器。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: farewell
+  - id: farewell
+    speaker: "旁白"
+    lineKind: 1
+    content: "你收好补给，起身告辞。\n身后传来哈罗德的声音。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: sir
+  - id: sir
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "大人。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: careful
+  - id: careful
+    speaker: "哈罗德"
+    lineKind: 0
+    content: "……请务必小心。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: 

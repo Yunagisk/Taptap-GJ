@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageCommission
+  m_EditorClassIdentifier: 
+  dialogueId: village_commission
+  completionEffect: 2
+  startNode:
+    id: node0
+    speaker: "\u6751\u957F"
+    content: "\u6751\u5E84\u9644\u8FD1\u7684\u602A\u7269\u963B\u65AD\u4E86\u51FA\u5165\u3002\u5148\u5B8C\u6210\u6751\u5E84\u5916\u7684\u7B2C\u4E00\u573A\u6E05\u527F\uFF0C\u8BA9\u5927\u5BB6\u770B\u5230\u4F60\u7684\u80FD\u529B\u3002"
+    avatar: {fileID: 21300000, guid: 6df8870734e57b44985e81d9e661d5d7, type: 3}
+    choices: []
+    nextNodeID: node1
+  nodes:
+  - id: node1
+    speaker: "\u6751\u957F"
+    content: "\u5E26\u4E0A\u4F60\u9009\u62E9\u7684\u6B66\u5668\uFF0C\u5728\u80CC\u5305\u4E2D\u88C5\u5907\u597D\u518D\u51FA\u53D1\u3002\u6E05\u527F\u5B8C\u6210\u540E\uFF0C\u6211\u4EEC\u518D\u8BA8\u8BBA\u61D2\u60F0\u7684\u95EE\u9898\u3002"
+    avatar: {fileID: 21300000, guid: 6df8870734e57b44985e81d9e661d5d7, type: 3}
+    choices: []
+    nextNodeID: 

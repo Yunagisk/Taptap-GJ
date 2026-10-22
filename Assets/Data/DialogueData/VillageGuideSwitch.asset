@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageGuideSwitch
+  m_EditorClassIdentifier:
+  dialogueId: guide_teach_switch
+  completionEffect: 0
+  startNode:
+    id: types
+    speaker: "系统提示"
+    lineKind: 2
+    content: "不同武器对应不同伤害类型：\n剑：穿刺　战斧：劈砍\n锤：钝击　火把：火焰\n战斗中可以切换已装备的武器，切换不消耗回合。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: do
+  nodes:
+  - id: do
+    speaker: "系统提示"
+    lineKind: 2
+    content: "先点击左下武器轮盘的箭头，完成一次武器切换。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: 

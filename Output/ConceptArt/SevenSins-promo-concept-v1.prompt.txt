@@ -1,0 +1,13 @@
+Generator: built-in image_gen
+
+Use case: ads-marketing / stylized-concept.
+Create one original atmospheric promotional concept artwork for the user's indie dark fantasy game, in a wide horizontal 16:9 composition. This is an original game titled exactly “七宗罪”, not an anime or existing franchise.
+
+Scene: a quiet, weathered medieval European village disappearing into cold evening mist. A muddy road passes modest crooked timber and stone houses toward a distant church silhouette. Bare branches, old roofs, damp earth, and empty windows feel observed and believable. One very small traveler seen from behind, carrying an ordinary dim lantern, gives the environment a human scale. The lantern is a restrained warm accent, not a magical effect. Suggest moral unease, isolation, and a settlement holding its breath through the environment, without literal illustrations of seven monsters.
+
+Style/medium: art-directed traditional illustration, fine irregular ink drawing and dry charcoal under thin watercolor washes on lightly aged paper. Selective hand-drawn detail, understated cross-hatching, softly lost edges in the mist, large simple tonal shapes and generous quiet space. The existing game uses monochrome hand-drawn village imagery; honor that visual language. Matte, muted charcoal, weathered gray, paper ivory, with a tiny amber glow. More mood and atmosphere than spectacle. Depth must come from diminishing contrast and deliberate composition, not excessive cinematic particles.
+
+Typography: integrate the precise Chinese title “七宗罪” clearly in a calm area of sky/mist, large enough to read in a thumbnail. Exactly three characters in that order, correct Chinese strokes. Restrained weathered Chinese print/serif lettering, subtly imperfect ink edges, elegant spacing and strong contrast against the background; beautifully composed as part of a professional game cover. No other text.
+
+Constraints: organic hand-crafted appearance; natural asymmetry; architecture with consistent perspective; strong focal hierarchy and quiet negative space; no busy ornamental border.
+Avoid: glossy digital fantasy finish, hyper-detailed over-sharpening, plastic surfaces, neon, glowing runes, huge god rays, floating particles, obvious stock AI poster aesthetics, symmetrical giant demon faces, seven-character lineup, elaborate armor, anime characters, random symbols, watermark, logos, subtitles, dates, slogans. Full-bleed finished artwork, not a framed poster mockup.

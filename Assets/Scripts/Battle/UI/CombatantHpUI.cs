@@ -1,0 +1,67 @@
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class CombatantHpUI : MonoBehaviour
+{
+    [Header("监听的战斗单位")]
+    [SerializeField] private Combatant target;
+
+    [Header("UI组件")]
+    [SerializeField] private Slider hpSlider;
+    [SerializeField] private TMP_Text hpText;
+
+    private void OnEnable()
+    {
+        if(target != null)
+        {
+            target.OnHpChanged += UpdateHPUI;//监听者知道战斗现在切换到了什么状态，然后根据这个状态做自己的事情
+            target.OnMarksChanged += UpdateHPUI;
+        }
+    }
+    private void Start()
+    {
+        if(target != null)
+        {
+            UpdateHPUI(target);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if(target != null)
+        {
+            target.OnHpChanged -= UpdateHPUI;
+            target.OnMarksChanged -= UpdateHPUI;
+        }
+    }
+
+    private void UpdateHPUI(Combatant combatant)
+    {
+        hpSlider.maxValue=combatant.MaxHP;
+        hpSlider.value=combatant.CurrentHP;
+
+        string line = $"{combatant.CurrentHP} / {combatant.MaxHP}";
+        string marks = MarksOf(combatant);
+        if (!string.IsNullOrEmpty(marks))
+            line += "\n" + marks;
+        hpText.text = line;
+    }
+
+    static string MarksOf(Combatant combatant)
+    {
+        string marks = combatant.Statuses.Format();
+        EnemyCombatant enemy = combatant as EnemyCombatant;
+        if (enemy == null || enemy.Break == null)
+            return marks;
+
+        string breakText = enemy.Break.Format(combatant.BattleRound);
+        if (string.IsNullOrEmpty(breakText))
+            return marks;
+        if (string.IsNullOrEmpty(marks))
+            return breakText;
+        return marks + " " + breakText;
+    }
+}

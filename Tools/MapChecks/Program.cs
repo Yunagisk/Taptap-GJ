@@ -1,0 +1,996 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+
+static class Program
+{
+    static readonly JsonSerializerOptions Json = new JsonSerializerOptions { IncludeFields = true };
+    static int checks;
+    static string layoutPath = Path.Combine(AppContext.BaseDirectory, "ThreeSinWhitebox.json");
+
+    static MapLayout Layout() => JsonSerializer.Deserialize<MapLayout>(File.ReadAllText(layoutPath), Json);
+    static MapProgression NewMap(int seed = 12345) => new MapProgression(Layout(), new MapState(), new WorldState(), seed);
+
+    static void Check(bool result, string name)
+    {
+        if (!result) throw new Exception("FAILED: " + name);
+        checks++;
+    }
+
+    static MapNodeRequest Move(MapProgression map, string id)
+    {
+        int oldTime = map.World.time;
+        Check(map.TryMove(id, out var request), "move " + id);
+        Check(map.World.time == oldTime + 1, "exactly one time unit per edge");
+        return request;
+    }
+
+    static void Visit(MapProgression map, string id)
+    {
+        var request = Move(map, id);
+        if (request != null) Complete(map, request.requestId);
+    }
+
+    static bool Complete(MapProgression map, string requestId)
+    {
+        int oldTime = map.World.time;
+        int oldSin = map.World.sin;
+        int oldRolls = map.State.sinRollCount;
+        int oldBosses = map.State.spawnedBossNodes.Count;
+        Check(map.TryCompleteNode(requestId), "complete " + requestId);
+        Check(map.World.time == oldTime + 1, "exactly one time unit per node completion");
+        Check(map.State.sinRollCount == oldRolls + 1, "node settlement spends one outdoor sin-growth unit");
+        if (map.State.spawnedBossNodes.Count > oldBosses)
+            Check(map.World.sin == 0 && map.State.spawnedBossNodes.Count == oldBosses + 1,
+                "settlement reaching the threshold spawns one boss and resets sin");
+        else
+            Check(map.World.sin == Math.Min(100, oldSin + 3),
+                "clearing enemies never lowers sin; settlement has the same natural growth as movement");
+        Check(!map.TryCompleteNode(requestId) && map.World.time == oldTime + 1, "repeated completion never charges time twice");
+        return true;
+    }
+
+    static void CheckBossIntroductions()
+    {
+        var map = NewMap();
+        var memory = new MapBossIntroductionState();
+        var boss = memory.NextSloth(map);
+        Check(boss != null && boss.kind == MapNodeKind.Boss, "initially spawned Sloth receives an introduction");
+        string before = JsonSerializer.Serialize(map.State, Json);
+        memory.MarkShown(map.State, boss.id);
+        Check(memory.NextSloth(map) == null && memory.HasShown(map.State, boss.id), "repeated refreshes do not replay the boss introduction");
+        Check(JsonSerializer.Serialize(map.State, Json) == before, "boss introduction never changes progression, time or sin");
+        var reopened = new MapProgression(map.Layout, map.State, map.World, 12345);
+        Check(memory.NextSloth(reopened) == null, "returning from another scene retains introduction memory");
+        var fresh = NewMap();
+        Check(memory.NextSloth(fresh) != null, "a new run can introduce Sloth again");
+        fresh.State.revealedNodes.Remove(boss.id);
+        Check(memory.NextSloth(fresh) == null, "unrevealed bosses never trigger a camera introduction");
+        fresh.State.revealedNodes.Add(boss.id);
+        fresh.State.clearedNodes.Add(boss.id);
+        Check(memory.NextSloth(fresh) == null, "a defeated boss is not introduced");
+    }
+
+    static void CheckMapReveals()
+    {
+        var map = NewMap();
+        string source = map.GetNode(map.Layout.villageNodeId).neighbors[0];
+        Check(map.TryMove(source, out var request) && request != null, "reveal test enters an unfinished node");
+        var visibleBefore = new HashSet<string>();
+        var roadsBefore = new HashSet<string>();
+        foreach (var node in map.Layout.nodes)
+        {
+            if (map.IsVisible(node.id)) visibleBefore.Add(node.id);
+            foreach (string neighbor in node.neighbors)
+                if (map.IsRoadVisible(node.id, neighbor)) roadsBefore.Add(MapRevealTransition.RoadKey(node.id, neighbor));
+        }
+        string beforeCapture = JsonSerializer.Serialize(map.State, Json);
+        var snapshot = MapRevealTransition.Capture(map);
+        Check(JsonSerializer.Serialize(map.State, Json) == beforeCapture, "capturing reveal visibility does not mutate map state");
+        Check(MapRevealTransition.AfterCompletion(map, snapshot, source) == null, "unfinished nodes do not trigger a completion reveal");
+        Check(map.TryCompleteNode(request.requestId), "reveal test completes its visit");
+        string completedState = JsonSerializer.Serialize(map.State, Json);
+        int completedTime = map.World.time;
+        var transition = MapRevealTransition.AfterCompletion(map, snapshot, source);
+        Check(transition != null && transition.sourceId == source && transition.Matches(map), "completion produces a reveal bound to this run");
+        var actualNodes = new HashSet<string>(transition.nodeIds);
+        Check(actualNodes.Count == transition.nodeIds.Count, "new nodes animate once per transition");
+        var actualRoads = new HashSet<string>();
+        foreach (var road in transition.roads)
+        {
+            Check(actualRoads.Add(MapRevealTransition.RoadKey(road.fromId, road.toId)), "new roads animate once regardless of edge direction");
+            Check(road.originId == source && map.IsRoadVisible(road.fromId, road.toId), "reveal flows outward from the completed node");
+            Check(!roadsBefore.Contains(MapRevealTransition.RoadKey(road.fromId, road.toId)), "existing roads are excluded from reveal animations");
+        }
+        foreach (var node in map.Layout.nodes)
+        {
+            Check(actualNodes.Contains(node.id) == (map.IsVisible(node.id) && !visibleBefore.Contains(node.id)), "animation contains exactly the newly visible nodes");
+            foreach (string neighbor in node.neighbors)
+                Check(actualRoads.Contains(MapRevealTransition.RoadKey(node.id, neighbor))
+                    == (map.IsRoadVisible(node.id, neighbor) && !roadsBefore.Contains(MapRevealTransition.RoadKey(node.id, neighbor))),
+                    "animation contains exactly the newly visible roads");
+        }
+        Check(JsonSerializer.Serialize(map.State, Json) == completedState && map.World.time == completedTime,
+            "building presentation data changes neither progression nor time");
+        Check(!transition.Matches(NewMap()), "a new run rejects a stale reveal transition");
+        Check(MapRevealTransition.AfterCompletion(map, MapRevealTransition.Capture(map), source) == null,
+            "reopening the same visibility state does not replay the reveal");
+        Check(MapRevealTransition.AfterCompletion(NewMap(), snapshot, source) == null, "snapshots from a different run are rejected");
+        Check(!map.TryCompleteNode(request.requestId) && map.World.time == completedTime, "reveal does not make duplicate completion valid");
+
+        // All adjacent destinations are already cleared: completing the final
+        // encounter must still animate its icon, even with no visibility delta.
+        var deadEnd = NewMap();
+        foreach (var node in deadEnd.Layout.nodes)
+        {
+            if (!deadEnd.State.revealedNodes.Contains(node.id)) deadEnd.State.revealedNodes.Add(node.id);
+            if (node.id != source && !deadEnd.State.clearedNodes.Contains(node.id)) deadEnd.State.clearedNodes.Add(node.id);
+        }
+        Check(deadEnd.TryMove(source, out var lastRequest) && lastRequest != null, "enter final unfinished encounter");
+        var finalSnapshot = MapRevealTransition.Capture(deadEnd);
+        Check(deadEnd.TryCompleteNode(lastRequest.requestId), "complete final encounter");
+        var finalTransition = MapRevealTransition.AfterCompletion(deadEnd, finalSnapshot, source);
+        Check(finalTransition != null && finalTransition.sourceId == source
+            && finalTransition.roads.Count == 0 && finalTransition.nodeIds.Count == 0,
+            "completion crack still plays when no routes or nodes are revealed");
+        Check(MapRevealTransition.AfterCompletion(deadEnd, MapRevealTransition.Capture(deadEnd), source) == null,
+            "already completed encounters do not replay their crack on reload");
+    }
+
+    static void CheckRepairedRoadReveals()
+    {
+        var layout = Layout();
+        var source = JsonSerializer.Deserialize<WildernessEventCatalog>(File.ReadAllText(
+            FindRepoFile(Path.Combine("Tools", "WildernessChecks", "Fixtures", "LegacyWildernessEvents.json"))), Json);
+        var catalog = MapWildernessRules.BuildCatalog(source, layout);
+        GameState state = null;
+        MapProgression map = null;
+        WildernessNodeState bridge = null;
+        for (int seed = 0; seed < 1000 && bridge == null; seed++)
+        {
+            state = new GameState();
+            map = new MapProgression(layout, state.map, state.world, seed);
+            MapWildernessRules.EnsureInitialized(state, layout, catalog);
+            bridge = state.map.wildernessEvents.nodes.Find(node => node.templateId == "w08");
+        }
+        Check(bridge != null, "a real weighted run contains a repairable bridge event");
+        var level = state.map.wildernessEvents;
+        // Reveal the fixture's existing graph, then enter and settle the genuine repair choice.
+        foreach (var node in layout.nodes)
+        {
+            if (!state.map.revealedNodes.Contains(node.id)) state.map.revealedNodes.Add(node.id);
+            if (node.id != bridge.id && !state.map.clearedNodes.Contains(node.id)) state.map.clearedNodes.Add(node.id);
+        }
+        state.map.currentNodeId = map.GetNode(bridge.id).neighbors[0];
+        Check(map.TryMove(bridge.id, out var request) && request != null
+            && MapWildernessRules.TryOpen(state, layout, catalog, request), "reveal fixture opens the real bridge visit");
+        string key = MapRevealTransition.RoadKey(bridge.bridgeFrom, bridge.bridgeTo);
+        Check(!map.GetNeighbors(bridge.bridgeFrom).Contains(bridge.bridgeTo), "repair road is absent before its choice");
+        var before = MapRevealTransition.Capture(map);
+        int time = state.world.time;
+        Check(WildernessEventRules.TryChoose(level, catalog, state, layout, 0).success
+            && map.FinishEvent(request.requestId) && state.world.time == time + 2,
+            "repair and Event completion charge only the configured two units");
+        Check(map.GetNeighbors(bridge.bridgeFrom).Contains(bridge.bridgeTo)
+            && map.IsRoadVisible(bridge.bridgeFrom, bridge.bridgeTo), "settled repair creates a visible dynamic road");
+        string settled = JsonSerializer.Serialize(state, Json);
+        var transition = MapRevealTransition.AfterCompletion(map, before, bridge.id);
+        Check(transition != null && transition.roads.FindAll(road =>
+            MapRevealTransition.RoadKey(road.fromId, road.toId) == key).Count == 1,
+            "new repaired road enters the reveal once despite not being a template edge");
+        Check(JsonSerializer.Serialize(state, Json) == settled, "repair reveal data does not mutate gameplay resources or state");
+        Check(MapRevealTransition.AfterCompletion(map, MapRevealTransition.Capture(map), bridge.id) == null,
+            "completed repair does not replay its reveal on reopening");
+
+        // A later real completion must capture the repaired edge as already visible.
+        var next = layout.nodes.Find(node => node.kind == MapNodeKind.Battle && node.id != bridge.id);
+        state.map.clearedNodes.Remove(next.id);
+        state.map.currentNodeId = next.neighbors[0];
+        Check(map.TryMove(next.id, out var nextRequest) && nextRequest != null,
+            "later completion enters an ordinary battle after repairing");
+        var laterBefore = MapRevealTransition.Capture(map);
+        Check(map.TryCompleteNode(nextRequest.requestId), "later battle completes through production progression");
+        var later = MapRevealTransition.AfterCompletion(map, laterBefore, next.id);
+        Check(later != null && !later.roads.Exists(road => MapRevealTransition.RoadKey(road.fromId, road.toId) == key),
+            "already repaired road is not rediscovered by later completions");
+        foreach (var node in layout.nodes)
+            if (!state.map.visitedNodes.Contains(node.id)) state.map.visitedNodes.Add(node.id);
+        state.map.currentNodeId = bridge.bridgeFrom;
+        Check(!map.CanFastTravel(bridge.bridgeTo) && map.CanMove(bridge.bridgeTo),
+            "an actually repaired shortcut makes its endpoints adjacent and uses ordinary movement");
+        int shortcutTime = state.world.time;
+        Check(map.TryMove(bridge.bridgeTo, out var shortcutRequest) && shortcutRequest == null
+            && state.world.time == shortcutTime + 1 && state.map.wildernessEvents.currentNodeId == bridge.bridgeTo,
+            "ordinary movement across a repaired shortcut costs one unit and synchronizes wilderness position");
+    }
+
+    static int Main(string[] args)
+    {
+        try { Run(args); return 0; }
+        catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+    }
+
+    static void Run(string[] args)
+    {
+        if (args.Length > 0 && args[0] == "--guide-only")
+        {
+            GuideQuestChecks.Run(Layout, Check);
+            Console.WriteLine("PASS: " + checks + " guide quest progression, reward and migration checks.");
+            return;
+        }
+        if (args.Length > 0) layoutPath = Path.GetFullPath(args[0]);
+        CheckMorningRevival();
+        CheckVillageReentry();
+        CheckMainStory();
+        CheckEquipment();
+        InventoryCategoryChecks.Run(Check);
+        CheckShop();
+        CheckWeaponPrices();
+        VillageEventChecks.Run(Layout, Check);
+        FastTravelChecks.Run(Layout, Check);
+        GuideQuestChecks.Run(Layout, Check);
+        SlothChapterChecks.Run(Layout, Check);
+        CheckMapReveals();
+        CheckBossIntroductions();
+        CheckRepairedRoadReveals();
+        var map = NewMap();
+        foreach (string weapon in NewRunFactory.StartingWeapons)
+        {
+            var fresh = NewRunFactory.Create(Layout(), weapon, 67890);
+            Check(fresh.player.currentWeaponId == weapon && fresh.inventory.weapons.Count == 1 && fresh.inventory.weapons[0] == weapon,
+                "new game owns only its chosen weapon");
+            Check(fresh.inventory.equippedWeaponIds.Count == EquipmentRules.SlotCount
+                && fresh.inventory.equippedWeaponIds[0] == weapon
+                && fresh.inventory.equippedWeaponIds.FindAll(id => !string.IsNullOrEmpty(id)).Count == 1,
+                "new game equips only its chosen weapon in four slots");
+            Check(fresh.story.stage == MainStoryStage.ArrivedVillage
+                && !string.IsNullOrEmpty(fresh.story.tutorialNodeId)
+                && fresh.story.completedDialogueIds.Count == 0, "new game initializes a fresh main story");
+            Check(fresh.shop.stocked && fresh.shop.availableWeaponIds.Count == 8
+                && !fresh.shop.availableWeaponIds.Contains(weapon), "chosen weapon removed from new shop stock");
+            Check(fresh.world.sinRemnant == WeaponTable.StartingRemnant, "new game prepays four sin remnants");
+            Check(fresh.player.hp == 100 && fresh.player.resolve == 1 && fresh.player.lanternCharges == 2, "new game initializes player resources");
+            Check(fresh.world.time == 0 && fresh.world.sin == 40 && fresh.map.currentNodeId == "village", "new game starts at village at time zero");
+            Check(fresh.map.revealedNodes.Count == 5 && fresh.map.clearedNodes.Count == 1 && fresh.map.spawnedBossNodes.Count == 1
+                && fresh.map.defeatedBossNodes.Count == 0 && fresh.inventory.items.Count == 0, "new game resets all progression and inventory");
+            fresh.player.hp = 1;
+            fresh.inventory.items.Add(new ItemStack("old-run-item", 5));
+            fresh.shop.availableWeaponIds.Clear();
+            var next = NewRunFactory.Create(Layout(), weapon, 67891);
+            Check(next.player.hp == 100 && next.inventory.items.Count == 0 && next.shop.availableWeaponIds.Count == 8
+                && next.world.sinRemnant == WeaponTable.StartingRemnant && next.map.randomSeed == 67891,
+                "successive new game does not inherit previous state");
+        }
+        bool invalidWeaponRejected = false;
+        try { NewRunFactory.Create(Layout(), "invalid", 1); }
+        catch (ArgumentException) { invalidWeaponRejected = true; }
+        Check(invalidWeaponRejected, "invalid starting weapon rejected");
+        var invalidNewMap = Layout();
+        invalidNewMap.nodes.Clear();
+        bool invalidNewMapRejected = false;
+        try { NewRunFactory.Create(invalidNewMap, "sword", 1); }
+        catch (InvalidOperationException) { invalidNewMapRejected = true; }
+        Check(invalidNewMapRejected, "invalid map cannot create a new run");
+        if (map.Layout.id == "three-sins-centered-whitebox-v1")
+        {
+            var village = map.GetNode("village");
+            Check(village.x == 0 && village.y == 0, "village centered in map");
+            for (int i = 0; i < map.Layout.nodes.Count; i++)
+                for (int j = i + 1; j < map.Layout.nodes.Count; j++)
+                {
+                    var a = map.Layout.nodes[i];
+                    var b = map.Layout.nodes[j];
+                    Check(Math.Abs(a.x - b.x) >= 112 || Math.Abs(a.y - b.y) >= 64, "node rectangles do not overlap: " + a.id + "/" + b.id);
+                }
+            int crossRoads = 0, roads = 0;
+            foreach (var a in map.Layout.nodes)
+                foreach (string id in a.neighbors)
+                {
+                    if (string.CompareOrdinal(a.id, id) >= 0) continue;
+                    roads++;
+                    var b = map.GetNode(id);
+                    if (a.region != 0 && b.region != 0 && a.region != b.region) crossRoads++;
+                    foreach (var other in map.Layout.nodes)
+                        if (other.id != a.id && other.id != b.id)
+                            Check(!RoadIntersectsNode(a, b, other), "road does not pass through an unrelated node: " + a.id + "/" + b.id + "/" + other.id);
+                }
+            Check(roads == 42 && crossRoads == 3, "42 roads include three direct inter-region links");
+            int initialRoads = 0;
+            foreach (var node in map.Layout.nodes)
+                foreach (string neighbor in node.neighbors)
+                    if (string.CompareOrdinal(node.id, neighbor) < 0 && map.IsRoadVisible(node.id, neighbor)) initialRoads++;
+            Check(initialRoads == 5, "village roads and both entrance cross-links visible at game start");
+            foreach (var edge in new[] { new[] { "r1_a", "r2_a" }, new[] { "r1_a", "r3_a" } })
+            {
+                Check(map.IsRoadVisible(edge[0], edge[1]) && map.IsRoadVisible(edge[1], edge[0]),
+                    "roads between initial village neighbors visible in both directions before completion");
+                var initialVisit = NewMap();
+                Move(initialVisit, edge[0]);
+                Check(initialVisit.IsRoadVisible(edge[0], edge[1]), "entering an unfinished node keeps initial cross-link visible");
+                Check(!initialVisit.TryMove(edge[1], out _) && initialVisit.World.time == 1,
+                    "visible initial cross-link does not bypass completion or charge invalid movement");
+            }
+            Check(!map.IsRoadVisible("r2_a", "r3_a"), "visible nodes without a connection do not gain a road");
+            foreach (var region in map.Layout.regions)
+            {
+                var boss = map.GetNode(region.bossNodeId);
+                foreach (var other in map.Layout.nodes)
+                {
+                    if (other.id == boss.id) continue;
+                    float clearance = other.id == boss.neighbors[0] ? 180 : 220;
+                    float dx = boss.x - other.x, dy = boss.y - other.y;
+                    Check(dx * dx + dy * dy >= clearance * clearance, "boss has clear surroundings: " + boss.id + "/" + other.id);
+                }
+            }
+            var crossMap = NewMap();
+            var entry = Move(crossMap, "r2_a");
+            Check(!crossMap.IsVisible("r3_x") && !crossMap.IsRoadVisible("r2_a", "r3_x"), "cross-region route hidden until departure node completes");
+            Check(!crossMap.TryMove("r3_x", out _), "pending fight blocks cross-region movement");
+            Check(Complete(crossMap, entry.requestId), "complete cross-region departure");
+            Check(crossMap.IsVisible("r3_x") && crossMap.IsRoadVisible("r2_a", "r3_x"), "completion reveals cross-region neighbor and road");
+            Visit(crossMap, "r3_x");
+            Check(Move(crossMap, "r2_a") == null, "cross-region cleared transit works in reverse");
+            foreach (var edge in new[] { new[] { "r1_a", "r2_a" }, new[] { "r1_a", "r3_a" } })
+            {
+                var linked = NewMap();
+                Visit(linked, edge[0]);
+                Visit(linked, edge[1]);
+                Check(Move(linked, edge[0]) == null, "inter-region connection is bidirectional");
+            }
+
+            var bypass = Layout();
+            bypass.nodes.Find(n => n.id == "r1_y").neighbors.Add("r2_c");
+            bypass.nodes.Find(n => n.id == "r2_c").neighbors.Add("r1_y");
+            bool bypassRejected = false;
+            try { MapLayoutValidator.Validate(bypass); }
+            catch (InvalidOperationException error) { bypassRejected = error.Message.Contains("regional battles"); }
+            Check(bypassRejected, "cross-region paths cannot reuse another region's three fights");
+
+            var crowded = Layout();
+            crowded.nodes.Find(n => n.id == "r1_w").x = crowded.nodes.Find(n => n.id == "r1_boss").x + 100;
+            crowded.nodes.Find(n => n.id == "r1_w").y = crowded.nodes.Find(n => n.id == "r1_boss").y;
+            bool crowdingRejected = false;
+            try { MapLayoutValidator.Validate(crowded); }
+            catch (InvalidOperationException error) { crowdingRejected = error.Message.Contains("too close"); }
+            Check(crowdingRejected, "validator rejects nodes crowded around a boss");
+        }
+        Check(map.Layout.nodes.Count == 28 && map.Layout.regions.Count == 3, "region and node counts");
+        foreach (var region in map.Layout.regions)
+        {
+            var boss = map.GetNode(region.bossNodeId);
+            Check(boss.neighbors.Count == 1, "boss has one entrance: " + boss.id);
+            var approach = map.GetNode(boss.neighbors[0]);
+            Check(approach.kind == MapNodeKind.Camp && approach.neighbors.Count == 2,
+                "final camp has no branch: " + approach.id);
+
+            var branching = Layout();
+            branching.nodes.Find(n => n.id == approach.id).neighbors.Add("r" + region.id + "_w");
+            branching.nodes.Find(n => n.id == "r" + region.id + "_w").neighbors.Add(approach.id);
+            bool branchRejected = false;
+            try { MapLayoutValidator.Validate(branching); }
+            catch (InvalidOperationException error) { branchRejected = error.Message.Contains("final approach"); }
+            Check(branchRejected, "validator rejects a branch at the final camp: " + approach.id);
+
+            var extraEntrance = Layout();
+            extraEntrance.nodes.Find(n => n.id == boss.id).neighbors.Add("r" + region.id + "_w");
+            extraEntrance.nodes.Find(n => n.id == "r" + region.id + "_w").neighbors.Add(boss.id);
+            bool entranceRejected = false;
+            try { MapLayoutValidator.Validate(extraEntrance); }
+            catch (InvalidOperationException error) { entranceRejected = error.Message.Contains("exactly one entrance"); }
+            Check(entranceRejected, "validator rejects a second boss entrance: " + boss.id);
+        }
+        Check(map.World.time == 0 && map.World.sin == 40, "initial resources");
+        Check(map.State.revealedNodes.Count == 5, "village, three entrances, Sloth initially visible");
+        foreach (string entrance in map.GetNode("village").neighbors)
+            Check(map.IsRoadVisible("village", entrance) && map.IsRoadVisible(entrance, "village"), "initial village entrance road visible");
+        Check(!map.IsRoadVisible("missing", "village") && !map.IsRoadVisible("village", "missing")
+            && !map.IsRoadVisible("village", "village"), "invalid road endpoints rejected");
+        Check(map.IsVisible("r1_boss") && !map.IsVisible("r2_boss"), "tutorial boss only");
+        Check(!map.IsRoadVisible("r1_camp", "r1_boss"), "Sloth route initially hidden");
+        Check(!map.TryMove("r1_boss", out _) && map.World.time == 0, "no teleport to revealed boss");
+        Check(!map.TryMove("missing", out _) && !map.TryMove("village", out _), "invalid and self moves rejected");
+        var first = Move(map, "r1_a");
+        Check(first != null && first.kind == MapNodeKind.Battle, "battle request context");
+        Check(!map.State.clearedNodes.Contains("r1_a") && !map.IsVisible("r1_b"), "arrival does not clear or reveal");
+        Check(map.World.sin == 43, "one outdoor time unit adds three sin");
+        Check(!map.TryMove("village", out _) && map.World.time == 1, "pending node blocks all movement");
+        Check(!map.TryCompleteNode("bad-token") && map.World.time == 1, "invalid callback rejected without charging time");
+        Check(Complete(map, first.requestId), "complete current visit");
+        Check(map.World.time == 2, "moving to and handling a new node costs two units");
+        Check(map.IsVisible("r1_b") && map.IsVisible("r1_x") && !map.IsVisible("r1_c"), "reveal immediate neighbors only");
+        Check(!map.TryCompleteNode(first.requestId) && map.World.time == 2, "duplicate callback has no effect or time cost");
+        var second = Move(map, "r1_b");
+        Check(!map.TryCompleteNode(first.requestId) && map.State.pendingRequestId == second.requestId && map.World.time == 3,
+            "stale callback cannot complete a later visit or charge time");
+        Check(Complete(map, second.requestId), "complete second visit");
+        Check(Move(map, "r1_a") == null, "cleared node transit never replays content");
+        Check(Move(map, "village") == null, "village transit has no pending content");
+
+        var restoredState = JsonSerializer.Deserialize<MapState>(JsonSerializer.Serialize(map.State, Json), Json);
+        var restoredWorld = JsonSerializer.Deserialize<WorldState>(JsonSerializer.Serialize(map.World, Json), Json);
+        var restored = new MapProgression(Layout(), restoredState, restoredWorld, 999);
+        Check(restored.World.time == map.World.time && restored.State.randomSeed == 12345, "state reconstruction does not reset progress or seed");
+        for (int i = 0; i < 64; i++)
+        {
+            string target = i % 2 == 0 ? "r1_a" : "village";
+            int previousSpawnCount = map.State.spawnedBossNodes.Count;
+            int oldSin = map.World.sin;
+            Move(map, target);
+            Move(restored, target);
+            Check(map.World.sin == restored.World.sin && map.State.sinRollCount == restored.State.sinRollCount, "restored sin stream stays deterministic");
+            Check(map.State.spawnedBossNodes.Count - previousSpawnCount <= 1, "at most one spawn per move");
+            if (map.State.spawnedBossNodes.Count > previousSpawnCount)
+                Check(map.World.sin == 0, "spawn resets sin and discards overflow");
+            else if (previousSpawnCount < 3)
+                Check(map.World.sin - oldSin == 3, "continued outdoor natural sin is three");
+        }
+        Check(map.State.spawnedBossNodes.Count == 3 && map.State.spawnedBossNodes[1] == "r2_boss", "remaining bosses spawn in region order");
+        int cappedRolls = map.State.sinRollCount;
+        int cappedSin = map.World.sin;
+        Visit(map, "r1_a");
+        Check(map.State.sinRollCount == cappedRolls + 1 && map.World.sin == Math.Min(100, cappedSin + 3),
+            "sin continues growing to its cap after all bosses spawn");
+        Check(!map.IsRoadVisible("r2_camp", "r2_boss"), "remote spawn does not reveal its road");
+        Visit(map, "r1_b");
+        Visit(map, "r1_c");
+        Check(!map.IsRoadVisible("r1_camp", "r1_boss"), "boss road stays hidden before camp completion");
+        Visit(map, "r1_camp");
+        Check(map.IsRoadVisible("r1_camp", "r1_boss"), "camp completion reveals boss road");
+        var sloth = Move(map, "r1_boss");
+        Check(sloth.bossKey == "sloth" && sloth.kind == MapNodeKind.Boss, "Sloth transition metadata");
+        Check(Complete(map, sloth.requestId), "Sloth whitebox completion");
+        foreach (string key in new[] { "camp", "c", "b", "a" }) Visit(map, "r1_" + key);
+        Visit(map, "village");
+        for (int region = 2; region <= 3; region++)
+        {
+            foreach (string key in new[] { "a", "b", "c", "camp", "boss" }) Visit(map, "r" + region + "_" + key);
+            Check(map.State.defeatedBossNodes.Count == region, "boss completion recorded once");
+            if (region == 2)
+            {
+                foreach (string key in new[] { "camp", "c", "b", "a" }) Visit(map, "r2_" + key);
+                Visit(map, "village");
+            }
+        }
+        Check(map.IsComplete && map.State.defeatedBossNodes.Count == 3, "three-boss flow completes");
+
+        var pendingMap = NewMap();
+        var pending = Move(pendingMap, "r1_a");
+        var stateCopy = JsonSerializer.Deserialize<MapState>(JsonSerializer.Serialize(pendingMap.State, Json), Json);
+        var worldCopy = JsonSerializer.Deserialize<WorldState>(JsonSerializer.Serialize(pendingMap.World, Json), Json);
+        var resumed = new MapProgression(Layout(), stateCopy, worldCopy, 777);
+        Check(resumed.GetPendingRequest().requestId == pending.requestId && resumed.World.time == 1,
+            "restoring pending visit does not charge movement or completion");
+        Complete(resumed, pending.requestId);
+        Check(resumed.World.time == 2, "resumed completion charges exactly one additional time unit");
+
+        for (int region = 1; region <= 3; region++)
+        {
+            var branchMap = NewMap();
+            Visit(branchMap, "r1_a");
+            while (branchMap.State.spawnedBossNodes.Count < 3)
+            {
+                Visit(branchMap, "village");
+                Visit(branchMap, "r1_a");
+            }
+            Visit(branchMap, "village");
+            string prefix = "r" + region + "_";
+            foreach (string key in new[] { "a", "x", "y", "z", "w" }) Visit(branchMap, prefix + key);
+            Check(branchMap.IsVisible(prefix + "c") && !branchMap.IsVisible(prefix + "camp"),
+                "side route joins before final camp: " + prefix);
+            Visit(branchMap, prefix + "c");
+            Visit(branchMap, prefix + "camp");
+            Check(branchMap.IsRoadVisible(prefix + "camp", prefix + "boss"), "final camp reveals boss road: " + prefix);
+            Visit(branchMap, prefix + "boss");
+            Check(branchMap.State.defeatedBossNodes.Contains(prefix + "boss"), "boss reachable via side route: " + prefix);
+        }
+
+        var broken = Layout();
+        broken.nodes[0].neighbors.Add("r1_boss");
+        broken.nodes.Find(n => n.id == "r1_boss").neighbors.Add("village");
+        bool rejected = false;
+        try { MapLayoutValidator.Validate(broken); } catch (InvalidOperationException) { rejected = true; }
+        Check(rejected, "validator rejects shortcuts bypassing required fights");
+        Console.WriteLine("PASS: " + checks + " checks; topology, reveal, transit, callbacks, sin spawning, restoration, village timed events, shared resources, complete three-boss flow.");
+    }
+
+    static void CheckVillageReentry()
+    {
+        var map = NewMap();
+        string home = map.Layout.villageNodeId;
+        Check(map.CanReenterVillage(home), "current village can reopen after departure to map");
+        Check(!map.TryMove(home, out _), "reopening village is not a road traversal");
+        Check(!map.CanReenterVillage(null) && !map.CanReenterVillage("missing")
+            && !map.CanReenterVillage("r1_a"), "village reopening cannot bypass other node rules");
+        var battle = Move(map, "r1_a");
+        Check(!map.CanReenterVillage(home), "unfinished battle cannot reopen village remotely");
+        Complete(map, battle.requestId);
+        Check(!map.CanReenterVillage(home) && !map.CanReenterVillage("r1_a")
+            && !map.CanMove("r1_a"), "cleared current battle stays non-repeatable");
+        Move(map, home);
+        Check(map.World.time == 3 && map.State.checkpointNodeId == home,
+            "road home still advances time and records dawn checkpoint");
+        string savedState = JsonSerializer.Serialize(map.State, Json);
+        string savedWorld = JsonSerializer.Serialize(map.World, Json);
+        for (int i = 0; i < 3; i++)
+        {
+            map = new MapProgression(Layout(), map.State, map.World, 999);
+            Check(map.CanReenterVillage(home)
+                && JsonSerializer.Serialize(map.State, Json) == savedState
+                && JsonSerializer.Serialize(map.World, Json) == savedWorld,
+                "repeated scene reconstruction preserves state and village availability");
+        }
+        map.State.pendingRequestId = "pending";
+        Check(!map.CanReenterVillage(home), "pending encounter prevents reopening village");
+        map.State.pendingRequestId = null;
+        var next = Move(map, "r1_a");
+        Check(next == null && map.World.time == 4, "normal travel still works after village reopening");
+
+        var revived = NewMap();
+        var encounter = Move(revived, "r1_a");
+        Check(revived.TryReviveAtCheckpoint(encounter.requestId) && revived.CanReenterVillage(home),
+            "village checkpoint revival permits reopening village");
+    }
+
+    static void CheckMorningRevival()
+    {
+        var map = NewMap();
+        Check(map.State.checkpointNodeId == "village" && map.State.checkpointTime == 0,
+            "new run starts with village checkpoint");
+        var first = Move(map, "r1_a");
+        Check(map.State.checkpointNodeId == "village", "afternoon does not change checkpoint");
+        Complete(map, first.requestId);
+        Check(map.State.checkpointNodeId == "village", "night does not change checkpoint");
+        var dawn = Move(map, "r1_b");
+        Check(map.World.time == 3 && map.State.checkpointNodeId == "r1_b"
+            && map.State.checkpointTime == 3, "morning arrival records current unfinished battle");
+        int sin = map.World.sin, rolls = map.State.sinRollCount;
+        int cleared = map.State.clearedNodes.Count;
+        Check(!map.TryReviveAtCheckpoint(first.requestId)
+            && map.State.pendingRequestId == dawn.requestId, "stale revive cannot cancel another battle");
+        Check(map.TryReviveAtCheckpoint(dawn.requestId), "revive at unfinished morning checkpoint");
+        Check(map.State.currentNodeId == "r1_b" && map.GetPendingRequest() == null,
+            "revival restores checkpoint position and cancels pending battle");
+        Check(map.World.time == 3 && map.World.sin == sin && map.State.sinRollCount == rolls,
+            "revival does not advance time or sin");
+        Check(map.State.clearedNodes.Count == cleared && !map.State.clearedNodes.Contains("r1_b")
+            && !map.IsVisible("r1_c"), "revival does not clear battle or reveal its rewards");
+        Check(!map.TryReviveAtCheckpoint(dawn.requestId), "duplicate revival rejected");
+        var copied = JsonSerializer.Deserialize<MapState>(JsonSerializer.Serialize(map.State, Json), Json);
+        var world = JsonSerializer.Deserialize<WorldState>(JsonSerializer.Serialize(map.World, Json), Json);
+        var restored = new MapProgression(Layout(), copied, world, 999);
+        Check(restored.State.checkpointNodeId == "r1_b" && restored.State.checkpointTime == 3
+            && restored.CanMove("r1_a"), "checkpoint and ability to leave survive reconstruction");
+        Check(restored.CanMove("r1_b"), "revived unfinished current battle is clickable");
+        int retryTime = restored.World.time, retrySin = restored.World.sin;
+        int retryRolls = restored.State.sinRollCount;
+        Check(restored.TryMove("r1_b", out var directRetry) && directRetry != null
+            && directRetry.kind == MapNodeKind.Battle && directRetry.requestId != dawn.requestId,
+            "clicking current checkpoint creates a fresh battle request");
+        Check(restored.World.time == retryTime && restored.World.sin == retrySin
+            && restored.State.sinRollCount == retryRolls, "in-place retry charges no travel time or sin");
+        Check(!restored.CanMove("r1_b") && !restored.TryMove("r1_b", out _),
+            "pending retry blocks duplicate clicks");
+        Check(!restored.TryCompleteNode(dawn.requestId)
+            && !restored.TryReviveAtCheckpoint(dawn.requestId), "old battle callbacks cannot resolve direct retry");
+        Check(restored.TryReviveAtCheckpoint(directRetry.requestId) && restored.CanMove("r1_b"),
+            "dying during direct retry allows another direct retry");
+        Check(restored.TryMove("r1_b", out var winningRetry)
+            && restored.TryCompleteNode(winningRetry.requestId), "direct retry can complete normally");
+        Check(!restored.CanMove("r1_b") && restored.State.clearedNodes.Contains("r1_b")
+            && restored.World.time == retryTime + 1, "cleared current node cannot replay and victory costs one period");
+        Check(Move(map, "r1_a") == null && !map.State.revivedAtCheckpoint,
+            "player can leave unfinished checkpoint without replaying cleared neighbor");
+        var retry = Move(map, "r1_b");
+        Check(retry.requestId != dawn.requestId && !map.TryCompleteNode(dawn.requestId),
+            "retry creates fresh request and rejects old victory");
+        Check(map.TryReviveAtCheckpoint(retry.requestId) && map.State.currentNodeId == "r1_b",
+            "later death still uses latest dawn checkpoint");
+
+        var completion = NewMap();
+        Visit(completion, "r1_a");
+        Visit(completion, "r1_b");
+        Visit(completion, "r1_c");
+        Check(completion.World.time == 6 && completion.State.checkpointNodeId == "r1_c"
+            && completion.State.checkpointTime == 6, "completion entering morning updates checkpoint");
+        Move(completion, "r1_b");
+        Check(completion.State.checkpointNodeId == "r1_c", "daytime movement preserves checkpoint");
+
+        var initialDeath = NewMap();
+        var encounter = Move(initialDeath, "r1_a");
+        Check(initialDeath.TryReviveAtCheckpoint(encounter.requestId)
+            && initialDeath.State.currentNodeId == "village" && initialDeath.CanMove("r1_a"),
+            "death before second morning revives at village and permits retry");
+
+        var fresh = NewRunFactory.Create(Layout(), "axe", 54321);
+        Check(fresh.map.checkpointNodeId == "village" && fresh.map.checkpointTime == 0
+            && !fresh.map.revivedAtCheckpoint && fresh.player.hp == fresh.player.maxHp,
+            "restart creates full health and a fresh initial checkpoint");
+    }
+
+    static void CheckMainStory()
+    {
+        var layout = Layout();
+        var village = layout.nodes.Find(node => node.id == layout.villageNodeId);
+        string tutorialId = null;
+        foreach (string id in village.neighbors)
+            if (layout.nodes.Find(node => node.id == id).kind == MapNodeKind.Battle)
+            {
+                tutorialId = id;
+                break;
+            }
+        var state = NewRunFactory.Create(layout, "sword", 66);
+        // Preserve legacy three-boss dialogue coverage; submission homecoming is checked separately.
+        state.map.slothChapterOnly = false;
+        Check(state.story.tutorialNodeId == tutorialId, "story picks the first village-adjacent battle");
+        var tutorial = new MapNodeRequest { nodeId = tutorialId, kind = MapNodeKind.Battle };
+        var slothRegion = layout.regions.Find(region => region.bossKey == "sloth");
+        var sloth = new MapNodeRequest { nodeId = slothRegion.bossNodeId, kind = MapNodeKind.Boss, bossKey = "sloth" };
+        string initialGoal = MainStoryRules.GoalText(state);
+        Check(!string.IsNullOrEmpty(initialGoal) && !string.IsNullOrEmpty(MainStoryRules.GoalText(null)),
+            "story always offers a current goal");
+        MainStoryRules.OnNodeCompleted(state, tutorial);
+        MainStoryRules.OnNodeCompleted(state, sloth);
+        Check(state.story.stage == MainStoryStage.ArrivedVillage, "battle callbacks cannot bypass village introduction");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "accept", StoryDialogueEffect.AcceptCommission)
+            && !state.story.completedDialogueIds.Contains("accept"), "commission cannot precede introduction or consume its dialogue");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "turn-in", StoryDialogueEffect.TurnInCommission)
+            && !state.story.completedDialogueIds.Contains("turn-in"), "early turn-in is rejected and may be retried later");
+        Check(!MainStoryRules.TryCompleteDialogue(state, " ", StoryDialogueEffect.None)
+            && !MainStoryRules.TryCompleteDialogue(state, "invalid-effect", (StoryDialogueEffect)99),
+            "blank dialogue and unknown effects are rejected");
+        Check(MainStoryRules.TryCompleteDialogue(state, "chat", StoryDialogueEffect.None)
+            && state.story.stage == MainStoryStage.ArrivedVillage, "ordinary completed dialogue does not progress story");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "chat", StoryDialogueEffect.None)
+            && state.story.completedDialogueIds.Count == 1, "ordinary dialogue completion is idempotent");
+        Check(MainStoryRules.TryCompleteDialogue(state, "introduction", StoryDialogueEffect.VillageIntroduction)
+            && state.story.stage == MainStoryStage.VillageIntroductionComplete
+            && MainStoryRules.GoalText(state) != initialGoal, "completed introduction changes stage and objective");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "introduction", StoryDialogueEffect.VillageIntroduction)
+            && !MainStoryRules.TryCompleteDialogue(state, "another-introduction", StoryDialogueEffect.VillageIntroduction)
+            && !state.story.completedDialogueIds.Contains("another-introduction"), "duplicate introduction cannot consume another dialogue");
+        Check(MainStoryRules.TryCompleteDialogue(state, "accept", StoryDialogueEffect.AcceptCommission)
+            && state.story.stage == MainStoryStage.CommissionAccepted, "commission becomes available after introduction");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "accept", StoryDialogueEffect.AcceptCommission),
+            "commission acceptance cannot repeat");
+        MainStoryRules.OnNodeCompleted(state, sloth);
+        MainStoryRules.OnNodeCompleted(state, new MapNodeRequest { nodeId = "another-battle", kind = MapNodeKind.Battle });
+        MainStoryRules.OnNodeCompleted(state, new MapNodeRequest { nodeId = tutorialId, kind = MapNodeKind.Event });
+        MainStoryRules.OnNodeCompleted(state, null);
+        Check(state.story.stage == MainStoryStage.CommissionAccepted, "only the selected tutorial battle can finish the tutorial");
+        int remnant = state.world.sinRemnant, owned = state.inventory.weapons.Count;
+        MainStoryRules.OnNodeCompleted(state, tutorial);
+        Check(state.story.stage == MainStoryStage.TutorialCompleted, "tutorial completion advances an accepted commission");
+        MainStoryRules.OnNodeCompleted(state, tutorial);
+        MainStoryRules.OnNodeCompleted(state, new MapNodeRequest { nodeId = sloth.nodeId, kind = MapNodeKind.Battle, bossKey = "sloth" });
+        MainStoryRules.OnNodeCompleted(state, new MapNodeRequest { nodeId = "another-boss", kind = MapNodeKind.Boss, bossKey = "placeholder_2" });
+        Check(state.story.stage == MainStoryStage.TutorialCompleted, "repeated tutorial and unrelated bosses do not advance the story");
+        state.map.clearedNodes.Add(sloth.nodeId);
+        state.map.defeatedBossNodes.Add(sloth.nodeId);
+        MainStoryRules.OnNodeCompleted(state, sloth);
+        Check(state.story.stage == MainStoryStage.SlothDefeated && state.world.sinRemnant == remnant
+            && state.inventory.weapons.Count == owned, "sloth completion records the milestone without granting rewards");
+        MainStoryRules.OnNodeCompleted(state, sloth);
+        Check(state.story.stage == MainStoryStage.SlothDefeated, "repeated sloth callback does not skip the return-to-village step");
+        Check(MainStoryRules.TryCompleteDialogue(state, "turn-in", StoryDialogueEffect.TurnInCommission)
+            && state.story.stage == MainStoryStage.CommissionTurnedIn && state.world.sinRemnant == remnant,
+            "completed turn-in advances story without inventing reward values");
+        Check(!MainStoryRules.TryCompleteDialogue(state, "turn-in", StoryDialogueEffect.TurnInCommission)
+            && !MainStoryRules.TryCompleteDialogue(state, "another-turn-in", StoryDialogueEffect.TurnInCommission),
+            "completed commission cannot be turned in twice");
+        var restored = JsonSerializer.Deserialize<GameState>(JsonSerializer.Serialize(state, Json), Json);
+        MainStoryRules.EnsureInitialized(restored, layout);
+        MainStoryRules.OnNodeCompleted(restored, tutorial);
+        Check(restored.story.stage == MainStoryStage.CommissionTurnedIn
+            && restored.story.tutorialNodeId == tutorialId
+            && restored.story.completedDialogueIds.Count == state.story.completedDialogueIds.Count
+            && !MainStoryRules.TryCompleteDialogue(restored, "turn-in", StoryDialogueEffect.TurnInCommission),
+            "story and dialogue idempotency survive state reconstruction");
+        var legacy = new GameState { story = null };
+        legacy.map.clearedNodes.Add(tutorialId);
+        legacy.map.defeatedBossNodes.Add(sloth.nodeId);
+        MainStoryRules.EnsureInitialized(legacy, layout);
+        Check(legacy.story.stage == MainStoryStage.ArrivedVillage && legacy.story.tutorialNodeId == tutorialId,
+            "legacy map records do not silently skip main story stages");
+        legacy.story.completedDialogueIds = null;
+        legacy.story.tutorialNodeId = "stale-node";
+        MainStoryRules.EnsureInitialized(legacy, layout);
+        Check(legacy.story.completedDialogueIds != null && legacy.story.tutorialNodeId == tutorialId,
+            "story initialization repairs missing dialogue history and stale tutorial ids");
+        var reordered = Layout();
+        reordered.nodes.Find(node => node.id == reordered.villageNodeId).neighbors.Reverse();
+        MainStoryRules.EnsureInitialized(legacy, reordered);
+        Check(legacy.story.tutorialNodeId == tutorialId, "initialized story keeps a valid tutorial when neighbor order changes");
+        var noTutorial = new MapLayout { nodes = new List<MapNodeDefinition>
+            { new MapNodeDefinition { id = "village", kind = MapNodeKind.Village } } };
+        var missing = new GameState();
+        MainStoryRules.EnsureInitialized(missing, noTutorial);
+        Check(string.IsNullOrEmpty(missing.story.tutorialNodeId), "a map without an adjacent battle does not invent a tutorial node");
+        var exploredFirst = NewRunFactory.Create(layout, "sword", 68);
+        exploredFirst.map.slothChapterOnly = false;
+        exploredFirst.map.clearedNodes.Add(tutorialId);
+        exploredFirst.map.defeatedBossNodes.Add(sloth.nodeId);
+        int initialRemnant = exploredFirst.world.sinRemnant;
+        MainStoryRules.EnsureInitialized(exploredFirst, layout);
+        Check(exploredFirst.story.slothNodeId == sloth.nodeId
+            && exploredFirst.story.stage == MainStoryStage.ArrivedVillage,
+            "pre-commission exploration identifies sloth but cannot bypass introduction or acceptance");
+        Check(MainStoryRules.TryCompleteDialogue(exploredFirst, "intro-late", StoryDialogueEffect.VillageIntroduction)
+            && exploredFirst.story.stage == MainStoryStage.VillageIntroductionComplete,
+            "completed map nodes do not skip commission acceptance after a late introduction");
+        Check(MainStoryRules.TryCompleteDialogue(exploredFirst, "accept-late", StoryDialogueEffect.AcceptCommission)
+            && exploredFirst.story.stage == MainStoryStage.SlothDefeated
+            && exploredFirst.world.sinRemnant == initialRemnant
+            && exploredFirst.inventory.weapons.Count == 1,
+            "accepting after prior tutorial and sloth victories reconciles milestones without rewards");
+        MainStoryRules.ReconcileCompletedNodes(exploredFirst);
+        Check(exploredFirst.story.stage == MainStoryStage.SlothDefeated
+            && !exploredFirst.story.completedDialogueIds.Contains("late-turn-in"),
+            "reconciliation never turns in a commission or fabricates dialogue completion");
+        Check(MainStoryRules.TryCompleteDialogue(exploredFirst, "late-turn-in", StoryDialogueEffect.TurnInCommission)
+            && exploredFirst.story.stage == MainStoryStage.CommissionTurnedIn,
+            "a late accepted commission remains explicitly available for turn-in");
+        var exploredTutorial = NewRunFactory.Create(layout, "axe", 69);
+        exploredTutorial.map.clearedNodes.Add(tutorialId);
+        exploredTutorial.map.defeatedBossNodes.Add("unrelated-boss");
+        MainStoryRules.TryCompleteDialogue(exploredTutorial, "intro", StoryDialogueEffect.VillageIntroduction);
+        Check(MainStoryRules.TryCompleteDialogue(exploredTutorial, "accept", StoryDialogueEffect.AcceptCommission)
+            && exploredTutorial.story.stage == MainStoryStage.TutorialCompleted,
+            "only a previously cleared tutorial is reconciled when another boss was defeated");
+        exploredTutorial.map.defeatedBossNodes.Add(sloth.nodeId);
+        MainStoryRules.EnsureInitialized(exploredTutorial, layout);
+        Check(exploredTutorial.story.stage == MainStoryStage.SlothDefeated,
+            "initializing an accepted run reconciles a subsequently recorded sloth victory");
+        var oldAccepted = new GameState { story = new MainStoryState { stage = MainStoryStage.CommissionAccepted } };
+        oldAccepted.map.clearedNodes.Add(tutorialId);
+        oldAccepted.map.defeatedBossNodes.Add(sloth.nodeId);
+        var oldRestored = JsonSerializer.Deserialize<GameState>(JsonSerializer.Serialize(oldAccepted, Json), Json);
+        MainStoryRules.EnsureInitialized(oldRestored, layout);
+        Check(oldRestored.story.stage == MainStoryStage.SlothDefeated
+            && oldRestored.story.tutorialNodeId == tutorialId && oldRestored.story.slothNodeId == sloth.nodeId
+            && oldRestored.story.completedDialogueIds.Count == 0,
+            "restoring an accepted legacy run maps completed facts without creating dialogues or auto-turn-in");
+        var bossBeforeTutorial = NewRunFactory.Create(layout, "sword", 70);
+        bossBeforeTutorial.story.stage = MainStoryStage.CommissionAccepted;
+        bossBeforeTutorial.map.defeatedBossNodes.Add(sloth.nodeId);
+        MainStoryRules.ReconcileCompletedNodes(bossBeforeTutorial);
+        Check(bossBeforeTutorial.story.stage == MainStoryStage.CommissionAccepted,
+            "prior boss completion alone cannot skip an unfinished tutorial");
+        bossBeforeTutorial.map.clearedNodes.Add(tutorialId);
+        MainStoryRules.ReconcileCompletedNodes(bossBeforeTutorial);
+        Check(bossBeforeTutorial.story.stage == MainStoryStage.SlothDefeated,
+            "reconciliation progresses through a newly recorded tutorial and prior boss completion");
+        var next = NewRunFactory.Create(layout, "axe", 67);
+        Check(next.story.stage == MainStoryStage.ArrivedVillage && next.story.completedDialogueIds.Count == 0,
+            "restarting does not inherit completed story stages or dialogues");
+    }
+
+    static void CheckEquipment()
+    {
+        var state = NewRunFactory.Create(Layout(), "sword", 77);
+        Check(ShopRules.TryBuy(state, "axe", WeaponTable.PriceOf("axe")).ok, "equipment fixture buys and owns an axe");
+        EquipmentRules.EnsureInitialized(state);
+        Check(!state.inventory.equippedWeaponIds.Contains("axe")
+            && !EquipmentRules.TrySelectWeapon(state, "axe"), "buying a weapon does not equip it or allow battle selection");
+        Check(EquipmentRules.TryEquip(state, 2, "axe") && state.inventory.equippedWeaponIds[2] == "axe"
+            && state.player.currentWeaponId == "sword", "equipping an additional weapon preserves the current equipped weapon");
+        Check(EquipmentRules.TrySelectWeapon(state, "axe") && state.player.currentWeaponId == "axe",
+            "battle may select an owned weapon from an equipped slot");
+        string slotsBefore = JsonSerializer.Serialize(state.inventory.equippedWeaponIds, Json);
+        Check(!EquipmentRules.TryEquip(state, -1, "sword") && !EquipmentRules.TryEquip(state, 4, "sword")
+            && !EquipmentRules.TryEquip(state, 1, "hammer")
+            && JsonSerializer.Serialize(state.inventory.equippedWeaponIds, Json) == slotsBefore,
+            "invalid slots and unowned weapons cannot change the loadout");
+        state.inventory.weapons.Add("not-a-weapon");
+        Check(!EquipmentRules.TryEquip(state, 1, "not-a-weapon") && !EquipmentRules.TrySelectWeapon(state, "not-a-weapon"),
+            "inventory entries without a valid weapon id cannot be equipped or selected");
+        Check(EquipmentRules.TryEquip(state, 1, "axe") && state.inventory.equippedWeaponIds[1] == "axe"
+            && string.IsNullOrEmpty(state.inventory.equippedWeaponIds[2])
+            && state.player.currentWeaponId == "axe", "equipping an existing weapon moves it and retains the selected weapon");
+        Check(state.inventory.equippedWeaponIds.FindAll(id => id == "axe").Count == 1,
+            "moving a weapon never duplicates it across slots");
+        Check(EquipmentRules.TryEquip(state, 1, null) && state.player.currentWeaponId == "sword",
+            "removing the current weapon selects another equipped weapon");
+        Check(EquipmentRules.TryEquip(state, 0, string.Empty) && string.IsNullOrEmpty(state.player.currentWeaponId),
+            "removing the last weapon clears current weapon selection");
+        EquipmentRules.EnsureInitialized(state);
+        Check(state.inventory.equippedWeaponIds.Count == 4
+            && state.inventory.equippedWeaponIds.TrueForAll(string.IsNullOrEmpty),
+            "explicitly empty four-slot loadout is not repopulated by initialization");
+        Check(!EquipmentRules.TrySelectWeapon(state, "sword") && !EquipmentRules.TrySelectWeapon(state, null),
+            "owned but unequipped weapons and empty selection are rejected");
+        var emptyRestored = JsonSerializer.Deserialize<GameState>(JsonSerializer.Serialize(state, Json), Json);
+        EquipmentRules.EnsureInitialized(emptyRestored);
+        Check(emptyRestored.inventory.equippedWeaponIds.TrueForAll(string.IsNullOrEmpty)
+            && string.IsNullOrEmpty(emptyRestored.player.currentWeaponId), "explicit unequip survives serialization and reconstruction");
+        Check(EquipmentRules.TryEquip(state, 3, "axe") && state.player.currentWeaponId == "axe",
+            "equipping into an empty loadout establishes a valid current weapon");
+        var restored = JsonSerializer.Deserialize<GameState>(JsonSerializer.Serialize(state, Json), Json);
+        EquipmentRules.EnsureInitialized(restored);
+        Check(restored.inventory.equippedWeaponIds[3] == "axe" && restored.player.currentWeaponId == "axe"
+            && string.IsNullOrEmpty(restored.inventory.equippedWeaponIds[0]),
+            "chosen slot and empty slots survive state reconstruction");
+        state.inventory.weapons.Remove("axe");
+        EquipmentRules.EnsureInitialized(state);
+        Check(state.inventory.equippedWeaponIds.TrueForAll(string.IsNullOrEmpty)
+            && string.IsNullOrEmpty(state.player.currentWeaponId), "removing ownership also removes the equipped weapon and current selection");
+        var legacy = new GameState();
+        legacy.inventory.weapons = new List<string> { "sword", "axe", "hammer" };
+        legacy.inventory.equippedWeaponIds = null;
+        legacy.player.currentWeaponId = "axe";
+        EquipmentRules.EnsureInitialized(legacy);
+        Check(legacy.inventory.equippedWeaponIds[0] == "axe"
+            && legacy.inventory.equippedWeaponIds.FindAll(id => !string.IsNullOrEmpty(id)).Count == 1,
+            "legacy null equipment equips only the currently owned selected weapon");
+        legacy.inventory.equippedWeaponIds.Clear();
+        legacy.inventory.weapons = new List<string> { "not-a-weapon", "hammer", "sword" };
+        legacy.player.currentWeaponId = "axe";
+        EquipmentRules.EnsureInitialized(legacy);
+        Check(legacy.inventory.equippedWeaponIds[0] == "hammer" && legacy.player.currentWeaponId == "hammer",
+            "legacy empty equipment falls back to the first valid owned weapon");
+        legacy.inventory.weapons = new List<string> { "sword", "hammer" };
+        legacy.inventory.equippedWeaponIds = new List<string> { "sword", "sword", "not-a-weapon", "axe", "hammer" };
+        legacy.player.currentWeaponId = "axe";
+        EquipmentRules.EnsureInitialized(legacy);
+        Check(legacy.inventory.equippedWeaponIds.Count == 4 && legacy.inventory.equippedWeaponIds[0] == "sword"
+            && string.IsNullOrEmpty(legacy.inventory.equippedWeaponIds[1])
+            && string.IsNullOrEmpty(legacy.inventory.equippedWeaponIds[2])
+            && string.IsNullOrEmpty(legacy.inventory.equippedWeaponIds[3]) && legacy.player.currentWeaponId == "sword",
+            "legacy malformed loadout is limited to four slots and removes duplicates, unknown and unowned ids");
+        legacy.inventory.equippedWeaponIds = new List<string> { null, "hammer" };
+        legacy.player.currentWeaponId = "sword";
+        EquipmentRules.EnsureInitialized(legacy);
+        Check(legacy.inventory.equippedWeaponIds.Count == 4 && legacy.inventory.equippedWeaponIds[0] == null
+            && legacy.inventory.equippedWeaponIds[1] == "hammer" && legacy.player.currentWeaponId == "hammer",
+            "partial legacy slots retain explicit emptiness and select an actually equipped weapon");
+        legacy.inventory.weapons.Clear();
+        legacy.inventory.equippedWeaponIds.Clear();
+        EquipmentRules.EnsureInitialized(legacy);
+        Check(legacy.inventory.equippedWeaponIds.TrueForAll(string.IsNullOrEmpty)
+            && string.IsNullOrEmpty(legacy.player.currentWeaponId), "empty ownership does not manufacture equipment");
+        var missing = new GameState { player = null, inventory = null };
+        EquipmentRules.EnsureInitialized(missing);
+        Check(missing.player != null && missing.inventory != null && missing.inventory.equippedWeaponIds.Count == 4,
+            "equipment can initialize a legacy state with missing player and inventory");
+        Check(!EquipmentRules.TryEquip(null, 0, "sword") && !EquipmentRules.TrySelectWeapon(null, "sword"),
+            "equipment requests without a run are rejected");
+
+        var retired = NewRunFactory.Create(Layout(), "sword", 78);
+        retired.inventory.weapons = new List<string> { "dual_swords", "dual_swords" };
+        retired.inventory.seenWeaponIds = new List<string> { "dual_swords" };
+        retired.inventory.equippedWeaponIds = new List<string> { "", "dual_swords", "", "" };
+        retired.player.currentWeaponId = "dual_swords";
+        retired.world.time = 7; retired.world.sin = 64; retired.world.sinRemnant = 9;
+        retired.shop.availableWeaponIds.Add("dual_swords");
+        EquipmentRules.EnsureInitialized(retired);
+        ShopRules.EnsureStock(retired);
+        Check(retired.inventory.weapons.Count == 1 && retired.inventory.weapons[0] == "sword"
+            && retired.player.currentWeaponId == "sword" && retired.inventory.equippedWeaponIds[0] == "sword"
+            && !retired.inventory.seenWeaponIds.Contains("dual_swords")
+            && !retired.inventory.equippedWeaponIds.Contains("dual_swords")
+            && !retired.shop.availableWeaponIds.Contains("dual_swords"),
+            "a dual-sword-only legacy run migrates to an equipped sword and clears retired ownership, slots, notifications and stock");
+        Check(retired.world.time == 7 && retired.world.sin == 64 && retired.world.sinRemnant == 9,
+            "retiring a saved weapon does not change time, sin or currency");
+        string retiredSnapshot = JsonSerializer.Serialize(retired, Json);
+        EquipmentRules.EnsureInitialized(retired); ShopRules.EnsureStock(retired);
+        Check(JsonSerializer.Serialize(retired, Json) == retiredSnapshot, "retired-weapon migration is idempotent");
+        Check(!EquipmentRules.TryEquip(retired, 0, "dual_swords") && !EquipmentRules.TrySelectWeapon(retired, "dual_swords")
+            && !ShopRules.TryBuy(retired, "dual_swords", 0).ok && !ShopRules.TryBuy(retired, "dual_swords", 8).ok
+            && JsonSerializer.Serialize(retired, Json) == retiredSnapshot,
+            "stale callbacks cannot buy, equip or select dual swords even for free");
+        retired.inventory.weapons = new List<string> { "axe", "dual_swords", "hammer" };
+        retired.inventory.equippedWeaponIds = new List<string> { "dual_swords", "hammer", "", "" };
+        retired.player.currentWeaponId = "dual_swords";
+        EquipmentRules.EnsureInitialized(retired);
+        Check(string.Join(",", retired.inventory.weapons) == "axe,hammer"
+            && retired.player.currentWeaponId == "hammer" && retired.inventory.equippedWeaponIds[1] == "hammer",
+            "legacy migration preserves other owned and equipped weapons without granting a spare sword");
+        Check(WeaponTable.All.Length == 11 && WeaponTable.Find("dual_swords") == null
+            && !WeaponTable.IsSoldInShop("dual_swords") && Array.IndexOf(NewRunFactory.StartingWeapons, "dual_swords") < 0,
+            "dual swords are absent from the active catalogue, shop and starting choices");
+        bool rejectedRetiredStart = false;
+        try { NewRunFactory.Create(Layout(), "dual_swords", 79); }
+        catch (ArgumentException) { rejectedRetiredStart = true; }
+        Check(rejectedRetiredStart, "legacy new-game callbacks cannot start a dual-sword run");
+    }
+    static void CheckShop()
+    {
+        var state = NewRunFactory.Create(Layout(), "sword", 99);
+        int sin = state.world.sin;
+        Check(state.world.sinRemnant == 4 && !state.shop.availableWeaponIds.Contains("sword")
+            && state.shop.availableWeaponIds.Contains("axe") && state.shop.availableWeaponIds.Contains("poleaxe")
+            && !state.shop.availableWeaponIds.Contains("heaven_fire") && !state.shop.availableWeaponIds.Contains("flame_tongue"),
+            "shop stocks ordinary weapons and excludes the two question-event rewards");
+        var poor = ShopRules.TryBuy(state, "greatsword", WeaponTable.PriceOf("greatsword"));
+        Check(!poor.ok && state.world.sinRemnant == 4 && !state.inventory.weapons.Contains("greatsword"),
+            "cannot buy an 8-cost weapon with 4 remnants");
+        var owned = ShopRules.TryBuy(state, "sword", 4);
+        Check(!owned.ok && state.inventory.weapons.Count == 1, "starting weapon stays unlocked and is not sold again");
+        var bought = ShopRules.TryBuy(state, "axe", WeaponTable.PriceOf("axe"));
+        Check(bought.ok && state.world.sinRemnant == 0 && state.inventory.weapons.Contains("axe")
+            && !state.shop.availableWeaponIds.Contains("axe") && state.world.sin == sin,
+            "buying spends remnants, unlocks the weapon, and does not lower sin");
+        int remnant = state.world.sinRemnant;
+        int ownedCount = state.inventory.weapons.Count;
+        var again = ShopRules.TryBuy(state, "axe", 4);
+        Check(!again.ok && state.world.sinRemnant == remnant && state.inventory.weapons.Count == ownedCount
+            && !state.shop.availableWeaponIds.Contains("axe"), "sold weapon is not restocked");
+        ShopRules.EnsureStock(state);
+        Check(!state.shop.availableWeaponIds.Contains("axe"), "reopening the shop does not restock");
+        ShopRules.GrantRemnant(state.world, WeaponTable.BossRemnant);
+        var expensive = ShopRules.TryBuy(state, "poleaxe", 12);
+        Check(!expensive.ok && state.world.sinRemnant == 10, "12-cost weapon stays locked without enough remnants");
+        ShopRules.GrantRemnant(state.world, WeaponTable.SmallMonsterRemnant * 2);
+        var unlocked = ShopRules.TryBuy(state, "poleaxe", 12);
+        Check(unlocked.ok && state.world.sinRemnant == 0 && state.inventory.weapons.Contains("poleaxe")
+            && state.world.sin == sin, "boss plus two small monsters pays for a 12-cost weapon");
+        state.world.sinRemnant = 100;
+        foreach (string id in new[] { "heaven_fire", "flame_tongue" })
+        {
+            state.shop.availableWeaponIds.Add(id);
+            Check(!ShopRules.TryBuy(state, id, 0).ok && !ShopRules.TryBuy(state, id, 12).ok
+                && !state.inventory.weapons.Contains(id) && state.world.sinRemnant == 100,
+                "old stock and direct purchase cannot buy event weapon " + id);
+            state.inventory.weapons.Add(id);
+        }
+        ShopRules.EnsureStock(state);
+        Check(!state.shop.availableWeaponIds.Contains("heaven_fire") && !state.shop.availableWeaponIds.Contains("flame_tongue")
+            && !state.shop.availableWeaponIds.Contains("axe") && state.inventory.weapons.Contains("heaven_fire")
+            && state.inventory.weapons.Contains("flame_tongue"), "old shop migration preserves owned rewards and sold stock");
+        Check(EquipmentRules.TryEquip(state, 2, "heaven_fire") && EquipmentRules.TrySelectWeapon(state, "heaven_fire")
+            && EquipmentRules.TryEquip(state, 3, "flame_tongue"), "event weapons remain equipable after leaving the shop");
+    }
+
+    static void CheckWeaponPrices()
+    {
+        var expected = new Dictionary<string, int>
+        {
+            { "KBW01", 4 }, { "KBW05", 4 }, { "KBW07", 4 }, { "KBW09", 4 },
+            { "KBW02", 8 }, { "KBW03", 8 }, { "KBW06", 8 }, { "KBW08", 8 },
+            { "KBW10", 12 }, { "KBW11", 12 }, { "KBW12", 12 },
+        };
+        var ids = new Dictionary<string, string>
+        {
+            { "KBW01", "sword" }, { "KBW02", "greatsword" }, { "KBW03", "spear" },
+            { "KBW05", "axe" }, { "KBW06", "sickle" }, { "KBW07", "hammer" }, { "KBW08", "flail" },
+            { "KBW09", "torch" }, { "KBW10", "poleaxe" }, { "KBW11", "flame_tongue" }, { "KBW12", "heaven_fire" },
+        };
+        foreach (var pair in expected)
+        {
+            string path = FindRepoFile(Path.Combine("Assets", "Data", "Weapons", pair.Key + ".asset"));
+            string text = File.ReadAllText(path);
+            Check(text.Contains("price: " + pair.Value), pair.Key + " price is " + pair.Value);
+            Check(text.Contains("weaponId: " + ids[pair.Key]), pair.Key + " id is " + ids[pair.Key]);
+        }
+    }
+
+    static string FindRepoFile(string relative)
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null)
+        {
+            string candidate = Path.Combine(dir.FullName, relative);
+            if (File.Exists(candidate)) return candidate;
+            dir = dir.Parent;
+        }
+        throw new Exception("missing " + relative);
+    }
+
+    static bool RoadIntersectsNode(MapNodeDefinition a, MapNodeDefinition b, MapNodeDefinition node)
+    {
+        float enter = 0, leave = 1;
+        return IntersectsAxis(a.x, b.x, node.x - 64, node.x + 64, ref enter, ref leave)
+            && IntersectsAxis(a.y, b.y, node.y - 40, node.y + 40, ref enter, ref leave);
+    }
+
+    static bool IntersectsAxis(float start, float end, float min, float max, ref float enter, ref float leave)
+    {
+        float delta = end - start;
+        if (Math.Abs(delta) < 0.0001f) return start >= min && start <= max;
+        float a = (min - start) / delta, b = (max - start) / delta;
+        enter = Math.Max(enter, Math.Min(a, b));
+        leave = Math.Min(leave, Math.Max(a, b));
+        return enter <= leave;
+    }
+}

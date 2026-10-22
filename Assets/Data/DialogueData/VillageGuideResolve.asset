@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageGuideResolve
+  m_EditorClassIdentifier:
+  dialogueId: guide_teach_resolve
+  completionEffect: 0
+  startNode:
+    id: shrink
+    speaker: "旁白"
+    lineKind: 1
+    content: "你举起灯，昏黄的光推出去，那怪物被光一照，发出一声尖利的嘶鸣，往后缩了缩，它身上某处随之在灯光里显出异样。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: gain
+  nodes:
+  - id: gain
+    speaker: "系统提示"
+    lineKind: 2
+    content: "普通攻击与防御可以积攒决心，上限为 3 点。\n消耗决心，可使用当前武器对应的技能。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: wait
+  - id: wait
+    speaker: "旁白"
+    lineKind: 1
+    content: "你稳住身形，凝神蓄势，没有急着补上第二击。\n有些时候，多等一招并不等于认输。尤其当你知道下一招应该落在哪里的时候。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: do
+  - id: do
+    speaker: "系统提示"
+    lineKind: 2
+    content: "进行一次普通攻击或防御，观察决心的变化。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: 

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>0649</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Battle/AI/IEnemyActionSelector.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/AI/CycleActionSelector.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/AI/WeightedEnemyActionSelector.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Data/EnemyAttackData.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Data/SmallMonsterData.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Status/StatusId.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Flow/SmallMonsterEncounterRules.cs" />
+    <Compile Include="Checks.cs" />
+  </ItemGroup>
+</Project>

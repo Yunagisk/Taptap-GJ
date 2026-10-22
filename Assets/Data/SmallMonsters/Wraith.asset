@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2724e5f1f5059c45b0260b277a42ef9, type: 3}
+  m_Name: Wraith
+  m_EditorClassIdentifier:
+  kind: 2
+  displayName: 怨影
+  maxHp: 44
+  breakThreshold: 2
+  lowHealthGuardWeight: 0
+  actions:
+  - {fileID: 11400000, guid: 0ad5b5f9d37f51ab97de9d950e4ff47d, type: 2}
+  - {fileID: 11400000, guid: 4f0663ea76725135ac0bf82b4c7b19d1, type: 2}
+  - {fileID: 11400000, guid: de8c3367a7a054f5aee6bef42f87ce3c, type: 2}
+  - {fileID: 11400000, guid: e83c42c86c8254c8ad792dc0d2db1d06, type: 2}
+  resistances:
+  - damageType: 2
+    damageReaction: 2
+  - damageType: 3
+    damageReaction: 0

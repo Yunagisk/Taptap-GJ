@@ -1,0 +1,17 @@
+{
+  "source": "User supplied combat-art ZIP / torch PNG",
+  "sourceFile": "火把.png",
+  "dimensions": [
+    2048,
+    2048
+  ],
+  "sha256": "095ea5c6be5291de5522acd07d0a4bcb51563d1b376f9de5597e800a6790f4ae",
+  "pixelEdits": false,
+  "weaponPivotPixelsTopLeft": [
+    1065,
+    1190
+  ],
+  "weaponScale": 0.68,
+  "body": "Shared OneHandThrustV2 body mesh + OneHandThrustV1 ready arm drawing",
+  "animation": "Continuous shared-arm IK and separately deforming torch flame; no new generated raster art"
+}

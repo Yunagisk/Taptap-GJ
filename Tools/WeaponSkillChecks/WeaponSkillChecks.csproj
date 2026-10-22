@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>0649</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Battle/Actions/IBattleAction.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Actions/Player/PlayerAttackAction.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Actions/Player/PlayerAttackPlayback.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Actions/Player/SkillAction.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Actions/Player/DefendAction.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Combatants/Combatant.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Combatants/PlayerCombatant.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Data/SkillData.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Damage/*.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Status/*.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Flow/*.cs" Exclude="../../Assets/Scripts/Battle/Flow/SmallMonsterEncounter*.cs;../../Assets/Scripts/Battle/Flow/GuideBattleController.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Weapons/WeaponData.cs" />
+    <Compile Include="RuntimeStubs.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+</Project>

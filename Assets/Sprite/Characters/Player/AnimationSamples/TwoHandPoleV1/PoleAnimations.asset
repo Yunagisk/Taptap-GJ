@@ -1,0 +1,108 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c203268e7f7de8f4dbd39b650fdcb126, type: 3}
+  m_Name: PoleAnimations
+  m_EditorClassIdentifier: 
+  motion: {fileID: 4900000, guid: fc0d04e29ce14983888d2a04827ae1c6, type: 3}
+  bodyFrames:
+  - {fileID: 21300000, guid: 7b9e43d7774f45d68584ffc21624aaa0, type: 3}
+  - {fileID: 21300000, guid: bd56af622fac42ffbf224856f8c11e23, type: 3}
+  - {fileID: 21300000, guid: 491379264d7c4246b9ef7810dea91954, type: 3}
+  - {fileID: 21300000, guid: 617c637719564ea59cd10ef81da58c0f, type: 3}
+  - {fileID: 21300000, guid: 67e8426fbe0b4f03af10bfe5565229a6, type: 3}
+  - {fileID: 21300000, guid: c0f8ecf12aa148e192bb8f033b3f95d0, type: 3}
+  - {fileID: 21300000, guid: 8b5e7f06985c4f5ba04658430e0b34f3, type: 3}
+  - {fileID: 21300000, guid: eef3edf71ada41139ec7249ebace46a9, type: 3}
+  - {fileID: 21300000, guid: 52155ea43c0447169e74e4d60d5bd576, type: 3}
+  - {fileID: 21300000, guid: 178be108fd7b4ca09e2073956921e3be, type: 3}
+  - {fileID: 21300000, guid: 2b094c55bdd94d45a760376db4bc94e5, type: 3}
+  - {fileID: 21300000, guid: d744e83372b84a97a546f487125ac24d, type: 3}
+  - {fileID: 21300000, guid: 80f65b39352d41239bbe7c51a857ed22, type: 3}
+  - {fileID: 21300000, guid: 1c832b18cfaf4ff9b1a1f905b0a9df36, type: 3}
+  - {fileID: 21300000, guid: 519004ce06ae4f14986ad20ac5dc8696, type: 3}
+  - {fileID: 21300000, guid: 22df769257ed408197aea45f726a2ccb, type: 3}
+  - {fileID: 21300000, guid: bd9abf3723d94aeead9dd06c1f31d4bb, type: 3}
+  - {fileID: 21300000, guid: 9f95301a1c2c4e2eaf46ad5e06155b18, type: 3}
+  - {fileID: 21300000, guid: 86753b08bb1d471fabc96ebfa6d4e86e, type: 3}
+  - {fileID: 21300000, guid: 8abad3ad68b6460ab5f58eb2d29c733f, type: 3}
+  - {fileID: 21300000, guid: b4b1c6f4b3ff46dc9fa907f1b0acb257, type: 3}
+  - {fileID: 21300000, guid: 353672b0d72643bf99b87f8344cede92, type: 3}
+  - {fileID: 21300000, guid: 29067eaac26a44c6af890e478680afd4, type: 3}
+  - {fileID: 21300000, guid: 881158b2d0f14265b235c9489b3db505, type: 3}
+  - {fileID: 21300000, guid: 1ec83303cf8c419d9f3dfe1bf62b3ec9, type: 3}
+  - {fileID: 21300000, guid: 5e0f3611a6044fb984d3063c542238e0, type: 3}
+  - {fileID: 21300000, guid: 2e071f712dc3422e998f9fa4073ccd2e, type: 3}
+  - {fileID: 21300000, guid: 3ac61bcf8276415fab0ff6457531c591, type: 3}
+  - {fileID: 21300000, guid: 76e8ca70bec64a36b8b7b1236172ed07, type: 3}
+  - {fileID: 21300000, guid: c58945cd34da490487673c5b35f2a2f8, type: 3}
+  - {fileID: 21300000, guid: c9934644f90648fbb6afb6cd2387925a, type: 3}
+  - {fileID: 21300000, guid: 4fe70f9108ff4fcfb07850f0c62f5281, type: 3}
+  - {fileID: 21300000, guid: abe6ae2d959b47f9bb058039122b1478, type: 3}
+  - {fileID: 21300000, guid: 55277fd12c8a4c39b491858b42f31717, type: 3}
+  - {fileID: 21300000, guid: cc5341bf9db04977aa3594f59ec2bd31, type: 3}
+  - {fileID: 21300000, guid: d53d431c7d0a44e688af2b1f36b55145, type: 3}
+  handFrames:
+  - {fileID: 21300000, guid: 5270e1ac27e542de9a518906485950b6, type: 3}
+  - {fileID: 21300000, guid: 272a33d63689444086ca1f5579096740, type: 3}
+  - {fileID: 21300000, guid: e797794944c34251a7e8ba63c55d68da, type: 3}
+  - {fileID: 21300000, guid: c0ba0367c138483fb54a49c4bc65f28a, type: 3}
+  - {fileID: 21300000, guid: 6f1fb556bd024f19b12328bcb4eadad4, type: 3}
+  - {fileID: 21300000, guid: 11466565a3b54ba58e4699245b5a9633, type: 3}
+  - {fileID: 21300000, guid: 617f3f96d33f4b4baca0dd953c7fddcc, type: 3}
+  - {fileID: 21300000, guid: 78c6cdd682e44799b03e0b4609928cda, type: 3}
+  - {fileID: 21300000, guid: 516f9a5907e74a5397dd9925016f8bba, type: 3}
+  - {fileID: 21300000, guid: a1bea1951ef240a48ac43be9fa4b1b2b, type: 3}
+  - {fileID: 21300000, guid: 0a42eabd1cae48d08cc6b1c35f9bc1b7, type: 3}
+  - {fileID: 21300000, guid: cd412608f9b04472bc0d8ba0c25b0e70, type: 3}
+  - {fileID: 21300000, guid: c2776ecc1c3042caaea602224ebe464c, type: 3}
+  - {fileID: 21300000, guid: 242c49c3810d4c44af150494fa1f6668, type: 3}
+  - {fileID: 21300000, guid: 16c7f868a745417ababb9f88cb1bce90, type: 3}
+  - {fileID: 21300000, guid: a35dcdae537b42f2be8fafeb87e6169c, type: 3}
+  - {fileID: 21300000, guid: 29ff8cac6f354d9eb24ff333bf33cc56, type: 3}
+  - {fileID: 21300000, guid: d2409d9c797443dd9583e06fca29bd71, type: 3}
+  - {fileID: 21300000, guid: d397562e5ec948d8bdf8bf1fad998318, type: 3}
+  - {fileID: 21300000, guid: 65598486fb7f490e8210239b5f94f267, type: 3}
+  - {fileID: 21300000, guid: 6e2a38636e46418892fe133c0d93c817, type: 3}
+  - {fileID: 21300000, guid: 130d1f0f6070411fab72b65fb64308bb, type: 3}
+  - {fileID: 21300000, guid: 52ef119e6f734a00b335ea5a9da28283, type: 3}
+  - {fileID: 21300000, guid: 41bd732fc8134520a98821f4ddb7e9f6, type: 3}
+  - {fileID: 21300000, guid: ee67cb33a96e439db7a4f5ebbd005f22, type: 3}
+  - {fileID: 21300000, guid: 5b91cf9e275f4e3096a35b3e43b0f320, type: 3}
+  - {fileID: 21300000, guid: 9c2249c35c7a4d8baf4ba1cab7d30231, type: 3}
+  - {fileID: 21300000, guid: 2994a8f819de4039906c716fca1ea359, type: 3}
+  - {fileID: 21300000, guid: 7cd63eef8b554c0f80c057c87868be1b, type: 3}
+  - {fileID: 21300000, guid: 2a91e6fe386c451b94d278a8762546ce, type: 3}
+  - {fileID: 21300000, guid: 49cad815a9e4421e9b051c61e1c07b19, type: 3}
+  - {fileID: 21300000, guid: 453540cb132e43d0b6c9ef594ddb1db5, type: 3}
+  - {fileID: 21300000, guid: 0e70f4bf96f044cba2be8747dc18fef2, type: 3}
+  - {fileID: 21300000, guid: da521652164b4434a2ef46213332e590, type: 3}
+  - {fileID: 21300000, guid: 54ca773e06384e7897aebf9b2efdbe6b, type: 3}
+  - {fileID: 21300000, guid: 153bbdeddde94f888be4cc291d520ac4, type: 3}
+  weapons:
+  - id: spear
+    sprite: {fileID: 21300000, guid: 5d56d66f1bb946dba55e5de3b59d21c8, type: 3}
+    scale: 1.0434782608695652
+    duration: 1.2
+    mirroredAtRest: 0
+    turnOverhead: 0
+    projectedWidth: 1
+    trailHeel: {x: 0, y: 10.4925}
+    trailTip: {x: 0, y: 13.99}
+  - id: poleaxe
+    sprite: {fileID: 21300000, guid: 17f97915ca364eb0a7781b9b2ca2e515, type: 3}
+    scale: 0.9844134536505332
+    duration: 1.2
+    mirroredAtRest: 0
+    turnOverhead: 0
+    projectedWidth: 1
+    trailHeel: {x: 0, y: 11.1225}
+    trailTip: {x: 0, y: 14.83}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "name": "OneHandSwingTorch",
+  "duration": 0.9,
+  "rootMotion": false,
+  "canvas": {
+    "width": 2048,
+    "height": 2048
+  },
+  "pixelsPerUnit": 100,
+  "hitEvents": [
+    {
+      "time": 0.36,
+      "id": "primary",
+      "damageSegments": 1
+    }
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "time": 0,
+      "weaponPositionUnity": {
+        "x": -0.43,
+        "y": 7.27
+      },
+      "weaponRotationZ": -18,
+      "weaponScale": 0.68
+    }
+  ],
+  "notes": [
+    "Lift 0.00-0.23, accelerating downward swing 0.23-0.36, contact hold 0.36-0.41, follow-through 0.41-0.48, recovery and cloth settle through 0.90.",
+    "Fixed feet and actor root. Shared body/head/arm drawings and palm registration with sword. Weapon, flame mesh and VFX remain independent.",
+    "Power revision: shoulder/elbow-driven swing, 10 degrees of wrist articulation, deeper anticipation and body drive, 0.48-0.78 arm recovery. Timing and damage events unchanged.",
+    "Original 2048x2048 torch from user-supplied ZIP is preserved byte-for-byte. Pivot is (1065,1190) in top-left source pixels."
+  ]
+}

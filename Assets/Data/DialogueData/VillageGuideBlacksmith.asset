@@ -1,0 +1,299 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageGuideBlacksmith
+  m_EditorClassIdentifier:
+  dialogueId: guide_blacksmith
+  completionEffect: 4
+  startNode:
+    id: horseshoe
+    speaker: "旁白"
+    lineKind: 1
+    content: "铁匠铺门前挂着一块蹄铁。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: weapons
+  nodes:
+  - id: weapons
+    speaker: "旁白"
+    lineKind: 1
+    content: "墙上挂着一排兵器：直剑、战斧、锤子，还有一柄裹着浸油麻布的短火把。每一件油亮地泛着光泽，连挂钩下面的墙面都扫得干净。在这座连街道都无人清理的城市里真是稀奇，不是么？"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: smith
+  - id: smith
+    speaker: "旁白"
+    lineKind: 1
+    content: "铁匠加斯帕坐在门边，正用一块油布擦一柄旧刃，擦拭得动作缓慢又用力。你注意到他的前臂几乎和你的小腿一样粗，粗壮的指节上全是陈旧的烫疤。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: question
+  - id: question
+    speaker: "加斯帕"
+    lineKind: 0
+    content: "….你就是哈罗德等的那个人？"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "是我。"
+      targetNodeID: short
+    - choiceText: "哈罗德说你这儿有我要的东西。"
+      targetNodeID: direct
+    - choiceText: "懒得答话，决定先看看墙上的兵器。"
+      targetNodeID: look
+    nextNodeID: 
+  - id: short
+    speaker: "旁白"
+    lineKind: 1
+    content: "你惜字如金。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: prepared
+  - id: direct
+    speaker: "旁白"
+    lineKind: 1
+    content: "你很直白。我们可没有闲工夫和铁匠攀交情。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: prepared
+  - id: look
+    speaker: "旁白"
+    lineKind: 1
+    content: "你决定先看看货色。\n加斯帕抬眼瞥了你一下，也不催促。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: prepared
+  - id: prepared
+    speaker: "加斯帕"
+    lineKind: 0
+    content: "哈罗德捎了话，说有猎魔人要来，叫我把能用的都备好。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: pick_sword
+  - id: pick_sword
+    speaker: "旁白"
+    lineKind: 1
+    content: "他站起身，从身后的架子上取下一柄剑。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: vans_sword
+  - id: vans_sword
+    speaker: "加斯帕"
+    lineKind: 0
+    content: "范斯大人的佩剑。我重新锻打过，刃口开了，护手也换了新皮。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: lantern_pick
+  - id: lantern_pick
+    speaker: "旁白"
+    lineKind: 1
+    content: "他又从梁上取下一盏提灯，拨开灯罩看了看灯芯。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: oil
+  - id: oil
+    speaker: "加斯帕"
+    lineKind: 0
+    content: "你们猎魔人都用这个不是么，灯油是满的。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: lantern_give
+  - id: lantern_give
+    speaker: "旁白"
+    lineKind: 1
+    content: "他把提灯交给你。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: starter
+  - id: starter
+    speaker: "系统提示"
+    lineKind: 2
+    content: "获得：范斯的佩剑（初始武器）、提灯。\n佩剑已装备，灯油已补满。"
+    guideReward: 2
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: weight
+  - id: weight
+    speaker: "旁白"
+    lineKind: 1
+    content: "你握住剑柄。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "把剑握在手里试了试重量"
+      targetNodeID: types
+    nextNodeID: 
+  - id: types
+    speaker: "加斯帕"
+    lineKind: 0
+    content: "这些你也可以挑一件，换着用。剑刺穿，斧劈砍，锤子打钝击，火把烧。不同的东西怕不同的家伙。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "我自己看看。"
+      targetNodeID: choose_look
+    - choiceText: "你是行家，麻烦你帮我挑选一下了。"
+      targetNodeID: recommend_line
+    nextNodeID: 
+  - id: choose_look
+    speaker: "旁白"
+    lineKind: 1
+    content: "你拒绝了别人的指点，你很聪明，决定相信自己的眼睛。你一件件看过去。一位学徒打扮的家伙在你身后挪了半步又挪回去，加斯帕咳了一声，他立刻灰溜溜跑到了另一边。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: choose
+  - id: choose
+    speaker: "系统提示"
+    lineKind: 2
+    content: "选择一件武器。\n直剑：已领取。第二把请选择不同伤害类型的武器。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "战斧"
+      targetNodeID: axe
+    - choiceText: "锤子"
+      targetNodeID: hammer
+    - choiceText: "火把"
+      targetNodeID: torch
+    nextNodeID: 
+  - id: axe
+    speaker: "系统提示"
+    lineKind: 2
+    content: "获得：第二把武器（战斧），已装备。"
+    guideReward: 3
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: weigh
+  - id: hammer
+    speaker: "系统提示"
+    lineKind: 2
+    content: "获得：第二把武器（锤子），已装备。"
+    guideReward: 4
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: weigh
+  - id: torch
+    speaker: "系统提示"
+    lineKind: 2
+    content: "获得：第二把武器（火把），已装备。"
+    guideReward: 5
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: weigh
+  - id: recommend_line
+    speaker: "猎魔人"
+    lineKind: 0
+    content: "你是行家，麻烦你帮我挑选一下了。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 1
+    choices: []
+    nextNodeID: hand
+  - id: hand
+    speaker: "旁白"
+    lineKind: 1
+    content: "加斯帕拿起你的右手，翻过来看看你的掌心又样了样你的肩膀。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: recommend
+  - id: recommend
+    speaker: "加斯帕"
+    lineKind: 0
+    content: "唔，你出手的方向偏上，这件适合你。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: take_axe
+  - id: take_axe
+    speaker: "旁白"
+    lineKind: 1
+    content: "他从墙上取下一柄战斧。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: recommended_axe
+  - id: recommended_axe
+    speaker: "系统提示"
+    lineKind: 2
+    content: "获得：第二把武器（战斧，由加斯帕推荐），已装备。"
+    guideReward: 3
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: weigh
+  - id: weigh
+    speaker: "旁白"
+    lineKind: 1
+    content: "你掂了掂两把武器的分量，随意挥动了两下，出奇地顺手。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: objective
+  - id: objective
+    speaker: "系统提示"
+    lineKind: 2
+    content: "当前目标：前往东城门外，清剿旧磨坊附近的怪物。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices:
+    - choiceText: "离开铁匠铺"
+      targetNodeID: leave
+    nextNodeID: 
+  - id: leave
+    speaker: "系统提示"
+    lineKind: 2
+    content: "两把武器与提灯已备好。"
+    guideReward: 0
+    avatar: {fileID: 0}
+    isProtagonist: 0
+    choices: []
+    nextNodeID: 

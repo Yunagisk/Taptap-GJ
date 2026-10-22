@@ -1,0 +1,131 @@
+using System;
+using UnityEngine;
+
+public class DialogueManager : MonoBehaviour
+{
+    public static DialogueManager Instance;
+    public DialogueUI ui;
+    private DialogueData data;
+    private DialogueNode currentNode;
+    public bool IsPlaying { get; private set; }
+    public string CurrentNodeId => currentNode != null ? currentNode.id : null;
+    public event Action<DialogueData> DialogueCompleted;
+    public event Action<DialogueNode> NodeShown;
+
+    private void Awake()
+    {
+        Instance = this;
+        if (ui != null) ui.manager = this;
+    }
+
+    public void StartDialogue(DialogueData dialogue) => StartDialogue(dialogue, null);
+    public void StartDialogue(DialogueData dialogue, string startNodeId)
+    {
+        if (IsPlaying) return;
+        if (dialogue == null || dialogue.startNode == null || ui == null)
+        {
+            Debug.LogWarning("Assign dialogue data and UI before starting a dialogue.", this);
+            return;
+        }
+        data = dialogue;
+        currentNode = string.IsNullOrEmpty(startNodeId) ? data.startNode : FindNode(startNodeId);
+        if (currentNode == null) return;
+        IsPlaying = true;
+        ShowNode();
+    }
+
+    public void ShowNode()
+    {
+        if (!IsPlaying || currentNode == null) return;
+        if (GameRoot.I != null && data != null)
+            VillageIntroRules.ApplyReward(GameRoot.I.state, data.dialogueId + ":" + currentNode.id, currentNode.guideReward);
+        ui.ShowDialogue(currentNode);
+        NodeShown?.Invoke(currentNode);
+    }
+
+    public void Next()
+    {
+        if (!IsPlaying || currentNode == null || (ui != null && !ui.CanAcceptInput)) return;
+        if (ui != null && ui.TryAdvancePage())
+        {
+            GameAudio.Play(GameAudioCue.UiConfirm);
+            return;
+        }
+        if (HasChoice()) return;
+        if (string.IsNullOrEmpty(currentNode.nextNodeID))
+        {
+            GameAudio.Play(GameAudioCue.UiConfirm);
+            EndDialogue();
+            return;
+        }
+        var next = FindNode(currentNode.nextNodeID);
+        if (next == null) return;
+        GameAudio.Play(GameAudioCue.UiConfirm);
+        currentNode = next;
+        ShowNode();
+    }
+
+    public void Choose(int index)
+    {
+        if (!IsPlaying || (ui != null && (!ui.CanChoose || !ui.CanAcceptInput)) || currentNode == null || currentNode.choices == null
+            || index < 0 || index >= currentNode.choices.Count) return;
+        var choice = currentNode.choices[index];
+        if (choice == null) return;
+        if (string.IsNullOrEmpty(choice.targetNodeID))
+        {
+            GameAudio.Play(GameAudioCue.UiConfirm);
+            EndDialogue();
+            return;
+        }
+        var next = FindNode(choice.targetNodeID);
+        if (next == null) return;
+        GameAudio.Play(GameAudioCue.UiConfirm);
+        currentNode = next;
+        ShowNode();
+    }
+
+    // Leaving an unfinished conversation must not apply its completion effect.
+    public void CancelDialogue()
+    {
+        if (!IsPlaying) return;
+        IsPlaying = false;
+        currentNode = null;
+        data = null;
+        if (ui != null) ui.Hide();
+    }
+
+    private DialogueNode FindNode(string id)
+    {
+        if (data.startNode != null && data.startNode.id == id) return data.startNode;
+        if (data.nodes != null)
+            foreach (var node in data.nodes)
+                if (node != null && node.id == id) return node;
+        Debug.LogError("Dialogue node not found: " + id, this);
+        return null;
+    }
+
+    private void EndDialogue()
+    {
+        if (!IsPlaying) return;
+        var completed = data;
+        IsPlaying = false;
+        currentNode = null;
+        if (GameRoot.I != null && completed != null)
+            MainStoryRules.TryCompleteDialogue(GameRoot.I.state,
+                string.IsNullOrEmpty(completed.dialogueId) ? completed.name : completed.dialogueId,
+                completed.completionEffect);
+        ui.Hide();
+        DialogueCompleted?.Invoke(completed);
+    }
+
+    public bool HasChoice()
+    {
+        return IsPlaying && currentNode != null && currentNode.choices != null
+            && currentNode.choices.Exists(choice => choice != null);
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+}

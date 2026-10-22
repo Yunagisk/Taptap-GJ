@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Core/GameState.cs" Link="GameState.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Damage/PlayerDamageType.cs" Link="PlayerDamageType.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Status/StatusId.cs" Link="StatusId.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Status/StatusRules.cs" Link="StatusRules.cs" />
+    <Compile Include="../../Assets/Scripts/Battle/Status/StatusSet.cs" Link="StatusSet.cs" />
+    <Compile Include="../../Assets/Scripts/Core/WorldResourceRules.cs" Link="WorldResourceRules.cs" />
+    <Compile Include="../../Assets/Scripts/Wilderness/WildernessEventRules.cs" Link="WildernessEventRules.cs" />
+    <Compile Include="../../Assets/Scripts/Wilderness/MapWildernessRules.cs" Link="MapWildernessRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/VillageEventRules.cs" Link="VillageEventRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/NewRunFactory.cs" Link="NewRunFactory.cs" />
+    <Compile Include="../../Assets/Scripts/Core/MainStoryRules.cs" Link="MainStoryRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/SlothChapterRules.cs" Link="SlothChapterRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/VillageIntroRules.cs" Link="VillageIntroRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/EquipmentRules.cs" Link="EquipmentRules.cs" />
+    <Compile Include="../../Assets/Scripts/Core/InventoryEquipmentRules.cs" Link="InventoryEquipmentRules.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Weapons/WeaponTable.cs" Link="WeaponTable.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Weapons/ShopRules.cs" Link="ShopRules.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Items/ItemDef.cs" Link="ItemDef.cs" />
+    <Compile Include="../../Assets/Scripts/Inventory/Items/ItemRules.cs" Link="ItemRules.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Data/MapLayout.cs" Link="MapLayout.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Logic/MapLayoutValidator.cs" Link="MapLayoutValidator.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Logic/MapProgression.cs" Link="MapProgression.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Logic/MapRevealTransition.cs" Link="MapRevealTransition.cs" />
+    <Compile Include="../../Assets/Scripts/Map/Logic/MapBossIntroductionState.cs" Link="MapBossIntroductionState.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="VillageEventChecks.cs" />
+    <Compile Include="InventoryCategoryChecks.cs" />
+    <Compile Include="FastTravelChecks.cs" />
+    <Compile Include="GuideQuestChecks.cs" />
+    <Compile Include="SlothChapterChecks.cs" />
+    <Content Include="../../Assets/Data/EnemyAttacks/Maps/ThreeSinWhitebox.json" Link="ThreeSinWhitebox.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

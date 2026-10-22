@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a2bc6bb0af034d488226177bbd540eb, type: 3}
+  m_Name: VillageWelcome
+  m_EditorClassIdentifier: 
+  dialogueId: village_welcome
+  completionEffect: 1
+  startNode:
+    id: node0
+    speaker: "\u6751\u6C11"
+    content: "\u5916\u4E61\u4EBA\uFF0C\u8FD1\u6765\u6751\u5E84\u5916\u5F88\u4E0D\u5B89\u5168\u3002\u6709\u4EC0\u4E48\u4E8B\uFF0C\u5148\u53BB\u627E\u6751\u957F\u5427\u3002"
+    avatar: {fileID: 21300000, guid: 4a9f1a25926691e41887d2f986c88894, type: 3}
+    choices: []
+    nextNodeID: node1
+  nodes:
+  - id: node1
+    speaker: "\u6751\u957F"
+    content: "\u6B22\u8FCE\u4F60\u6765\u5230\u6751\u5E84\u3002\u4F60\u53EF\u4EE5\u5728\u80CC\u5305\u4E2D\u6574\u7406\u6B66\u5668\uFF1B\u5982\u679C\u613F\u610F\u5E2E\u5FD9\uFF0C\u6211\u6709\u4E00\u4EFD\u6E05\u527F\u59D4\u6258\u3002"
+    avatar: {fileID: 21300000, guid: 6df8870734e57b44985e81d9e661d5d7, type: 3}
+    choices: []
+    nextNodeID: 

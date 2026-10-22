@@ -1,0 +1,8 @@
+Production sources compiled and native Prefab rebuilt successfully after removing the isolated Editmode adapter.
+PASS: 77 Unity assertions.
+Compared 219 original UI transforms.
+Scanned 6360 serialized object references.
+Loading diagnostic: Application.isPlaying=False; original engine CanStreamedLevelBeLoaded(Village)=False; enabled Build Settings Village=True
+Behaviour tests use an isolated Editmode-only scene-availability adapter; production scene loading is unchanged and actual asynchronous loading is not invoked by this probe.
+Rendered 1600 x 1000 native confirmation preview: VillageEntryConfirmation-preview.png
+Validated native UI clicks, zero-effect cancellation, modal blocking, stale origin/run checks, one-time road cost, Escape priority and local re-entry.

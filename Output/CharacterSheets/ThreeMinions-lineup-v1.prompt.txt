@@ -1,0 +1,14 @@
+Generator: built-in image_gen
+
+Use case: compositing.
+Combine the THREE supplied existing transparent game-sprite images into ONE clean horizontal character lineup PNG on a genuinely transparent background.
+
+Input image 1: edit/compositing source, the corrupted crow with dark torn feathers, bony claws and muted red marks.
+Input image 2: edit/compositing source, the mutated rat with exposed teeth, large ragged ears, claws and a curled segmented tail.
+Input image 3: edit/compositing source, the hooded wraith with glowing white eyes, long thin hands and a tattered muted green-gray robe.
+
+Place exactly one copy of each supplied character in a single row, left to right in the input order: crow, rat, wraith. Three separate balanced columns, no overlap, comfortable transparent margins and enough room around all tails, claws and ragged robe edges. Trim only excess empty padding around the source canvases to make a useful wide composition. Fit each whole character naturally within its column, respecting its proportions, with a cohesive visual scale. Wide horizontal canvas approximately 3:1.
+
+This is a faithful assembly of the existing art, not character redesign. Preserve each source's original pose, orientation, silhouette, anatomy, facial details, feather shapes, torn clothing, tail shape, exact muted colors, black sketch outlines, and mottled hand-painted texture. Do not improve, relight, repaint, stylize, reinterpret or invent details. Keep the crow and rat facing left and the wraith's original hand pose. All three characters fully visible and identifiable.
+
+No text, labels, title, border, grid, props, ground, scenery, gradient, backdrop, shadows or watermark. Do not add a black background or a checkerboard image: preserve actual transparent alpha around and between the characters.

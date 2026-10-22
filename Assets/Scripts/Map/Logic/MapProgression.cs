@@ -1,0 +1,353 @@
+using System;
+using System.Collections.Generic;
+
+// A read-only quote. Confirming requires the same origin, time and shortest route.
+public sealed class MapTravelPlan
+{
+    public IReadOnlyList<string> NodeIds { get; }
+    public string OriginId => NodeIds[0];
+    public string DestinationId => NodeIds[NodeIds.Count - 1];
+    public int TimeCost => NodeIds.Count - 1;
+    public int DepartureTime { get; }
+    public int ArrivalTime => DepartureTime + TimeCost;
+    internal MapTravelPlan(List<string> path, int departure)
+    { NodeIds = Array.AsReadOnly(path.ToArray()); DepartureTime = departure; }
+    public bool Matches(MapTravelPlan other)
+    {
+        if (other == null || DepartureTime != other.DepartureTime || NodeIds.Count != other.NodeIds.Count) return false;
+        for (int i = 0; i < NodeIds.Count; i++) if (NodeIds[i] != other.NodeIds[i]) return false;
+        return true;
+    }
+}
+
+// Owns progression data; views and external encounters cannot complete a stale visit.
+public sealed class MapProgression
+{
+    readonly Dictionary<string, MapNodeDefinition> nodes = new Dictionary<string, MapNodeDefinition>();
+    readonly List<WildernessRoad> repairableRoads;
+    public MapLayout Layout { get; }
+    public MapState State { get; }
+    public WorldState World { get; }
+    public string LastSpawnedBossId { get; private set; }
+    public bool IsComplete => State.defeatedBossNodes.Count == Layout.regions.Count;
+
+    public MapProgression(MapLayout layout, MapState state, WorldState world, int newGameSeed)
+    {
+        MapLayoutValidator.Validate(layout);
+        Layout = layout;
+        State = state ?? throw new ArgumentNullException(nameof(state));
+        World = world ?? throw new ArgumentNullException(nameof(world));
+        foreach (var node in layout.nodes) nodes.Add(node.id, node);
+        repairableRoads = MapWildernessRules.GetRepairableRoads(layout);
+        if (string.IsNullOrEmpty(state.templateId)) Initialize(newGameSeed);
+        else if (state.templateId != layout.id)
+            throw new InvalidOperationException("Map state belongs to a different template.");
+        if (string.IsNullOrEmpty(State.checkpointNodeId)) State.checkpointNodeId = Layout.villageNodeId;
+        WorldResourceRules.Normalize(World);
+    }
+
+    void Initialize(int seed)
+    {
+        State.templateId = Layout.id;
+        State.randomSeed = seed;
+        State.sinRollCount = 0;
+        State.requestSequence = 0;
+        State.currentNodeId = Layout.villageNodeId;
+        State.checkpointNodeId = Layout.villageNodeId;
+        State.checkpointTime = 0;
+        State.revivedAtCheckpoint = false;
+        State.pendingNodeId = null;
+        State.pendingRequestId = null;
+        State.wildernessEvents = null;
+        State.visitedNodes.Clear();
+        State.clearedNodes.Clear();
+        State.revealedNodes.Clear();
+        State.spawnedBossNodes.Clear();
+        State.defeatedBossNodes.Clear();
+        State.visitedNodes.Add(Layout.villageNodeId);
+        State.clearedNodes.Add(Layout.villageNodeId);
+        State.revealedNodes.Add(Layout.villageNodeId);
+        World.time = 0;
+        World.sin = Layout.initialSin;
+        World.villageEvents = new VillageEventState();
+        RevealNeighbors(Layout.villageNodeId);
+        foreach (var region in Layout.regions)
+            if (region.startsSpawned) SpawnBoss(region.bossNodeId);
+    }
+
+    public MapNodeDefinition GetNode(string id)
+    {
+        return id != null && nodes.TryGetValue(id, out var node) ? node : null;
+    }
+
+    public List<string> GetNeighbors(string id)
+    {
+        var result = new List<string>();
+        var node = GetNode(id);
+        if (node == null) return result;
+        result.AddRange(node.neighbors);
+        var level = State.wildernessEvents;
+        if (level == null || level.repairedRoads == null || level.nodes == null) return result;
+        foreach (var road in level.repairedRoads)
+        {
+            if (road == null || !repairableRoads.Exists(value => SameRoad(value, road.from, road.to))) continue;
+            // A serialized road is only active after its one-time repair choice was settled.
+            if (!level.nodes.Exists(value => value != null && value.shown && value.resolved
+                && !value.abandoned && value.templateId == "w08" && value.chosenIndex == 0
+                && !value.encounterPending && !value.encounterResolved
+                && value.rolls != null && value.rolls.Count == 2 && value.rolls[0] != null
+                && value.rolls[0].outcomeIndex == 0 && string.IsNullOrEmpty(value.rolls[0].enemyId)
+                && SameRoad(road, value.bridgeFrom, value.bridgeTo))) continue;
+            string other = road.from == id ? road.to : road.to == id ? road.from : null;
+            if (!string.IsNullOrEmpty(other) && !result.Contains(other)) result.Add(other);
+        }
+        return result;
+    }
+
+    public bool IsVisible(string id)
+    {
+        var node = GetNode(id);
+        return node != null && State.revealedNodes.Contains(id)
+            && (node.kind != MapNodeKind.Boss || State.spawnedBossNodes.Contains(id)
+                && IsBossAvailable(id));
+    }
+
+    public bool IsBossAvailable(string id)
+    {
+        return !State.slothChapterOnly || Layout.regions.Exists(region =>
+            region.bossNodeId == id && region.bossKey == "sloth");
+    }
+
+    public bool IsRoadVisible(string from, string to)
+    {
+        if (!IsVisible(from) || !IsVisible(to) || !GetNeighbors(from).Contains(to)) return false;
+        var villageNeighbors = GetNeighbors(Layout.villageNodeId);
+        // Roads inside the initially revealed village area are visible before any visit.
+        return State.clearedNodes.Contains(from) || State.clearedNodes.Contains(to)
+            || (villageNeighbors.Contains(from) && villageNeighbors.Contains(to));
+    }
+
+    // 原地重新打开村庄界面，不算走过一条道路。
+    public bool CanReenterVillage(string nodeId)
+    {
+        var node = GetNode(nodeId);
+        return node != null && node.kind == MapNodeKind.Village
+            && nodeId == Layout.villageNodeId && nodeId == State.currentNodeId
+            && string.IsNullOrEmpty(State.pendingRequestId) && IsVisible(nodeId);
+    }
+
+    public bool CanMove(string destinationId)
+    {
+        var current = GetNode(State.currentNodeId);
+        if (current != null && destinationId == current.id)
+            return string.IsNullOrEmpty(State.pendingRequestId) && State.revivedAtCheckpoint
+                && current.id == State.checkpointNodeId
+                && (current.kind == MapNodeKind.Battle || current.kind == MapNodeKind.Boss)
+                && !State.clearedNodes.Contains(current.id) && IsVisible(current.id);
+        return current != null && string.IsNullOrEmpty(State.pendingRequestId)
+            && (State.clearedNodes.Contains(current.id) || State.revivedAtCheckpoint)
+            && destinationId != current.id
+            && GetNeighbors(current.id).Contains(destinationId) && IsVisible(destinationId);
+    }
+
+    public bool TryMove(string destinationId, out MapNodeRequest request)
+    {
+        request = null;
+        if (!CanMove(destinationId)) return false;
+        MoveTo(destinationId, out request);
+        return true;
+    }
+
+    void MoveTo(string destinationId, out MapNodeRequest request)
+    {
+        request = null;
+        LastSpawnedBossId = null;
+        bool retryCurrentBattle = destinationId == State.currentNodeId;
+        State.revivedAtCheckpoint = false;
+        State.currentNodeId = destinationId;
+        if (State.wildernessEvents != null) State.wildernessEvents.currentNodeId = destinationId;
+        AddOnce(State.visitedNodes, destinationId);
+        if (!State.clearedNodes.Contains(destinationId))
+        {
+            State.requestSequence++;
+            State.pendingNodeId = destinationId;
+            State.pendingRequestId = State.randomSeed.ToString() + ":" + State.requestSequence + ":" + destinationId;
+        }
+        // Retrying at the checkpoint traverses no road.
+        if (!retryCurrentBattle)
+        {
+            // Every road traverses the wilderness, including the road home.
+            LastSpawnedBossId = WorldResourceRules.SpendTime(Layout, State, World, 1, false);
+        }
+        if (!State.clearedNodes.Contains(destinationId))
+        {
+            request = GetPendingRequest();
+        }
+    }
+
+    public bool CanFastTravel(string destinationId) => TryPlanFastTravel(destinationId, out _);
+
+    public bool TryPlanFastTravel(string destinationId, out MapTravelPlan plan)
+    {
+        plan = null;
+        string origin = State.currentNodeId;
+        if (GetNode(origin) == null || origin == destinationId || !State.visitedNodes.Contains(origin)
+            || !string.IsNullOrEmpty(State.pendingRequestId) || !string.IsNullOrEmpty(State.pendingNodeId)
+            || !(State.clearedNodes.Contains(origin) || State.revivedAtCheckpoint)
+            || !IsVisible(destinationId) || GetNeighbors(origin).Contains(destinationId)) return false;
+        // Only the destination may be unfinished. Breadth-first search finds
+        // the shortest route through completed nodes without skipping encounters.
+        // GetNeighbors also includes legitimate, already-repaired shortcuts.
+        var previous = new Dictionary<string, string> { { origin, null } };
+        var queue = new Queue<string>();
+        queue.Enqueue(origin);
+        while (queue.Count > 0 && !previous.ContainsKey(destinationId))
+        {
+            string current = queue.Dequeue();
+            foreach (string next in GetNeighbors(current))
+            {
+                if (previous.ContainsKey(next) || next != destinationId && !CanTraverseKnownNode(next)
+                    || !IsRoadVisible(current, next)) continue;
+                previous.Add(next, current);
+                queue.Enqueue(next);
+            }
+        }
+        if (!previous.ContainsKey(destinationId)) return false;
+        var path = new List<string>();
+        for (string id = destinationId; id != null; id = previous[id]) path.Add(id);
+        path.Reverse();
+        if (World.time < 0 || (long)World.time + path.Count - 1 > int.MaxValue) return false;
+        plan = new MapTravelPlan(path, World.time);
+        return true;
+    }
+
+    bool CanTraverseKnownNode(string id) => GetNode(id) != null && IsVisible(id)
+        && State.visitedNodes.Contains(id) && State.clearedNodes.Contains(id);
+
+    public bool TryFastTravel(MapTravelPlan quote) => TryFastTravel(quote, out _);
+
+    public bool TryFastTravel(MapTravelPlan quote, out MapNodeRequest request)
+    {
+        request = null;
+        // Revalidate the entire quote before spending anything. In particular,
+        // stale confirmations cannot consume time or complete pending encounters.
+        if (quote == null || quote.OriginId != State.currentNodeId
+            || !TryPlanFastTravel(quote.DestinationId, out var current) || !quote.Matches(current)) return false;
+        string spawnedBoss = null;
+        for (int i = 1; i < quote.NodeIds.Count; i++)
+        {
+            // Share ordinary movement, including arrival requests before a dawn
+            // save, visited-node tracking and wilderness position updates.
+            MoveTo(quote.NodeIds[i], out request);
+            if (LastSpawnedBossId != null) spawnedBoss = LastSpawnedBossId;
+        }
+        LastSpawnedBossId = spawnedBoss;
+        return true;
+    }
+
+    public MapNodeRequest GetPendingRequest()
+    {
+        if (string.IsNullOrEmpty(State.pendingRequestId)) return null;
+        var node = GetNode(State.pendingNodeId);
+        string bossKey = null;
+        foreach (var region in Layout.regions)
+            if (region.bossNodeId == node.id) bossKey = region.bossKey;
+        return new MapNodeRequest
+        {
+            requestId = State.pendingRequestId,
+            nodeId = node.id,
+            kind = node.kind,
+            region = node.region,
+            bossKey = bossKey
+        };
+    }
+
+    public bool TryCompleteNode(string requestId)
+    {
+        if (string.IsNullOrEmpty(requestId) || requestId != State.pendingRequestId) return false;
+        var node = GetNode(State.pendingNodeId);
+        if (node == null || (node.kind == MapNodeKind.Event && State.wildernessEvents != null)) return false;
+        var completed = GetPendingRequest();
+        LastSpawnedBossId = WorldResourceRules.SpendTime(Layout, State, World, 1, false, saved =>
+        {
+            AddOnce(saved.map.clearedNodes, node.id);
+            if (node.kind == MapNodeKind.Boss) AddOnce(saved.map.defeatedBossNodes, node.id);
+            saved.map.pendingNodeId = null;
+            saved.map.pendingRequestId = null;
+            foreach (string neighbor in GetNeighbors(node.id)) AddOnce(saved.map.revealedNodes, neighbor);
+            MainStoryRules.OnNodeCompleted(saved, completed);
+            VillageEventRules.OnTimeAdvanced(saved.world, saved.map, Layout);
+            if (node.kind == MapNodeKind.Camp) WorldResourceRules.RecoverAtCamp(saved.player);
+        });
+        AddOnce(State.clearedNodes, node.id);
+        if (node.kind == MapNodeKind.Boss) AddOnce(State.defeatedBossNodes, node.id);
+        State.pendingNodeId = null;
+        State.pendingRequestId = null;
+        RevealNeighbors(node.id);
+        // A just-defeated Sloth invalidates its unfinished conditional event immediately.
+        VillageEventRules.OnTimeAdvanced(World, State, Layout);
+        return true;
+    }
+
+    // Event choices already paid their configured time; finishing must not add the old placeholder cost.
+    public bool FinishEvent(string requestId)
+    {
+        if (string.IsNullOrEmpty(requestId) || requestId != State.pendingRequestId) return false;
+        var node = GetNode(State.pendingNodeId);
+        var level = State.wildernessEvents;
+        var question = WildernessEventRules.FindNode(level, State.pendingNodeId);
+        if (node == null || node.kind != MapNodeKind.Event || node.id != State.currentNodeId
+            || level == null || level.currentNodeId != node.id || question == null || !question.shown
+            || (!question.resolved && !question.abandoned) || question.encounterPending) return false;
+        if (level.activeNodeId == node.id) WildernessEventRules.Leave(level);
+        LastSpawnedBossId = null;
+        AddOnce(State.clearedNodes, node.id);
+        State.pendingNodeId = null;
+        State.pendingRequestId = null;
+        RevealNeighbors(node.id);
+        if (level.repairedRoads != null)
+            foreach (var road in level.repairedRoads)
+                if (road != null && GetNeighbors(road.from).Contains(road.to))
+                {
+                    AddOnce(State.revealedNodes, road.from);
+                    AddOnce(State.revealedNodes, road.to);
+                }
+        return true;
+    }
+
+    public bool TryReviveAtCheckpoint(string requestId)
+    {
+        var pending = GetPendingRequest();
+        if (pending == null || (pending.kind != MapNodeKind.Battle && pending.kind != MapNodeKind.Boss)
+            || pending.requestId != requestId || GetNode(State.checkpointNodeId) == null)
+            return false;
+        State.pendingNodeId = null;
+        State.pendingRequestId = null;
+        State.currentNodeId = State.checkpointNodeId;
+        if (State.wildernessEvents != null) State.wildernessEvents.currentNodeId = State.currentNodeId;
+        // A battle reached at dawn can be uncleared; permit leaving without clearing it.
+        State.revivedAtCheckpoint = true;
+        return true;
+    }
+
+    void RevealNeighbors(string id)
+    {
+        foreach (string neighbor in GetNeighbors(id)) AddOnce(State.revealedNodes, neighbor);
+    }
+
+    void SpawnBoss(string id)
+    {
+        AddOnce(State.spawnedBossNodes, id);
+        AddOnce(State.revealedNodes, id);
+    }
+
+    static bool SameRoad(WildernessRoad road, string from, string to)
+    {
+        return road != null && ((road.from == from && road.to == to) || (road.from == to && road.to == from));
+    }
+
+    static void AddOnce(List<string> list, string id)
+    {
+        if (!list.Contains(id)) list.Add(id);
+    }
+}
