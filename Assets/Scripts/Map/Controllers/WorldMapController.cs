@@ -111,7 +111,9 @@ public class WorldMapController : MonoBehaviour
         try
         {
             isLoadingBattle = true;
-            return MapSceneTransition.LoadSceneAsync(BattleScene);
+            var loading = MapSceneTransition.LoadSceneAsync(BattleScene);
+            if (loading != null) GameAudio.Play(GameAudioCue.EnterBattle);
+            return loading;
         }
         catch (Exception error)
         {
@@ -159,7 +161,9 @@ public class WorldMapController : MonoBehaviour
             BeginEntry(null, true);
             return;
         }
+        string originId = Progression.State.currentNodeId;
         if (!Progression.TryMove(nodeId, out var request)) return;
+        if (Progression.State.currentNodeId != originId) GameAudio.Play(GameAudioCue.MapMove);
         Notice = destination.displayName;
         if (Progression.LastSpawnedBossId != null && Progression.IsBossAvailable(Progression.LastSpawnedBossId))
             Notice += " · " + Progression.GetNode(Progression.LastSpawnedBossId).displayName + "已出现";
@@ -265,6 +269,7 @@ public class WorldMapController : MonoBehaviour
             StateChanged?.Invoke();
             return;
         }
+        GameAudio.Play(GameAudioCue.MapMove);
         ClearFastTravel(false);
         Notice = "已抵达" + Progression.GetNode(quote.DestinationId).displayName
             + " · 耗时 " + quote.TimeCost + " 单位 · " + WorldResourceRules.TimeLabel(Progression.World);

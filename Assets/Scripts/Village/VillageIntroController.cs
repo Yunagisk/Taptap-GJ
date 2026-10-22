@@ -108,7 +108,7 @@ public sealed class VillageIntroController : MonoBehaviour
         var canvas = GuideUI.Canvas(transform, "VillageGuideObjective", 30); navigation = canvas.gameObject;
         var stage = new GameObject("Stage", typeof(RectTransform)).GetComponent<RectTransform>(); stage.SetParent(canvas.transform, false);
         GuideUI.Center(stage, Vector2.zero, new Vector2(1920, 1080));
-        var goal = GuideUI.Image("Objective", stage, new Color32(248, 247, 241, 245));
+        var goal = GuideUI.Image("Objective", stage, new Color32(232, 226, 210, 230));
         GuideUI.Center(goal.rectTransform, new Vector2(0, 365), new Vector2(760, 78)); goal.raycastTarget = false;
         objective = GuideUI.Label("Goal", goal.transform, "", Vector2.zero, new Vector2(730, 58), content.font);
         MayorButton = GuideUI.Button("MayorHouse", stage, "哈罗德宅邸\n前往交谈", new Vector2(80, 170),

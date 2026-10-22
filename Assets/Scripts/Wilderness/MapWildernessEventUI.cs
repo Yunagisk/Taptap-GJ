@@ -30,6 +30,7 @@ public class MapWildernessEventUI : MonoBehaviour
     UnityAction[] chooseActions;
     bool listenersBound;
     string renderedKey;
+    double inputAllowedAt;
 
     public bool CanShow()
     {
@@ -114,12 +115,18 @@ public class MapWildernessEventUI : MonoBehaviour
     static void Listen(Button button, UnityAction action, bool add)
     {
         if (button == null) return;
-        if (add) button.onClick.AddListener(action); else button.onClick.RemoveListener(action);
+        if (add)
+        {
+            GameAudioButton.UseManualConfirmation(button);
+            button.onClick.AddListener(action);
+        }
+        else button.onClick.RemoveListener(action);
     }
 
     bool CanAct(Button button)
     {
-        return IsOpen && !IsLeaveConfirmationOpen && controller != null && controller.isActiveAndEnabled
+        return IsOpen && Time.unscaledTimeAsDouble >= inputAllowedAt && GameAudio.UiConfirmReady
+            && !IsLeaveConfirmationOpen && controller != null && controller.isActiveAndEnabled
             && (flow == null || !flow.IsLoading) && ValidButton(button, true) && button.IsInteractable();
     }
 
@@ -127,6 +134,7 @@ public class MapWildernessEventUI : MonoBehaviour
     {
         if (index < 0 || index >= choiceButtons.Length || !CanAct(choiceButtons[index])) return;
         controller.ChooseWildernessEvent(index);
+        GameAudio.Play(GameAudioCue.UiConfirm);
         Refresh();
         SelectPreferred();
     }
@@ -136,6 +144,7 @@ public class MapWildernessEventUI : MonoBehaviour
     {
         if (!CanAct(button)) return;
         controller.ResolveWildernessEncounter(victory);
+        GameAudio.Play(GameAudioCue.UiConfirm);
         Refresh();
         SelectPreferred();
     }
@@ -145,7 +154,11 @@ public class MapWildernessEventUI : MonoBehaviour
         var node = ActiveNode();
         if (node != null && node.encounterPending) return;
         controller.CloseWildernessEvent();
+        GameAudio.Play(GameAudioCue.UiConfirm);
     }
+
+    public void HoldCurrentPresentation()
+    { inputAllowedAt = Time.unscaledTimeAsDouble + GameAudio.DialogueMinimumDisplayTime; }
 
     public void HandleBack()
     {
@@ -214,6 +227,7 @@ public class MapWildernessEventUI : MonoBehaviour
         if (key != renderedKey)
         {
             renderedKey = key;
+            HoldCurrentPresentation();
             if (resultScroll != null)
             {
                 Canvas.ForceUpdateCanvases();

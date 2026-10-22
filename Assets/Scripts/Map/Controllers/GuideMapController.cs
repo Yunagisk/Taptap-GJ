@@ -21,7 +21,7 @@ public sealed class GuideMapController : MonoBehaviour
         controller.content = Resources.Load<VillageIntroContent>(VillageIntroController.ContentResource);
         controller.View = GuideDialogueView.Create(controller.transform, controller.content);
         var canvas = GuideUI.Canvas(controller.transform, "GuideMapObjective", 40);
-        var card = GuideUI.Image("Card", canvas.transform, new Color32(245, 243, 235, 245));
+        var card = GuideUI.Image("Card", canvas.transform, new Color32(232, 226, 210, 230));
         GuideUI.Center(card.rectTransform, new Vector2(0, 390), new Vector2(800, 84)); card.raycastTarget = false;
         controller.goal = GuideUI.Label("Goal", card.transform, "", Vector2.zero, new Vector2(770, 70), controller.content.font);
         return controller;

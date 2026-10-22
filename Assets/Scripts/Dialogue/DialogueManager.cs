@@ -45,33 +45,41 @@ public class DialogueManager : MonoBehaviour
 
     public void Next()
     {
-        if (!IsPlaying || currentNode == null) return;
-        if (ui != null && ui.TryAdvancePage()) return;
+        if (!IsPlaying || currentNode == null || (ui != null && !ui.CanAcceptInput)) return;
+        if (ui != null && ui.TryAdvancePage())
+        {
+            GameAudio.Play(GameAudioCue.UiConfirm);
+            return;
+        }
         if (HasChoice()) return;
         if (string.IsNullOrEmpty(currentNode.nextNodeID))
         {
+            GameAudio.Play(GameAudioCue.UiConfirm);
             EndDialogue();
             return;
         }
         var next = FindNode(currentNode.nextNodeID);
         if (next == null) return;
+        GameAudio.Play(GameAudioCue.UiConfirm);
         currentNode = next;
         ShowNode();
     }
 
     public void Choose(int index)
     {
-        if (!IsPlaying || (ui != null && !ui.CanChoose) || currentNode == null || currentNode.choices == null
+        if (!IsPlaying || (ui != null && (!ui.CanChoose || !ui.CanAcceptInput)) || currentNode == null || currentNode.choices == null
             || index < 0 || index >= currentNode.choices.Count) return;
         var choice = currentNode.choices[index];
         if (choice == null) return;
         if (string.IsNullOrEmpty(choice.targetNodeID))
         {
+            GameAudio.Play(GameAudioCue.UiConfirm);
             EndDialogue();
             return;
         }
         var next = FindNode(choice.targetNodeID);
         if (next == null) return;
+        GameAudio.Play(GameAudioCue.UiConfirm);
         currentNode = next;
         ShowNode();
     }

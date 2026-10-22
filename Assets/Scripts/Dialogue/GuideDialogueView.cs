@@ -13,6 +13,7 @@ public sealed class GuideDialogueView : MonoBehaviour
     public bool IsPaused { get; private set; }
     GameObject surface, pause;
     Image background;
+    AspectRatioFitter backgroundFitter;
     Action<DialogueData> finished;
     DialogueData active;
     public static GuideDialogueView Create(Transform parent, VillageIntroContent content)
@@ -22,6 +23,9 @@ public sealed class GuideDialogueView : MonoBehaviour
         var canvas = GuideUI.Canvas(root.transform, "GuideCanvas", 150); view.surface = canvas.gameObject;
         view.background = GuideUI.Image("Background", canvas.transform, Color.white);
         GuideUI.Stretch(view.background.rectTransform); view.background.preserveAspect = true;
+        view.backgroundFitter = view.background.gameObject.AddComponent<AspectRatioFitter>();
+        view.backgroundFitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+        view.backgroundFitter.enabled = false;
         var dialogue = Instantiate(content.dialoguePrefab, canvas.transform, false);
         GuideUI.Stretch((RectTransform)dialogue.transform);
         view.Manager = dialogue.GetComponent<DialogueManager>(); view.Manager.DialogueCompleted += view.Completed;
@@ -35,6 +39,13 @@ public sealed class GuideDialogueView : MonoBehaviour
         if (data == null || Manager.IsPlaying) return;
         active = data; finished = onComplete; IsPaused = false; pause.SetActive(false);
         Manager.gameObject.SetActive(true); background.sprite = sprite;
+        // Fill the viewport without stretching the artwork or revealing the map at its edges.
+        // A sprite-less battle tutorial keeps its original full-screen translucent overlay.
+        backgroundFitter.enabled = sprite != null;
+        if (sprite != null)
+            backgroundFitter.aspectRatio = sprite.rect.width / Mathf.Max(1f, sprite.rect.height);
+        else
+            GuideUI.Stretch(background.rectTransform);
         background.color = sprite != null ? Color.white : new Color(0, 0, 0, .12f);
         surface.SetActive(true); Manager.StartDialogue(data, startNodeId);
     }

@@ -155,7 +155,9 @@ public class BattleResultUI : MonoBehaviour
         float phase = Mathf.Clamp01((Time.unscaledTime - presentedAt) / .24f);
         float eased = phase * phase * (3 - 2 * phase);
         resultVisibility.alpha = eased;
-        resultVisibility.interactable = phase >= 1;
+        resultVisibility.interactable = phase >= 1
+            && Time.unscaledTime - presentedAt >= GameAudio.DialogueMinimumDisplayTime
+            && GameAudio.UiConfirmReady;
         resultCard.anchoredPosition = new Vector2(0, Mathf.Lerp(-14, 0, eased));
         var area = ((RectTransform)overlay.transform).rect.size;
         resultCard.localScale = Vector3.one * Mathf.Min(1, Mathf.Max(.1f, (area.x - 48) / resultCard.sizeDelta.x),

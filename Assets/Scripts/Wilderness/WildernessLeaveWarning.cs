@@ -11,6 +11,8 @@ public sealed class WildernessLeaveWarning : MonoBehaviour, IPointerEnterHandler
     GameState pendingRun;
     string pendingNodeId;
     bool hovering;
+    double inputAllowedAt;
+    bool CanAcceptInput => Time.unscaledTimeAsDouble >= inputAllowedAt && GameAudio.UiConfirmReady;
     public Button ConfirmButton { get; private set; }
     public Button CancelButton { get; private set; }
     public bool IsOpen => confirmation != null && confirmation.activeInHierarchy;
@@ -49,6 +51,7 @@ public sealed class WildernessLeaveWarning : MonoBehaviour, IPointerEnterHandler
         pendingRun = GameRoot.I.state; pendingNodeId = pendingRun.map.wildernessEvents.activeNodeId;
         hovering = false; RefreshHint();
         confirmation.transform.SetAsLastSibling(); confirmation.SetActive(true);
+        inputAllowedAt = Time.unscaledTimeAsDouble + GameAudio.DialogueMinimumDisplayTime;
         if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(CancelButton.gameObject);
     }
 
@@ -61,9 +64,16 @@ public sealed class WildernessLeaveWarning : MonoBehaviour, IPointerEnterHandler
 
     public void Cancel()
     {
+        bool valid = IsOpen && MatchesCurrentEvent();
+        if (valid && !CanAcceptInput) return;
         bool focus = IsOpen && owner != null && owner.IsOpen;
         Hide();
         if (focus && EventSystem.current != null) EventSystem.current.SetSelectedGameObject(owner.closeButton.gameObject);
+        if (valid)
+        {
+            owner.HoldCurrentPresentation();
+            GameAudio.Play(GameAudioCue.UiConfirm);
+        }
     }
 
     public void Hide()
@@ -76,7 +86,9 @@ public sealed class WildernessLeaveWarning : MonoBehaviour, IPointerEnterHandler
     void Confirm()
     {
         if (!IsOpen || !MatchesCurrentEvent()) { Cancel(); return; }
+        if (!CanAcceptInput) return;
         owner.controller.ConfirmLeaveWildernessEvent();
+        GameAudio.Play(GameAudioCue.UiConfirm);
     }
 
     void EnsureConfirmation()
@@ -99,6 +111,8 @@ public sealed class WildernessLeaveWarning : MonoBehaviour, IPointerEnterHandler
         message.rectTransform.sizeDelta = new Vector2(584, 86); message.lineSpacing = 8;
         CancelButton = MakeButton("CancelLeave", frame, "继续事件", -145, new Color32(223, 208, 183, 255));
         ConfirmButton = MakeButton("ConfirmLeave", frame, "确认离开", 145, new Color32(193, 165, 133, 255));
+        GameAudioButton.UseManualConfirmation(CancelButton);
+        GameAudioButton.UseManualConfirmation(ConfirmButton);
         CancelButton.onClick.AddListener(Cancel); ConfirmButton.onClick.AddListener(Confirm);
         CancelButton.navigation = new Navigation { mode = Navigation.Mode.Explicit, selectOnLeft = ConfirmButton,
             selectOnRight = ConfirmButton, selectOnUp = ConfirmButton, selectOnDown = ConfirmButton };

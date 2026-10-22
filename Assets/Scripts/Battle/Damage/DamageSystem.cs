@@ -64,7 +64,12 @@ public static class DamageSystem
         // 衰弱和破甲在防御之前乘上。全部分量伤害为 0 时，不触发扣血。
         int modifiedDamage = ScaleDirect(info.attacker, info.target, totalTypeDamage);
         int actualDamage = modifiedDamage > 0 ? info.target.TakeDamage(modifiedDamage): 0;
-        if (actualDamage > 0) DirectHit?.Invoke();
+        if (actualDamage > 0)
+        {
+            if (info.attacker is PlayerCombatant && info.target is EnemyCombatant)
+                GameAudio.Play(GameAudioCue.PlayerHit);
+            DirectHit?.Invoke();
+        }
 
         if (info.target is EnemyCombatant enemy && enemy.Break != null && !info.target.IsDead)
         {
@@ -140,7 +145,12 @@ public static class DamageSystem
             ? Mathf.Max(1, Mathf.FloorToInt(modifiedDamage * (1f - reductionPercent / 100f)))
             : modifiedDamage;
         int actualDamage = reducedDamage > 0 ? info.target.TakeDamage(reducedDamage) : 0;
-        if (actualDamage > 0) DirectHit?.Invoke();
+        if (actualDamage > 0)
+        {
+            if (info.target is PlayerCombatant)
+                GameAudio.Play(GameAudioCue.PlayerHurt);
+            DirectHit?.Invoke();
+        }
         // 零伤害、未扣血的命中不消耗；旧战斗回调不能修改重开的状态。
         if (actualDamage > 0 && reductionPercent > 0 && GameRoot.I != null
             && GameRoot.I.state != null && GameRoot.I.state.player == runPlayer)

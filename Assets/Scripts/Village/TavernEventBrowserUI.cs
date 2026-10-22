@@ -63,6 +63,7 @@ public class TavernEventBrowserUI : MonoBehaviour
     MapLayout cachedLayout;
     bool layoutLoadAttempted;
     bool readableLayoutApplied;
+    double inputAllowedAt;
 
     void OnEnable()
     {
@@ -84,19 +85,36 @@ public class TavernEventBrowserUI : MonoBehaviour
         for (int i = 0; i < boundEventButtons.Length; i++)
         {
             boundEventButtons[i] = At(eventButtons, i);
-            if (boundEventButtons[i] != null) boundEventButtons[i].onClick.AddListener(selectionActions[i]);
+            if (boundEventButtons[i] != null)
+            {
+                GameAudioButton.UseManualConfirmation(boundEventButtons[i]);
+                boundEventButtons[i].onClick.AddListener(selectionActions[i]);
+            }
             boundChoiceButtons[i] = At(choiceButtons, i);
-            if (boundChoiceButtons[i] != null) boundChoiceButtons[i].onClick.AddListener(choiceActions[i]);
+            if (boundChoiceButtons[i] != null)
+            {
+                GameAudioButton.UseManualConfirmation(boundChoiceButtons[i]);
+                boundChoiceButtons[i].onClick.AddListener(choiceActions[i]);
+            }
         }
         boundActionButton = actionButton;
-        if (boundActionButton != null) boundActionButton.onClick.AddListener(StartSelectedEvent);
+        if (boundActionButton != null)
+        {
+            GameAudioButton.UseManualConfirmation(boundActionButton);
+            boundActionButton.onClick.AddListener(StartSelectedEvent);
+        }
         boundWaitButton = waitButton;
-        if (boundWaitButton != null) boundWaitButton.onClick.AddListener(WaitOneUnit);
+        if (boundWaitButton != null)
+        {
+            GameAudioButton.UseManualConfirmation(boundWaitButton);
+            boundWaitButton.onClick.AddListener(WaitOneUnit);
+        }
         foreach (var row in rows) BindRow(row);
         boundDialogueManager = story != null ? story.dialogueManager : null;
         if (boundDialogueManager != null) boundDialogueManager.DialogueCompleted += OnDialogueCompleted;
         selectedEventIndex = Mathf.Clamp(selectedEventIndex, 0, 2);
         nextRefresh = 0;
+        HoldCurrentPresentation();
         Refresh();
     }
 
@@ -190,6 +208,8 @@ public class TavernEventBrowserUI : MonoBehaviour
         selectedEventIndex = index;
         selectedOccurrenceId = "";
         Say("");
+        HoldCurrentPresentation();
+        GameAudio.Play(GameAudioCue.UiConfirm);
         Refresh();
     }
 
@@ -203,6 +223,8 @@ public class TavernEventBrowserUI : MonoBehaviour
         if (active.Find(item => item.id == occurrenceId) == null) return;
         selectedOccurrenceId = occurrenceId;
         Say("");
+        HoldCurrentPresentation();
+        GameAudio.Play(GameAudioCue.UiConfirm);
         Refresh();
     }
 
@@ -219,6 +241,7 @@ public class TavernEventBrowserUI : MonoBehaviour
         {
             var result = VillageEventRules.TryChoose(state, layout, selectedOccurrenceId, index);
             Say(result.message);
+            GameAudio.Play(GameAudioCue.UiConfirm);
         }
         finally { settling = false; }
         Refresh();
@@ -236,6 +259,7 @@ public class TavernEventBrowserUI : MonoBehaviour
         {
             WorldResourceRules.SpendTime(layout, state.map, state.world, 1, true);
             Say("在酒馆等候了 1 单位时间。村内不会自然增加罪恶。");
+            GameAudio.Play(GameAudioCue.UiConfirm);
         }
         finally { settling = false; }
         Refresh();
@@ -246,13 +270,17 @@ public class TavernEventBrowserUI : MonoBehaviour
         if (story != null && story.isActiveAndEnabled) story.Refresh();
         var state = CurrentState();
         var layout = Layout();
-        bool canInteract = CanInteract();
+        bool canInteract = CanInteract(false);
         var active = state != null && layout != null
             ? VillageEventRules.GetActiveEvents(state, layout) : new List<VillageEventOccurrence>();
         var selectedOccurrence = active.Find(item => item.id == selectedOccurrenceId);
         bool selectionEnded = !string.IsNullOrEmpty(selectedOccurrenceId) && selectedOccurrence == null;
         // Completion, expiry and reopening must all release the old detail and its choices.
-        if (selectionEnded) selectedOccurrenceId = "";
+        if (selectionEnded)
+        {
+            selectedOccurrenceId = "";
+            HoldCurrentPresentation();
+        }
         var stage = state != null && state.story != null ? state.story.stage : MainStoryStage.ArrivedVillage;
         string mainTitle, mainSummary, mainDescription;
         DescribeMainEvent(stage, out mainTitle, out mainSummary, out mainDescription);
@@ -374,8 +402,9 @@ public class TavernEventBrowserUI : MonoBehaviour
         return waitButton != null ? waitButton.gameObject : null;
     }
 
-    bool CanInteract()
+    bool CanInteract(bool checkInputDelay = true)
     {
+        if (checkInputDelay && (Time.unscaledTimeAsDouble < inputAllowedAt || !GameAudio.UiConfirmReady)) return false;
         var state = CurrentState();
         var layout = Layout();
         return !settling && state != null && state.map != null && layout != null
@@ -415,6 +444,7 @@ public class TavernEventBrowserUI : MonoBehaviour
     void BindRow(TimedRow row)
     {
         if (row.button == null || row.bound) return;
+        GameAudioButton.UseManualConfirmation(row.button);
         row.button.onClick.AddListener(row.select);
         row.bound = true;
     }
@@ -458,11 +488,19 @@ public class TavernEventBrowserUI : MonoBehaviour
             Say("");
             story.dialogueManager.StartDialogue(selectedEventIndex == 1 ? villageChatter : tavernRumor);
         }
+        GameAudio.Play(GameAudioCue.UiConfirm);
         Refresh();
         FocusPreferredControl();
     }
 
-    void Say(string message) { if (story != null) SetText(story.messageText, message); }
+    void HoldCurrentPresentation()
+    { inputAllowedAt = Time.unscaledTimeAsDouble + GameAudio.DialogueMinimumDisplayTime; }
+
+    void Say(string message)
+    {
+        if (story != null) SetText(story.messageText, message);
+        if (!string.IsNullOrEmpty(message)) HoldCurrentPresentation();
+    }
     void OnDialogueCompleted(DialogueData data) { Refresh(); }
 
     void FocusPreferredControl()

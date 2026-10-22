@@ -19,18 +19,28 @@ public class DialogueUI : MonoBehaviour, IPointerClickHandler
     public int PageCount { get; private set; } = 1;
     public bool CanChoose => current != null && CurrentPage >= PageCount && HasValidChoices();
 
+    // Real time keeps dialogue usable while battle/tutorial time is paused.
+    public bool CanAcceptInput => isActiveAndEnabled && current != null
+        && (visibleRoot == null || visibleRoot.activeInHierarchy)
+        && Time.unscaledTimeAsDouble >= inputAllowedAt && GameAudio.UiConfirmReady;
+
     private DialogueManager Owner => manager != null ? manager : DialogueManager.Instance;
     readonly List<Button> choiceButtons = new List<Button>();
     RpgDialogueLayout layout;
     DialogueNode current;
     GameObject previousSelection;
     int lastInputFrame = -1;
+    double inputAllowedAt;
 
     void Awake() { layout = RpgDialogueLayout.Ensure(this); }
 
     private void OnEnable()
     {
-        if (continueButton != null) continueButton.onClick.AddListener(Advance);
+        if (continueButton != null)
+        {
+            GameAudioButton.UseManualConfirmation(continueButton);
+            continueButton.onClick.AddListener(Advance);
+        }
     }
 
     private void OnDisable()
@@ -42,7 +52,7 @@ public class DialogueUI : MonoBehaviour, IPointerClickHandler
     {
         if (current == null || visibleRoot == null || !visibleRoot.activeInHierarchy) return;
         // Submit (including Space) and arrow navigation use the EventSystem.
-        if (!CanChoose) return;
+        if (!CanChoose || !CanAcceptInput) return;
         for (int i = 0; i < choiceButtons.Count && i < 9; i++)
             if (Input.GetKeyDown((KeyCode)((int)KeyCode.Alpha1 + i))
                 || Input.GetKeyDown((KeyCode)((int)KeyCode.Keypad1 + i)))
@@ -54,9 +64,12 @@ public class DialogueUI : MonoBehaviour, IPointerClickHandler
 
     public void Advance()
     {
-        if (lastInputFrame == Time.frameCount) return;
+        if (!CanAcceptInput || lastInputFrame == Time.frameCount) return;
         lastInputFrame = Time.frameCount;
-        if (Owner != null) Owner.Next();
+        if (Owner != null && Owner.IsPlaying && !CanChoose)
+        {
+            Owner.Next();
+        }
     }
 
     public void ShowDialogue(DialogueNode node)
@@ -83,15 +96,20 @@ public class DialogueUI : MonoBehaviour, IPointerClickHandler
         }
         else PageCount = 1;
         RefreshControls();
+        HoldCurrentPage();
     }
+
+    void HoldCurrentPage()
+    { inputAllowedAt = Time.unscaledTimeAsDouble + GameAudio.DialogueMinimumDisplayTime; }
 
     // Page before advancing the story, including when a node contains choices.
     public bool TryAdvancePage()
     {
-        if (current == null || CurrentPage >= PageCount) return false;
+        if (!CanAcceptInput || CurrentPage >= PageCount) return false;
         CurrentPage++;
         if (contentText != null) contentText.pageToDisplay = CurrentPage;
         RefreshControls();
+        HoldCurrentPage();
         return true;
     }
 
@@ -108,11 +126,12 @@ public class DialogueUI : MonoBehaviour, IPointerClickHandler
             var choice = current.choices[i];
             if (choice == null) continue;
             var button = Instantiate(choicePrefab, choiceParent);
+            GameAudioButton.UseManualConfirmation(button);
             button.gameObject.SetActive(true);
             layout.StyleChoice(button, choice.choiceText ?? "", choiceButtons.Count + 1);
             int index = i;
             button.onClick.AddListener(() => {
-                if (!CanChoose || Owner == null || lastInputFrame == Time.frameCount) return;
+                if (!CanChoose || !CanAcceptInput || Owner == null || lastInputFrame == Time.frameCount) return;
                 lastInputFrame = Time.frameCount;
                 Owner.Choose(index);
             });

@@ -134,6 +134,10 @@ public sealed class EnemySpriteAnimation : MonoBehaviour
     public void PlayDefeat()
     {
         if (defeated || animatedRenderer == null || animations == null) return;
+        // Restore the source materials before a detached corpse copies them.
+        // The actor owns the temporary outline materials and destroys them on death.
+        var outline = GetComponent<BattleActorOutline>();
+        if (outline != null) outline.enabled = false;
         if (animations.hurtAndAshOnDeath && animations.HasHurt)
         {
             ++playbackVersion;
